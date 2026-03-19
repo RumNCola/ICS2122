@@ -1,0 +1,1 @@
+# Archivo con funciones generales que permiten el desarrollo del código. Nada muy específico.
