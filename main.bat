@@ -7,8 +7,8 @@
 :: Activación de variables de entorno
 call .venv\Scripts\activate.bat
 
-:: Cargar variables de entorno desde .env
-for /f "delims=" %%x in (.env) do (set "%%x")
+:: Cargar variables de entorno desde load.env
+call environment/load.env.bat
 
 :: Ejecutar el programa principal
 python main.py
