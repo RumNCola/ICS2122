@@ -1,0 +1,1 @@
+@REM Este módulo será el encargado de ejecutar el programa principal, cargando las variables del entorno.
