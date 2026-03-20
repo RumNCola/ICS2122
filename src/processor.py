@@ -109,6 +109,6 @@ def load_data(data_source: str) -> Data:
         logger.info(f'Carga de service_times completada')
     except Exception as e:
         logger.critical('Carga de archivos incompleta, deteniendo ejecución...')
-        raise Exception
+        raise e
     logger.info(f'Carga de data {data_source} completada con éxito')
     return data

@@ -9,7 +9,9 @@ programa.
 - `README.md`: Archivo de documentación del proyecto, que describe la estructura y el propósito de cada archivo.
 
 Funcionamiento General:
-De manera general, el repositiorio funciona de la siguiente manera:
+La primera propuesta de funcionamiento del repositorio es la siguiente.
+
+De acuerdo al paper *On modeling stochastic dynamic vehicle routing problems*, durante el día anterior la empresa dejará corriendo un modelo de **optimización estocástica de dos etapas**, usando lo que en el texto se denomina como un *lookahead alrogithm (LA)*. Posteriormente, conforme vayan ingresando las solicitudes de despacho durante el día, se ejecutará una **reoptimización** (RO), usando los algoritmos a estudiar.
 
 ![Diagrama de alto nivel](images/alto_nivel.svg)
 
@@ -31,7 +33,7 @@ Finalmente, cada vez que llega una nueva solciitud de entrega, se ajusta el rute
 ## Ejecución
 Para ejecutar el repo, es necesario:
 1. Clonar el repo en la maquina local.
-2. Crear un virtual environment y activarlo en la terminal (command prompt, no powershell)
+2. Crear un virtual environment y activarlo en la terminal (command prompt, no powershell): escribir en cmd `python -m venv .venv`
 3. Ejecutar main.bat usando call main.bat en la terminal (cmd). Si es la primera ejecución, descomenta la linea pip install -r requirements.txt del main.bat para instalar las librerias.
 
 La gracia es que al usar venv, no estaremos instalando librerias de sobra y la ejecución será más rápida y ágil para la máquina.

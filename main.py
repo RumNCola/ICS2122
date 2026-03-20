@@ -23,11 +23,15 @@ def run():
     except Exception as e:
         logger.critical('Error en la carga de datos. terminando Ejecución')
         raise e
+    
+    logger.info('Ejecución finalizada con éxito')
+    return
 
 
 if __name__ == '__main__':
     try:
         run()
+        print('SUCCESS: Ejecución terminada con éxito')
     except ImportError as e:
         print(f'Terminando Ejecución por {e}')
     except Exception as e:
