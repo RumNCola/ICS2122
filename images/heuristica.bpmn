@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1xyz8q1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
+  <bpmn:collaboration id="Collaboration_0bl7vs7">
+    <bpmn:participant id="Participant_0tvpo6c" name="ICS2122 (Repositorio)" processRef="Process_0tdpozv" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0tdpozv">
+    <bpmn:startEvent id="Event_1my9nq6" name="Solicitud de despacho recibida">
+      <bpmn:outgoing>Flow_0p2i8j2</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_0p33jjp" name="POR DEFINIR">
+      <bpmn:incoming>Flow_0p2i8j2</bpmn:incoming>
+      <bpmn:outgoing>Flow_194nima</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_01y5o7q">
+        <bpmn:targetRef>DataObjectReference_1ou1muk</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:endEvent id="Event_01b5312" name="Ruteo actualizado">
+      <bpmn:incoming>Flow_194nima</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:dataObjectReference id="DataObjectReference_1ou1muk" name="Ruteo de camiones" dataObjectRef="DataObject_0f40rgu" />
+    <bpmn:dataObject id="DataObject_0f40rgu" />
+    <bpmn:sequenceFlow id="Flow_0p2i8j2" sourceRef="Event_1my9nq6" targetRef="Activity_0p33jjp" />
+    <bpmn:sequenceFlow id="Flow_194nima" sourceRef="Activity_0p33jjp" targetRef="Event_01b5312" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0bl7vs7">
+      <bpmndi:BPMNShape id="BPMNShape_1k2rpc7" bpmnElement="Participant_0tvpo6c" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="400" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0tmrrgc" bpmnElement="Event_1my9nq6">
+        <dc:Bounds x="232" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="205" y="235" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0uy9ira" bpmnElement="Activity_0p33jjp">
+        <dc:Bounds x="320" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_09ou1vm" bpmnElement="Event_01b5312">
+        <dc:Bounds x="472" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="446" y="235" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_17ftdks" bpmnElement="DataObjectReference_1ou1muk">
+        <dc:Bounds x="352" y="95" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="396" y="106" width="48" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_0h2utnv" bpmnElement="Flow_0p2i8j2">
+        <di:waypoint x="268" y="210" />
+        <di:waypoint x="320" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1vn70kg" bpmnElement="Flow_194nima">
+        <di:waypoint x="420" y="210" />
+        <di:waypoint x="472" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0z9fq72" bpmnElement="DataOutputAssociation_01y5o7q">
+        <di:waypoint x="371" y="170" />
+        <di:waypoint x="372" y="145" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

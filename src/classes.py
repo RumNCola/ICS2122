@@ -4,6 +4,7 @@ import typing
 from typing import Dict
 from dataclasses import dataclass, field
 
+# Dataclass asociado a los datos de las instancias.
 @dataclass
 class Data:
     arrivals        : list = field(default_factory=list)
@@ -13,3 +14,8 @@ class Data:
     profits         : list = field(default_factory=list)
     ready_times     : list = field(default_factory=list)
     service_times   : list = field(default_factory=list)
+
+# Dataclass que guarda el modelo 
+@dataclass
+class Model:   
+    pass
