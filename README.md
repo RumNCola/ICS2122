@@ -9,17 +9,19 @@ programa.
 - `README.md`: Archivo de documentación del proyecto, que describe la estructura y el propósito de cada archivo.
 
 Funcionamiento General:
-La primera propuesta de funcionamiento del repositorio es la siguiente.
+La primera propuesta de funcionamiento del repositorio es la siguiente. Para esto se usa diagramas BPMN, cuya notación es intuitiva y la pueden encontrar en google.
 
 De acuerdo al paper *On modeling stochastic dynamic vehicle routing problems*, durante el día anterior la empresa dejará corriendo un modelo de **optimización estocástica de dos etapas**, usando lo que en el texto se denomina como un *lookahead alrogithm (LA)*. Posteriormente, conforme vayan ingresando las solicitudes de despacho durante el día, se ejecutará una **reoptimización** (RO), usando los algoritmos a estudiar.
 
+A grandes rasgos, el repositorio/modelo funcionará de la siguiente forma.
+
 ![Diagrama de alto nivel](images/alto_nivel.svg)
 
-En primera instancia, se genera una solución preliminar. 
+En primera instancia, se genera una solución preliminar. Esto lo hace la 'empresa' ejecutando el código durante la noche. (Aquí quiero probrar si el modelo converge en menos de 8 horas). Este modelo será un clásico de métodos de opti con incertidumbre. Actualmente quiero evaluar si se puede hacer esto con un modelo o es más conveniente hacerlo a heuristica, explorando ambas propuestas de los papers.
 
 ![Generar solucion preliminar](images/ejecucion_preliminar.svg)
 
-Finalmente, cada vez que llega una nueva solciitud de entrega, se ajusta el ruteo de camiones.
+Finalmente, cada vez que llega una nueva solciitud de entrega, se ajusta el ruteo de camiones. Aquí entra la aplicación del segundo paper sobre el ALNS y futuros papers por leer.
 
 ![Procesar solicitud](images/heuristica.svg)
 
