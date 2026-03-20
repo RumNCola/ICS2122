@@ -12,3 +12,13 @@ DATA_SRC = [
     os.path.join(DATA_FOLDER, 'Instancia Tipo III'),
     os.path.join(DATA_FOLDER, 'Instancia Tipo IV')
     ]
+
+DATA_FILES = {
+    'arrivals': 'scen_arrivals_sample.pkl',
+    'deadlines': 'scen_deadlines_sample.pkl',
+    'indicador': 'scen_indicador_sample.pkl',
+    'points': 'scen_points_sample.pkl',
+    'profits': 'scen_profits_sample.pkl',
+    'ready_times': 'scen_ready_times_sample.pkl',
+    'service_times': 'scen_service_times_sample.pkl'
+}
