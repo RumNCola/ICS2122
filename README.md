@@ -8,9 +8,17 @@ programa.
 - `src/`: Carpeta que contiene el código fuente del proyecto.
 - `README.md`: Archivo de documentación del proyecto, que describe la estructura y el propósito de cada archivo.
 
-# IMPORANTE
-Para el proyecto trabajaremos en **branches**, por lo que cada integrante del equipo deberá crear su propia rama a partir de `main` para trabajar en sus respectivas tareas. Al finalizar cada tarea, se deberá realizar un pull request para integrar los cambios a la rama principal.
+## Reglas del repositorio
+- No se deben realizar cambios directamente en la rama `master`, sino crear una branch para cada integrante y sus cambios, siguiendo el formato: 
+'develop-<nombre_del_integrante>' (nombre de la branch).
+- TODOS los códigos relacionados a Main deben tener flujos de try-except y usar al librería GOing para manejar y registrar errores.
+- En caso de trabajar con dataframes, usemos polars en vez de pandas. Es más eficiente.
 
-La branch **MAIN** es la sagrada, por lo que se recomienda no realizar cambios directamente en ella. Una vez los cambios de la branch de cada integrante hayan sido revisados y aprobados se hará la integración.
+## Ejecución
+Para ejecutar el repo, es necesario:
+1. Clonar el repo en la maquina local.
+2. Crear un virtual environment y activarlo en la terminal (command prompt, no powershell)
+3. Ejecutar main.bat usando call main.bat en la terminal (cmd). Si es la primera ejecución, descomenta la linea pip install -r requirements.txt del main.bat para instalar las librerias.
 
-El formato de la creación de la branch es 'develop-<nombre_del_integrante>'.
+La gracia es que al usar venv, no estaremos instalando librerias de sobra y la ejecución será más rápida y ágil para la máquina.
+
