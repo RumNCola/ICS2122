@@ -22,3 +22,9 @@ DATA_FILES = {
     'ready_times': 'scen_ready_times_sample.pkl',
     'service_times': 'scen_service_times_sample.pkl'
 }
+
+# Parametros del modelo
+REWARDS = [
+    2, # Recompenza clientes estáticos
+    1  # Recompenza clientes dinámicos
+]

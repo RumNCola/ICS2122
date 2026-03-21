@@ -110,5 +110,6 @@ def load_data(data_source: str) -> Data:
     except Exception as e:
         logger.critical('Carga de archivos incompleta, deteniendo ejecución...')
         raise e
+        
     logger.info(f'Carga de data {data_source} completada con éxito')
     return data

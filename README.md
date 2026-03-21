@@ -9,6 +9,9 @@ programa.
 - `README.md`: Archivo de documentación del proyecto, que describe la estructura y el propósito de cada archivo.
 
 Funcionamiento General:
+**Importante**: Leí los scen_arrivals_sample y hacer un modelo que optimize l anoche anterior no tiene sentido, los clientes estáticos llegan entre las 830 y las 9am.
+
+
 La primera propuesta de funcionamiento del repositorio es la siguiente. Para esto se usa diagramas BPMN, cuya notación es intuitiva y la pueden encontrar en google.
 
 De acuerdo al paper *On modeling stochastic dynamic vehicle routing problems*, durante el día anterior la empresa dejará corriendo un modelo de **optimización estocástica de dos etapas**, usando lo que en el texto se denomina como un *lookahead alrogithm (LA)*. Posteriormente, conforme vayan ingresando las solicitudes de despacho durante el día, se ejecutará una **reoptimización** (RO), usando los algoritmos a estudiar.

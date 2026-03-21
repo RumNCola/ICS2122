@@ -1,7 +1,8 @@
 # Módulo con el flujo principal, ejecutado por main.bat
 import logging
-from config.settings import *
+
 from src.processor import *
+from config.settings import *
 
 
 def run():
@@ -24,6 +25,7 @@ def run():
         logger.critical('Error en la carga de datos. terminando Ejecución')
         raise e
     
+    print(data[0].points)
     logger.info('Ejecución finalizada con éxito')
     return
 
