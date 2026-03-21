@@ -1,8 +1,10 @@
 # Módulo con el flujo principal, ejecutado por main.bat
 import logging
 
+
 from src.processor import *
 from config.settings import *
+from utils.utilities import *
 
 
 def run():
@@ -24,8 +26,10 @@ def run():
     except Exception as e:
         logger.critical('Error en la carga de datos. terminando Ejecución')
         raise e
-    
-    print(data[0].points)
+
+    #Visualizador de datos con histograma, opcional
+    view_raw_data(data, 'arrivals')
+
     logger.info('Ejecución finalizada con éxito')
     return
 
