@@ -100,6 +100,7 @@ def load_data(data_source: str) -> InstanceData:
         data.deadlines      = process_deadlines(data_source)
         logger.info(f'Carga de deadlines completada')
         data.indicador      = process_indicador(data_source)
+        data.indicador      = process_indicador(data_source)
         logger.info(f'Carga de indicador completada')
         data.points         = process_points(data_source)
         logger.info(f'Carga de points completada')
