@@ -48,7 +48,11 @@ def run():
     instancias = None
     try:
         instancias = [load_data(DATA_SRC[i]) for i in range(len(DATA_SRC))] #Instancias es un list de len 4 con cada instancia cargada
+        for instancia in instancias:
+            print(instancia)
+            exit()
         return instancias
+        
     
     except Exception as e:
         logger.critical('Error en la carga de datos. terminando Ejecución')
@@ -62,6 +66,19 @@ def run():
     logger.info('Ejecución finalizada con éxito')
     return
 
+def check_instancias(instancias):
+    count = 0
+    
+    epsilon = 0.1
+    for instancia in instancias:
+        for point_list in instancia.points:
+            for point in point_list:
+                if abs(point[0] - 10000) + abs(point[1] - 10000) < epsilon:
+                    count += 1
+
+    print("Count: ", count)
+
+
 
 from plagio_PII import *
 if __name__ == '__main__':
@@ -69,6 +86,7 @@ if __name__ == '__main__':
 
     try:
         instancias = run()
+        check_instancias(instancias)
         launch_cool_app(instancias)
         print('SUCCESS: Ejecución terminada con éxito')
     except ImportError as e:

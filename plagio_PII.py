@@ -7,6 +7,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 g_INSTANCIAS_LIST = []
 g_POINTS_LIST = []
+g_INSTANCE_INDEX = 0
 
 IMAGE_DPI = 300 # Kinda weird ngl
 FIGURE_WIDTH_PX = 1000
@@ -22,7 +23,7 @@ cb_desplazar_ejes_al_origen = "Origen en (0, 0)"
 cb_fill_in_shapes_label = "Rellenar -"
 cb_show_grid_label = "Mostrar Grilla"
 cb_show_gradient_text_boxes_label = "-"
-cb_discrete_humidity_label = "-"
+cb_heatmap = "heatmap"
 cb_save_images_label = "Guardar Imágenes"
 
 VISUAL_CONFIG_DICT = {
@@ -31,7 +32,7 @@ VISUAL_CONFIG_DICT = {
     cb_fill_in_shapes_label: True,
     cb_show_grid_label: True,
     cb_show_gradient_text_boxes_label: True,
-    cb_discrete_humidity_label: True,
+    cb_heatmap: True,
     cb_save_images_label: True
 }
 
@@ -136,16 +137,43 @@ def create_control_panel():
 
     return (None, None, radio_instancia, check_visuals)
 
+def show_heat_map(instancia, num_x_boxes = 10, num_y_boxes = 10):
+
+    counts = []
+    for y in range(num_y_boxes):
+        counts.append([0]*num_x_boxes)
+
+    point_list = instancia.points
+
+    km_x_width = 20000 // num_x_boxes
+    km_y_height = 20000 // num_y_boxes
+
+    for points in point_list:
+        for point in points:
+            index_x = min(int(point[0] // km_x_width), 9)
+            index_y = min(int(point[1] // km_y_height), 9)
+
+            print(index_x, index_y)
+            counts[index_y][index_x] += 1
+
+
+    for y in range(num_y_boxes):
+        print(counts[y])
+
 
 def draw_main_graph(fig: plt.Figure, ax_plot: plt.Axes):
     '''For example, draws the current Sector as a graph of coloured cells'''
-    global g_POINTS_LIST
+    global g_POINTS_LIST, g_INSTANCIAS_LIST
 
     ax_plot.cla()
 
     points = g_POINTS_LIST[g_CURRENT_PERIODO]
     
     plot_points(points, None, ax_plot)
+
+    if VISUAL_CONFIG_DICT[cb_heatmap]:
+        show_heat_map(g_INSTANCIAS_LIST[g_INSTANCE_INDEX])
+
     ax_plot.set_title("Representación FOTORealística de Manhattan v2")
 
     
@@ -201,10 +229,10 @@ def launch_cool_app(instancias):
 
     def rb_instancia_func(label):
         print(f"Changing instancia to: {label}")
-        global g_POINTS_LIST
-        index = ["I", "II", "III", "IV"].index(label)
+        global g_POINTS_LIST, g_INSTANCE_INDEX
+        g_INSTANCE_INDEX = ["I", "II", "III", "IV"].index(label)
 
-        g_POINTS_LIST = g_INSTANCIAS_LIST[index].points
+        g_POINTS_LIST = g_INSTANCIAS_LIST[g_INSTANCE_INDEX].points
         update_screen_from_rb(periodo_slider)
 
     def cb_visual_func(label):
