@@ -5,3 +5,4 @@ __pycache__
 .venv/*
 environment/.env
 main.log
+.vscode

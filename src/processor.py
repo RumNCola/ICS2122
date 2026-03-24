@@ -3,7 +3,7 @@ import os
 import pickle
 import logging
 from config.settings import *
-from src.classes import Data
+from src.classes import InstanceData
 
 # Nota: No pasé los datos a DataFrames porque los arrays son de columna variable.
 # Anton, si quieres hacer el análisis y no te funciona la lista de arrays, pasalo a polars,
@@ -81,12 +81,12 @@ def process_service_times(data_source: str) -> list:
         file = pickle.load(f)
     return file
 
-def load_data(data_source: str) -> Data:
+def load_data(data_source: str) -> InstanceData:
     '''
     Recibe la ruta de fuente de datos data_source y crea una clase Data con los datos asociados
     cargados.
     '''
-    data                    = Data()
+    data                    = InstanceData()
     try:
         logger              = logging.getLogger(__name__)
     except Exception as e:
