@@ -50,7 +50,6 @@ def run():
         instancias = [load_data(DATA_SRC[i]) for i in range(len(DATA_SRC))] #Instancias es un list de len 4 con cada instancia cargada
         for instancia in instancias:
             print(instancia)
-            exit()
         return instancias
         
     
@@ -83,6 +82,7 @@ def check_instancias(instancias):
 from plagio_PII import *
 if __name__ == '__main__':
     print("Running ALL_MAIN")
+    print("Testing this smoked branch stuff")
 
     try:
         instancias = run()

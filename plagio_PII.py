@@ -48,7 +48,7 @@ def save_graph(destination_filepath: str): # This should probably go in another 
     plt.savefig(destination_filepath, dpi=IMAGE_DPI)
 # --------------------------- Drawing with MatPlotLib -----------------------------
 
-def plot_points(points: list, cell_values: list, ax_plot):
+def plot_points(points: list, indicadores: list, cell_values: list, ax_plot):
     global VISUAL_CONFIG_DICT # Unnecessary, but explicit
 
     ax_plot.axhline(0, linewidth=0.5)
@@ -65,13 +65,24 @@ def plot_points(points: list, cell_values: list, ax_plot):
     
     ax_plot.ticklabel_format(style='plain', axis='both', useOffset=False)
 
-    xs = []
-    ys = []
-    for point in points:
-        xs.append(point[0])
-        ys.append(point[1])
+    xs_pickups = []
+    ys_pickups = []
 
-    l0, = ax_plot.plot(xs, ys, "bo")
+    xs_delivery = []
+    ys_delivery = []
+    for i in range(len(points)):
+        point = points[i]
+        indicador = indicadores[i]
+
+        if indicador:
+            xs_pickups.append(point[0])
+            ys_pickups.append(point[1])
+        else:
+            xs_delivery.append(point[0])
+            ys_delivery.append(point[1])
+
+    l0, = ax_plot.plot(xs_pickups, ys_pickups, "bo")
+    l1, = ax_plot.plot(xs_delivery, ys_delivery, "rx")
 
 def get_figure_and_ax_plot():
     default_dpi = 100 # Default for matplotlib
@@ -153,7 +164,6 @@ def show_heat_map(instancia, num_x_boxes = 10, num_y_boxes = 10):
             index_x = min(int(point[0] // km_x_width), 9)
             index_y = min(int(point[1] // km_y_height), 9)
 
-            print(index_x, index_y)
             counts[index_y][index_x] += 1
 
 
@@ -168,8 +178,9 @@ def draw_main_graph(fig: plt.Figure, ax_plot: plt.Axes):
     ax_plot.cla()
 
     points = g_POINTS_LIST[g_CURRENT_PERIODO]
+    indicadores = g_INSTANCIAS_LIST[g_INSTANCE_INDEX].indicador[g_CURRENT_PERIODO]
     
-    plot_points(points, None, ax_plot)
+    plot_points(points, indicadores, None, ax_plot)
 
     if VISUAL_CONFIG_DICT[cb_heatmap]:
         show_heat_map(g_INSTANCIAS_LIST[g_INSTANCE_INDEX])
