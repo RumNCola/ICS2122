@@ -13,7 +13,7 @@ DATA_SRC = [
     os.path.join(DATA_FOLDER, 'Instancia Tipo IV')
     ]
 
-DATA_FILES = {
+DATA_FILENAMES = {
     'arrivals': 'scen_arrivals_sample.pkl',
     'deadlines': 'scen_deadlines_sample.pkl',
     'indicador': 'scen_indicador_sample.pkl',

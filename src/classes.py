@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 # Dataclass asociado a los datos de las instancias.
 @dataclass
 class InstanceData:
+    file_path       : str = "/"
+    name            : str = "Unnamed Instance Data"
     arrivals        : list = field(default_factory=list)
     deadlines       : list = field(default_factory=list)
     indicador       : list = field(default_factory=list)
@@ -16,7 +18,7 @@ class InstanceData:
     service_times   : list = field(default_factory=list)
 
     def __str__(self):
-        s = "I am but a humble InstanceData object"
+        s = f"'{self.file_path}', of type {type(self)}"
         s += f"\n# arrivals: {len(self.arrivals)}"
         s += f"\n# deadlines: {len(self.deadlines)}"
         s += f"\n# indicador: {len(self.indicador)}"

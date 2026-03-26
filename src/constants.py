@@ -1,0 +1,11 @@
+'''CONSTANTES específicas al problema'''
+
+WIDTH_MAPA = 20000 # metros
+HEIGHT_MAPA = 20000 # metros
+
+DEPOT_POS = (10000, 10000)
+
+NUM_CAMIONES = 3
+
+LABELS_INSTANCIAS = ["I", "II", "III", "IV"]
+
