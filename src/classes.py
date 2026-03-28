@@ -8,7 +8,9 @@ from config.settings import *
 # Dataclass asociado a los datos de las instancias.
 @dataclass
 class InstanceData:
-    '''Cada una de los data_types es realmente una lista de NUM_REPLICAS replicas,'''
+    '''Cada una de los data_types es realmente una lista de NUM_REPLICAS replicas...
+    Donde cada replica tiene el data interesante:
+    e.g. instance.arrivals[3] son los arrivals de la cuarta réplica '''
     file_path       : str = "/"
     name            : str = "Unnamed Instance Data"
     arrivals        : list = field(default_factory=list)
