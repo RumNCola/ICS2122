@@ -23,6 +23,8 @@ DATA_FILENAMES = {
     'service_times': 'scen_service_times_sample.pkl'
 }
 
+DATA_TYPES = DATA_FILENAMES.keys()
+
 # Parametros del modelo
 REWARDS = [
     2, # Recompenza clientes estáticos

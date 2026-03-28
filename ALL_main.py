@@ -4,6 +4,7 @@ import logging
 
 import numpy as np
 
+from src.constants import *
 from src.instance_loader import *
 from config.settings import *
 from utils.utilities import *
@@ -42,7 +43,6 @@ def run():
 
     logger.info('Ejecución finalizada con éxito')
     return
-
 
 from ALL_visualizador import *
 if __name__ == '__main__':

@@ -3,10 +3,12 @@ import typing
 
 from typing import Dict
 from dataclasses import dataclass, field
+from config.settings import *
 
 # Dataclass asociado a los datos de las instancias.
 @dataclass
 class InstanceData:
+    '''Cada una de los data_types es realmente una lista de NUM_REPLICAS replicas,'''
     file_path       : str = "/"
     name            : str = "Unnamed Instance Data"
     arrivals        : list = field(default_factory=list)
@@ -16,6 +18,30 @@ class InstanceData:
     profits         : list = field(default_factory=list)
     ready_times     : list = field(default_factory=list)
     service_times   : list = field(default_factory=list)
+
+    def __getitem__(self, key): # Permite usar el operador [], por ejemplo instance["arrivals"]
+        data_types = DATA_TYPES
+
+        if key not in data_types:
+            raise KeyError(f"{key} no es una data_type de Instancia, keys = {data_types}")
+        
+        # Horrible hard code ayuda
+        if key == "arrivals" :
+            return self.arrivals
+        if key == "deadlines":
+            return self.deadlines
+        if key == "indicador":
+            return self.indicador
+        if key == "points":
+            return self.points
+        if key == "profits":
+            return self.profits
+        if key == "ready_times":
+            return self.ready_times
+        if key == "service_times":
+            return self.service_times
+        
+
 
     def __str__(self):
         s = f"'{self.file_path}', of type {type(self)}"

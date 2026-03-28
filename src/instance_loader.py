@@ -75,6 +75,7 @@ def load_instance_data(instance_source: str) -> InstanceData:
     return data
 
 def load_default_instances():
+    '''Carga y retorna una lista con las 4 instancias del enunciado'''
     instances = [load_instance_data(DATA_SRC[i]) for i in range(len(DATA_SRC))]
 
     return instances

@@ -8,7 +8,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 g_INSTANCE_LIST = []
 g_INSTANCE_INDEX = 0
-g_CURRENT_PERIODO = 0
+g_CURRENT_REPLICA = 0
 g_INSTANCE = None
 
 IMAGE_DPI = 300 # Kinda weird ngl
@@ -108,15 +108,27 @@ def create_slider_ax(fig):
     
     return slider_ax
 
-def create_periodo_slider(slider_ax):
-    periodos_de_interes = range(100)
+def create_replica_slider(slider_ax):
+    replicas_de_interes = range(NUM_REPLICAS)
 
-    initial_p = periodos_de_interes[0]
-    final_p = periodos_de_interes[-1]
+    initial_p = replicas_de_interes[0]
+    final_p = replicas_de_interes[-1]
 
-    periodo_slider = Slider(slider_ax, "Period", initial_p, final_p, valstep = periodos_de_interes)
+    replica_slider = Slider(slider_ax, "Replica", initial_p, final_p, valstep = replicas_de_interes)
 
-    return periodo_slider
+    return replica_slider
+
+'''
+def create_time_slider(slider_ax):
+    times_of_interest = None #get_discretized_time()
+
+    initial_p = times_of_interest[0]
+    final_p = times_of_interest[-1]
+
+    time_slidee = Slider(slider_ax, "Replica", initial_p, final_p, valstep = times_of_interest)
+
+    return replica_slider
+'''
 
 def create_control_panel():
     '''Creates the Control Panel and returns (radio_instances, check_visuals) Buttons'''
@@ -171,8 +183,8 @@ def draw_main_graph(fig: plt.Figure, ax_plot: plt.Axes):
 
     ax_plot.cla()
 
-    points = g_INSTANCE.points[g_CURRENT_PERIODO]
-    indicadores = g_INSTANCE.indicador[g_CURRENT_PERIODO]
+    points = g_INSTANCE.points[g_CURRENT_REPLICA]
+    indicadores = g_INSTANCE.indicador[g_CURRENT_REPLICA]
     
     
 
@@ -187,11 +199,11 @@ def draw_main_graph(fig: plt.Figure, ax_plot: plt.Axes):
     fig.canvas.draw_idle()
 
 
-def update_screen_from_rb(periodo_slider: Slider):
-    '''Updates periodo_slider (which draws the main graph)'''
+def update_screen_from_rb(replica_slider: Slider):
+    '''Updates replica_slider (which draws the main graph)'''
 
-    periodo_slider.valstep = list(range(100))
-    periodo_slider.set_val(g_CURRENT_PERIODO)
+    replica_slider.valstep = list(range(100))
+    replica_slider.set_val(g_CURRENT_REPLICA)
 
 def set_image_size(width_px, height_px, dpi):
     global FIGURE_HEIGHT_PX, FIGURE_WIDTH_PX, IMAGE_DPI
@@ -237,7 +249,7 @@ def launch_cool_app():
     # Slider
     plt.subplots_adjust(bottom=0.15)
     slider_ax = create_slider_ax(fig)
-    periodo_slider = create_periodo_slider(slider_ax)
+    replica_slider = create_replica_slider(slider_ax)
     
     # ------- Control Panel ---------
     plt.subplots_adjust(left=CONTROL_PANEL_WIDTH+CONTROL_PANEL_PAD)
@@ -251,26 +263,26 @@ def launch_cool_app():
         g_INSTANCE_INDEX = LABELS_INSTANCIAS.index(label)
         g_INSTANCE = g_INSTANCE_LIST[g_INSTANCE_INDEX]
 
-        update_screen_from_rb(periodo_slider)
+        update_screen_from_rb(replica_slider)
 
     def cb_visual_func(label): # label is not used on purpose
         update_visuals_from_cb(check_visuals)
 
-        update_screen_from_rb(periodo_slider)
+        update_screen_from_rb(replica_slider)
              
     radio_instances.on_clicked(rb_instance_func)
     check_visuals.on_clicked(cb_visual_func)
 
     # -------- END CONTROL PANEL --------
 
-    def update_from_slider(periodo):
-        global g_CURRENT_PERIODO
-        g_CURRENT_PERIODO = periodo
+    def update_from_slider(replica):
+        global g_CURRENT_REPLICA
+        g_CURRENT_REPLICA = replica
 
         draw_main_graph(fig, ax_plot)
 
-    periodo_slider.on_changed(update_from_slider)
-    periodo_slider.set_val(1)
+    replica_slider.on_changed(update_from_slider)
+    replica_slider.set_val(1)
 
     plt.show()
 
