@@ -13,7 +13,7 @@ DATA_SRC = [
     os.path.join(DATA_FOLDER, 'Instancia Tipo IV')
     ]
 
-DATA_FILES = {
+DATA_FILENAMES = {
     'arrivals': 'scen_arrivals_sample.pkl',
     'deadlines': 'scen_deadlines_sample.pkl',
     'indicador': 'scen_indicador_sample.pkl',
@@ -22,6 +22,8 @@ DATA_FILES = {
     'ready_times': 'scen_ready_times_sample.pkl',
     'service_times': 'scen_service_times_sample.pkl'
 }
+
+DATA_TYPES = DATA_FILENAMES.keys()
 
 # Parametros del modelo
 REWARDS = [

@@ -2,7 +2,7 @@
 import logging
 
 
-from src.processor import *
+from instance_loader import *
 from config.settings import *
 from utils.utilities import *
 
@@ -21,7 +21,7 @@ def run():
         raise ImportError
     
     try:
-        data = [load_data(DATA_SRC[i]) for i in range(len(DATA_SRC))] #Data es un list de len 4 con cada instancia cargada
+        data = [load_instance_data(DATA_SRC[i]) for i in range(len(DATA_SRC))] #Data es un list de len 4 con cada instancia cargada
     
     except Exception as e:
         logger.critical('Error en la carga de datos. terminando Ejecución')

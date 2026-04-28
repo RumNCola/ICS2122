@@ -1,11 +1,11 @@
-'''Anton Little's Testing python file.'''
+'''Anton Little's main python file.'''
 
 import logging
 
 import numpy as np
 
-
-from src.processor import *
+from src.constants import *
+from src.instance_loader import *
 from config.settings import *
 from utils.utilities import *
 
@@ -19,24 +19,14 @@ def logger_stuff():
     except Exception as e:
         print('CRITICAL: Error al crear el Logger')
         raise ImportError
-    
-def show_points(instancia: InstanceData):
-    # Mañana agregar un slider para cual de los 100 tiempos mostrar
-    fig, ax = plt.subplots()
 
-    point_lists = instancia.points
+# This should be the main of instance_loader, but I couldn't get it to work :(
+def main_instance_loader():
+    print("Running function main_instance_loader()")
+    instances = load_default_instances()
 
-    xs = []
-    ys = []
-    for point in point_lists[0]:
-        xs.append(point[0])
-        ys.append(point[1])
-
-    l0, = ax.plot(xs, ys, "bo")
-
-    plt.title("Representación Realística de Manhattan")
-
-    plt.show()
+    for instance in instances:
+        print(instance)    
 
 def run():
     '''
@@ -45,49 +35,27 @@ def run():
 
     logger = logger_stuff()
     
-    instancias = None
     try:
-        instancias = [load_data(DATA_SRC[i]) for i in range(len(DATA_SRC))] #Instancias es un list de len 4 con cada instancia cargada
-        for instancia in instancias:
-            print(instancia)
-            exit()
-        return instancias
-        
-    
+        instances = load_default_instances()
+        i0 = instances[0]
+        clients = [int(c) for c in i0.indicador[0][:10]]
+        profits = [int(p) for p in i0.profits[0][:10]]
+        print(clients, PICKUP)
+        print(profits)
     except Exception as e:
         logger.critical('Error en la carga de datos. terminando Ejecución')
         raise e
 
-    #Visualizador de datos con histograma, opcional
-    #view_raw_data(data, 'arrivals')
-
-    show_points(instancias[0])
-
     logger.info('Ejecución finalizada con éxito')
     return
 
-def check_instancias(instancias):
-    count = 0
-    
-    epsilon = 0.1
-    for instancia in instancias:
-        for point_list in instancia.points:
-            for point in point_list:
-                if abs(point[0] - 10000) + abs(point[1] - 10000) < epsilon:
-                    count += 1
-
-    print("Count: ", count)
-
-
-
-from plagio_PII import *
+from ALL_visualizador import *
 if __name__ == '__main__':
     print("Running ALL_MAIN")
 
     try:
-        instancias = run()
-        check_instancias(instancias)
-        launch_cool_app(instancias)
+        run()
+
         print('SUCCESS: Ejecución terminada con éxito')
     except ImportError as e:
         print(f'Terminando Ejecución por {e}')
