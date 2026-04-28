@@ -21,20 +21,20 @@ FIGURE_HEIGHT_PX = 900
 MARKER_PICKUP = "*b"
 MARKER_DELIVERY = "dg"
 MARKER_DEPOT = "8k"
-MARKER_SIZE = 8
+MARKER_SIZE = 20
 
 LINEWIDTH = 1
 POLYGON_STROKE_WIDTH = 0.1
 
-cb_show_grid_label = "Mostrar Grilla"
+cb_show_grid_label = "Mostrar Grilla y ejes"
 cb_manhattan_background = "Manhattan fotorealístico"   
 cb_heatmap = "heatmap"
 cb_save_images_label = "Guardar Imágenes"
 
 VISUAL_CONFIG_DICT = {
-    cb_show_grid_label: True,
+    cb_show_grid_label: False,
     cb_manhattan_background: False,
-    cb_heatmap: False,
+    cb_heatmap: True,
     cb_save_images_label: False
 }
 
@@ -95,9 +95,9 @@ def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Ax
     if VISUAL_CONFIG_DICT[cb_manhattan_background]:
         ax_plot.imshow(g_BACKGROUND_IMAGE, extent=[0, WIDTH_MAPA, 0, HEIGHT_MAPA])
 
-    l0, = ax_plot.plot(xs_pickups, ys_pickups, MARKER_PICKUP, markersize=MARKER_SIZE, label=f"{len(xs_pickups)} Pickups")
-    l1, = ax_plot.plot(xs_delivery, ys_delivery, MARKER_DELIVERY,  markersize=MARKER_SIZE, label=f"{len(xs_delivery)} Deliveries")
-    l2, = ax_plot.plot(*DEPOT_POS, MARKER_DEPOT,  markersize=2*MARKER_SIZE, label="1 Supply Depot")
+    l0, = ax_plot.plot(xs_pickups, ys_pickups, MARKER_PICKUP, markersize=MARKER_SIZE, label=f"{len(xs_pickups)} Pickups\n")
+    l1, = ax_plot.plot(xs_delivery, ys_delivery, MARKER_DELIVERY,  markersize=MARKER_SIZE, label=f"{len(xs_delivery)} Deliveries\n")
+    l2, = ax_plot.plot(*DEPOT_POS, MARKER_DEPOT,  markersize=MARKER_SIZE, label="1 Supply Depot\n")
 
     ax_plot.legend(loc='upper right', fontsize = "large")
 
@@ -210,13 +210,15 @@ def show_heatmap(ax_plot: plt.Axes, instancia, num_x_boxes = 10, num_y_boxes = 1
         for x in range(num_x_boxes):
             freqs[y][x] = counts[y][x]/num_total_points
 
-    ax_plot.imshow(freqs, interpolation = 'nearest', origin = 'lower')
+    image = ax_plot.imshow(freqs, interpolation = 'nearest', origin = 'lower', vmin = 0, vmax = 0.001)
+
+    #plt.colorbar(image)
 
 
 
 def draw_main_graph(fig: plt.Figure, ax_plot: plt.Axes):
     '''Redibuja el plot del centro (con los puntos pickups/deliverys, etc.) nuevamente'''
-    global g_INSTANCE
+    global g_INSTANCE, g_INSTANCE_INDEX, g_CURRENT_REPLICA
 
     ax_plot.cla()
 
@@ -230,7 +232,7 @@ def draw_main_graph(fig: plt.Figure, ax_plot: plt.Axes):
 
     else:
         plot_points(points, indicadores, arrivals, ax_plot)
-        ax_plot.set_title("Representación FOTORealística de Manhattan v3")
+        ax_plot.set_title(f"Representación Instancia {LABELS_INSTANCIAS[g_INSTANCE_INDEX]}, réplica {g_CURRENT_REPLICA}")
 
     fig.canvas.draw_idle()
 

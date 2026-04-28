@@ -36,7 +36,12 @@ def run():
     logger = logger_stuff()
     
     try:
-        print("Hello run")
+        instances = load_default_instances()
+        i0 = instances[0]
+        clients = [int(c) for c in i0.indicador[0][:10]]
+        profits = [int(p) for p in i0.profits[0][:10]]
+        print(clients, PICKUP)
+        print(profits)
     except Exception as e:
         logger.critical('Error en la carga de datos. terminando Ejecución')
         raise e
