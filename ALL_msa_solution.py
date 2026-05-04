@@ -28,6 +28,7 @@ Uso (desde ICS2122/) en terminal:
 
 #--------------------- Runner por instancia --------------------------------
 
+#Acá tambien use IA
 def _barra(r: int):
     t0 = time.perf_counter()
     def cb(idx: int, total: int) -> None:
@@ -71,11 +72,11 @@ def correr_msa_en_instancia(datos_instancia, etiqueta: str,
         consenso_prom.append(m["score_consenso_promedio"])
         tiempos_escenario.append(m["tiempo_promedio_escenarios"])
 
-        print(f"réplica {r:3d}: "
-              f"ganancia={m['profit_total']:>8.1f}  "
-              f"servidos={m['total_aceptados']:>3d}  "
-              f"rechazados={m['total_rechazados']:>3d}  "
-              f"consenso={m['score_consenso_promedio']:.2f}  "
+        print(f"réplica {r:3d}:"
+              f"ganancia={m['profit_total']:>8.1f}"
+              f"servidos={m['total_aceptados']:>3d}"
+              f"rechazados={m['total_rechazados']:>3d}"
+              f"consenso={m['score_consenso_promedio']:.2f}"
               f"tiempo={transcurrido:.1f}s")
 
     n = n_replicas
