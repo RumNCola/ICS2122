@@ -1,10 +1,12 @@
 #Archivo que creará las clases necesarias (modelo, heuristicas, processor, etc).
 import typing
+import logging
 import polars as pl
 
 from typing import Dict
 from dataclasses import dataclass, field
 from config.settings import *
+from src.ricas_replica_creator import replica
 
 # Dataclass asociado a los datos de las instancias.
 @dataclass
@@ -74,7 +76,6 @@ class Customer:
     arrival         : int           # Tiempo de llegada de solicitud
     timelimit       : int           # Tiempo máximo en el que puede ser atendido
 
-
 @dataclass
 class Truck:
     id              : int
@@ -85,22 +86,40 @@ class Truck:
     is_waiting      : bool          # True si viene devuelta a depot
 
 class MSA:
-    def __init__(self, truck, actual_time):
+    def __init__(self, truck, actual_time, current_data):
         '''
         Clase que ejecuta MSA para el camión entregado, desde el momento actual. Usa método greedy para crear las rutas
         '''
-        self.truck = truck
-        self.actual_time = actual_time
+        self.truck          = truck
+        self.actual_time    = actual_time
+        self.log            = logging.getLogger(__name__)
+        self.current_data   = current_data
     
     def execute():
+        self.log.info(f'Iniciando ejecución de MSA en el minuto {actual_time / 60}')
+
+        demand
         
+        try:
+            sampling = replica(INSTANCE, NB_SCENARIOS, self.actual_time)
+        except Exception as e:
+            self.log.critical(f'Error {e} al samplear escenarios. Deteniendo ejecución.')
+            raise e
+        
+
+
+        return
+
+class ALNS:
+    def __init__(self):
+        pass
 
 
 class MDP:
     '''
     Clase principal que almacena el MDP y todos los elementos del problema
     '''
-    def __init__(self, data_path, replica_id):
+    def __init__(self, data_path: str, replica_id: int):
         '''
         Inicializador. Recibe la ruta de los datos a usar y el número de replica a trabajar
         '''
@@ -116,31 +135,46 @@ class MDP:
         self.t_actual       = 9 * 60 * 60           # Tiempo actual. inicia siendo las 9:00
         self.data           = pl.read_parquet(data_path).filter(pl.col('replica') == replica_id) # Datos de instancia 'replica_id'
         self.available_data = self.data.filter(pl.col('arrivals') <= self.t_actual)              # Inicialmente solo está disponible la data de las 9:00
+        self.log            = logging.getLogger(__name__)
 
         self.create_trucks()
         self.create_routes()
+        self.log.info('Inicialización de MDP realizada con exito')
 
     def create_trucks(self):
         '''
         Método que crea los camiones según self.nb_trucks
         '''
-        for i in range(self.nb_trucks):
-            self.trucks.append(Truck(i, [0,0], [], [], [], True))
+        self.log.info('Iniciando creacion de camiones')
+        try:
+            for i in range(self.nb_trucks):
+                self.trucks.append(Truck(i, [0,0], [], [], [], True))
+        except Exception as e:
+            self.log.critical(f'Error {e} en la creación de camiones. Deteniendo Ejecución')
+            raise e
         return
     
     def create_routes(self):
         '''
         Método que crea las rutas a los camiones en espera dentro del depot - SUPUESTO: La creación de rutas inicia a las 9:00 y no entre 8:30 y 9:00
         '''
-        for i in range(self.nb_trucks):
-            # Revisamos los camiones que están esperando en el depot
-            if self.trucks[i].is_waiting == True and self.trucks[i].pos == [0,0]:
+        if self.t_actual = 9 * 60 * 60:
+            self.log.info('Creando rutas iniciales')
+        else:
+            self.log.info('Creando nuevas rutas')
+        try:
+            for i in range(self.nb_trucks):
+                # Revisamos los camiones que están esperando en el depot
+                if self.trucks[i].is_waiting == True and self.trucks[i].pos == [0,0]:
 
 
 
-            else:
-                continue
+                else:
+                    continue
 
+        except Exception as e:
+            self.log.error(f'Error {e} en la creacion de rutas.')
+            raise e
         return
 
 

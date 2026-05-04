@@ -47,4 +47,4 @@ MAX_DELIVERY    = math.ceil(15.5 * 60 * 60)
 MAX_PICKUP      = math.ceil(15.75 * 60 * 60)
 
 # Parámetros para MSA
-NB_SCENARIOS    = 50                            # Número de escenarios sampleados
+NB_SCENARIOS    = 100                            # Número de escenarios sampleados
