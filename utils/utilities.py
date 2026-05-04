@@ -3,51 +3,87 @@ import numpy as np
 import polars as pl
 import matplotlib.pyplot as plt
 
+from config.settings import *
+
 def k_opt(route: list, k: int) -> list:
     '''
     Funcion que recibe una ruta desordenada y la ordena para minimizar su costo usando el metodo
     k-opt, con k integer.
     '''
 
-def travel_time(route: list) -> int:
+def distance(point_a: pl.DataFrame, point_b: pl.DataFrame) -> float:
+    '''
+    Funcion que calcula la distancia euclideana entre dos puntos. Se entregan en formato dataframe.
+    Tambien recive [0,0] en caso del depot
+    '''
+    if point_a != [0, 0]:
+        point_a = [point_a['x'][0], point_a['y'][0]]    
+    if point_b != [0, 0]:
+        point_b = [point_b['x'][0], point_b['y'][0]]
+    return np.sqrt( np.square(point_a[0] - point_b[0]) + np.square(point_a[1] - point_b[1]) )
+
+def travel_time(route: list[pl.DataFrame]) -> int:
     '''
     Funcion que recibe una ruta y calcula el tiempo total de viaje
     '''
-    
+    travel_time     = 0
+    travel_time    += distance([0, 0], route[0]) / SPEED + 3 * 60 # (segundos)
+    for i in range(len(route) - 1):
+        travel_time += distance(route[i], route[i + 1]) / SPEED + 3 * 60 # (segundos)
+    travel_time    += distance(route[-1], [0, 0])
+
+    return travel_time
 
 def feasibility_check_rtb(route:list, actual_time: int) -> bool:
     '''
     Funcion que recibe una ruta en formato simulated_data y retorna un booleano si es factible el RTB
     '''
+    arrival_time = actual_time + travel_time(route)
+    if 17 * 60 * 60 - arrival_time < 0:
+        return False
+    else:
+        return True
     
 
 def feasibility_check_tw(route: list, actual_time: int) -> bool:
     '''
     Función que recibe una ruta (lista), tiempo actual y retorna un booleano si es factible considerando los timewindows
     '''
-    pass
+    # SUPUESTO: se consideran los tres minutos de descargo en la ventana de tiempo
+
+    travel_time = distance([0, 0], route[0]) / SPEED + 3 * 60
+    
+    for i in range(len(route)):
+        # Caso para el último nodo
+        timelimit = route[i]['deadlines'][0]
+        
+        if i == len(route) - 1:
+            if actual_time + travel_time <= timelimit:
+                return True
+            else:
+                return False
+        else:    
+            if actual_time + travel_time <= timelimit:
+                travel_time += distance(route[i], route[i + 1]) / SPEED + 3 * 60
+                continue
+            else:
+                return False
 
 
 def feasibility_check(route: list, actual_time: int) -> bool:
     '''
     Funcion que recibe una lista de clientes a visitar en formato simulated_data y retorna un booleano si es factible
     '''
-    pass
-
-def distance(point_a: pl.DataFrame, point_b: pl.DataFrame) -> float:
-    '''
-    Funcion que calcula la distancia euclideana entre dos puntos. Se entregan en formato dataframe
-    '''
-    point_a = [point_a['x'][0], point_a['y'][0]]
-    point_b = [point_b['x'][0], point_b['y'][0]]
-    return np.sqrt( np.square(point_a[0] - point_b[0]) + np.square(point_a[1] - point_b[1]) )
+    if feasibility_check_rtb(route, actual_time) and feasibility_check_tw(route, actual_time):
+        return True
+    else:
+        return False
 
 def nearest_neighbor(center: pl.DataFrame, data: pl.DataFrame, current_route: list, actual_time: int) -> pl.DataFrame:
     '''
     Metodo que recibe un cliente en formato dataframe y los clientes to_be_assigned y retorna un
     dataframe con el cliente más cercano y su índice en data
     '''
-
     nearest = None
     min_d = 10e8
     for i in range(len(data)):

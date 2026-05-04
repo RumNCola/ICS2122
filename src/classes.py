@@ -96,6 +96,7 @@ class MSA:
         self.truck          = truck
         self.actual_time    = actual_time
         self.log            = logging.getLogger(__name__)
+        # SUPUESTO ENTREGA 2: LOS QUE NO ESTÁN LISTOS NO SE CONSIDERAN
         self.current_data   = current_data.filter(pl.col('arrivals') <= actual_time & pl.col('ready_times') <= actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
         self.to_be_assigned = self.current_data.join(data_assigned, how='anti')
     
@@ -111,7 +112,7 @@ class MSA:
             for j in range(clients):
                 route = []
                 route.append(self.to_be_assigned[j])
-                
+
 
 
             # Pendiente de desarrollo: CW - LONGEST - greedys
