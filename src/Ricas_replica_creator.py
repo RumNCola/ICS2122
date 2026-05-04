@@ -563,5 +563,10 @@ if __name__ == "__main__":
     data = replica(4, 100)
     # print(data.filter(pl.col('arrivals') <= 9 * 60 * 60))
     print(f'Tiempo de ejecución (s): {(time.time() - t0)}')
+    print(type(data[1]))
+    client = data[1]
+    print(data[1])
+    print(client['y'][0])
+    print(type(float(client['y'][0])))
     # for i in range(len(data)):
         # print(data[i])

@@ -89,7 +89,7 @@ class Truck:
     is_waiting      : bool          # True si viene devuelta a depot
 
 class MSA:
-    def __init__(self, truck, actual_time, current_data, data_assigned):
+    def __init__(self, truck: Truck, actual_time: int, current_data: pl.DataFrame, data_assigned: pl.DataFrame):
         '''
         Clase que ejecuta MSA para el camión entregado, desde el momento actual. Usa método greedy para crear las rutas
         '''
@@ -105,21 +105,25 @@ class MSA:
         Utilizaré distintos métodos para crear rutas
         '''
         routes = []
-        for i in range(ROUTES_PER_SCENARIO):
-            
-            # Elegir al azar un cliente de inicio
-            clients         = len(self.to_be_assigned)
-            u = np.random.randint(0, clients)
+        for i in range(NB_SCENARIOS):
+            clients         = len(self.to_be_assigned) # Número de clientes revelados
+            # Crear una ruta, iniciando desde cada cliente realizado
+            for j in range(clients):
+                route = []
+                route.append(self.to_be_assigned[j])
+                
 
-            route_greedy_lin= [self.to_be_assigned[u]]
-            route_cw        = [self.to_be_assigned[u]]
+
+            # Pendiente de desarrollo: CW - LONGEST - greedys
+            # route_greedy_lin= [self.to_be_assigned[u]]
+            # route_cw        = [self.to_be_assigned[u]]
             route_nearest   = [self.to_be_assigned[u]]
-            route_longest   = [self.to_be_assigned[u]]
-            route_greedy    = []
+            # route_longest   = [self.to_be_assigned[u]]
+            # route_greedy    = []
             
             # Greedy según distancia y earliness
             for i in range(clients):
-                earliness = sort(self.to_be_assigned)
+                earliness = self.to_be_assigned.sort("deadlines", descending=False)
 
 
             # Greedy lineal- lo realmente greedy es insertar los mas cercanos y los earliest vencimiento
