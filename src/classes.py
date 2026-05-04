@@ -1,7 +1,9 @@
 #Archivo que creará las clases necesarias (modelo, heuristicas, processor, etc).
 import typing
 import logging
+import numpy as np
 import polars as pl
+
 
 from typing import Dict
 from dataclasses import dataclass, field
@@ -97,37 +99,64 @@ class MSA:
         self.current_data   = current_data.filter(pl.col('arrivals') <= actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
         self.to_be_assigned = self.current_data.join(data_assigned, how='anti')
     
-    def greedy() -> list:
+    def create_routes(self) -> list:
         '''
         Metodo que aplica el greedy sobre un DataFrame y retorna la lista de rutas a seguir
+        Utilizaré distintos métodos para crear rutas
         '''
-        taboo = []
         routes = []
         for i in range(ROUTES_PER_SCENARIO):
-            route = []
-            for j in range(len(self.to_be_assigned)):
+            
+            # Elegir al azar un cliente de inicio
+            clients         = len(self.to_be_assigned)
+            u = np.random.randint(0, clients)
+
+            route_greedy    = [[0,0], self.to_be_assigned[u], [0,0]]
+            route_cw        = [[0,0], self.to_be_assigned[u], [0,0]]
+            route_nearest   = [[0,0], self.to_be_assigned[u], [0,0]]
+            route_longest   = [[0,0], self.to_be_assigned[u], [0,0]]
+            
+            # Greedy
+            for i in range(clients):        # Para cada cliente pendiente de asignacion
+                if i in route_greedy:       # Omitiendo los que ya están en la ruta
+                    continue
+                else:
+                    new_route           = route_greedy
+                    new_route.append(self.to_be_assigned[i])
+                    new_route           = (new_route)
+                    if feasibility_check(new_route):
+                        route_greedy    = new_route
+                    else:
+                        continue
+            
+            
+
+
+
 
 
 
         return routes
 
-    def execute() -> pl.DataFrame:
+    def execute(self) -> pl.DataFrame:
         '''
         Método que ejecuta el MSA
         '''
-        self.log.info(f'Iniciando ejecución de MSA en el minuto {actual_time / 60}')
+        self.log.info(f'Iniciando ejecución de MSA en el minuto {self.actual_time / 60}')
 
         try:
-            self.sampling = replica(INSTANCE, NB_SCENARIOS, self.actual_time).filter(pl.col('arrivals') >= actual_time) # Notar que se muestra solo lo que no ha pasado todavía
+            self.sampling = replica(INSTANCE, NB_SCENARIOS, self.actual_time).filter(pl.col('arrivals') >= self.actual_time) # Notar que se muestra solo lo que no ha pasado todavía
         except Exception as e:
             self.log.critical(f'Error {e} al samplear escenarios. Deteniendo ejecución.')
             raise e
         
         try:
             for i in range(NB_SCENARIOS):
+                continue
 
         
         except Exception as e:
+            pass
 
 
         # try:
@@ -189,7 +218,7 @@ class MDP:
         '''
         Método que crea las rutas a los camiones en espera dentro del depot - SUPUESTO: La creación de rutas inicia a las 9:00 y no entre 8:30 y 9:00
         '''
-        if self.t_actual = 9 * 60 * 60:
+        if self.t_actual == 9 * 60 * 60:
             self.log.info('Creando rutas iniciales')
         else:
             self.log.info('Creando nuevas rutas')
@@ -197,9 +226,7 @@ class MDP:
             for i in range(self.nb_trucks):
                 # Revisamos los camiones que están esperando en el depot
                 if self.trucks[i].is_waiting == True and self.trucks[i].pos == [0,0]:
-
-
-
+                    continue
                 else:
                     continue
 

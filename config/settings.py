@@ -37,6 +37,7 @@ REWARDS = [
     2, # Recompenza clientes estáticos
     1  # Recompenza clientes dinámicos
 ]
+SPEED           = 20 / 3.6 # En metros por segundo
 
 # Parámetros para MDP
 FUTURE          = False                         # SI el MDP ve el futuro

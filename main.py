@@ -1,12 +1,11 @@
 # Módulo con el flujo principal, ejecutado por main.bat
 import logging
 
-
 from src.instance_loader import *
 from config.settings import *
 from utils.utilities import *
+from src.classes import *
 from src.ricas_replica_creator import replica
-
 
 def run():
     '''
@@ -25,7 +24,7 @@ def run():
         # Obtener datos simulados
         if SIMULATE_DATA:
             logger.info('Creando replica con metodo Rica')
-            data_path = replica(INSTANCE, NB_REPLICAS)
+            data_path = replica(INSTANCE, NB_SCENARIOS)
         else:
             logger.info(f'Obteniendo replica del archivo {DATA_FILE}')
             data_path = DATA_FILE
@@ -43,10 +42,8 @@ def run():
         logger.critical('Error en la creación de MDP. Terminando ejecución')
         raise e
 
-
     logger.info('Ejecución finalizada con éxito')
     return
-
 
 if __name__ == '__main__':
     try:
