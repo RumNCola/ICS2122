@@ -96,7 +96,7 @@ class MSA:
         self.truck          = truck
         self.actual_time    = actual_time
         self.log            = logging.getLogger(__name__)
-        self.current_data   = current_data.filter(pl.col('arrivals') <= actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
+        self.current_data   = current_data.filter(pl.col('arrivals') <= actual_time & pl.col('ready_times') <= actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
         self.to_be_assigned = self.current_data.join(data_assigned, how='anti')
     
     def create_routes(self) -> list:
@@ -111,19 +111,25 @@ class MSA:
             clients         = len(self.to_be_assigned)
             u = np.random.randint(0, clients)
 
-            route_greedy    = [[0,0], self.to_be_assigned[u], [0,0]]
-            route_cw        = [[0,0], self.to_be_assigned[u], [0,0]]
-            route_nearest   = [[0,0], self.to_be_assigned[u], [0,0]]
-            route_longest   = [[0,0], self.to_be_assigned[u], [0,0]]
+            route_greedy_lin= [self.to_be_assigned[u]]
+            route_cw        = [self.to_be_assigned[u]]
+            route_nearest   = [self.to_be_assigned[u]]
+            route_longest   = [self.to_be_assigned[u]]
+            route_greedy    = []
             
-            # Greedy
+            # Greedy según distancia y earliness
+            for i in range(clients):
+                earliness = sort(self.to_be_assigned)
+
+
+            # Greedy lineal- lo realmente greedy es insertar los mas cercanos y los earliest vencimiento
             for i in range(clients):        # Para cada cliente pendiente de asignacion
                 if i in route_greedy:       # Omitiendo los que ya están en la ruta
                     continue
                 else:
-                    new_route           = route_greedy
+                    new_route           = route_greedy_lin
                     new_route.append(self.to_be_assigned[i])
-                    new_route           = (new_route)
+                    new_route           = sort_route(new_route)
                     if feasibility_check(new_route):
                         route_greedy    = new_route
                     else:

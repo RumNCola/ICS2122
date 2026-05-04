@@ -2,6 +2,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+def k_opt(route: list, k: int) -> list:
+    '''
+    Funcion que recibe una ruta desordenada y la ordena para minimizar su costo usando el metodo
+    k-opt, con k integer.
+    '''
+    
+
+
 def feasibility_check_rtb(route:list, actual_time: int) -> bool:
     '''
     Funcion que recibe una ruta en formato simulated_data y retorna un booleano si es factible el RTB
