@@ -38,11 +38,13 @@ REWARDS = [
     1  # Recompenza clientes dinámicos
 ]
 
-FUTURE = False #SI el MDP ve el futuro
+# Parámetros para MDP
+FUTURE          = False                         # SI el MDP ve el futuro
+NB_TRUCKS       = 3                             # Número de camiones
+MAX_HORIZON     = 17 * 60 * 60                  # Horizonte de tiempo máximo en segundos (17:00)
+MIN_HORIZON     = 9 * 60 * 60                   # Inicio de operaciones
+MAX_DELIVERY    = math.ceil(15.5 * 60 * 60)
+MAX_PICKUP      = math.ceil(15.75 * 60 * 60)
 
-NB_TRUCKS   = 3 #Número de camiones
-
-MAX_HORIZON     = 17 * 60 * 60 # Horizonte de tiempo máximo en segundos (17:00)
-MIN_HORIZON     = 9 * 60 * 60  # Inicio de operaciones
-MAX_DELIVERY    = math.ceil(15,5 * 60 * 60)
-MAX_PICKUP      = math.ceil(15,75 * 60 * 60)
+# Parámetros para MSA
+NB_SCENARIOS    = 50                            # Número de escenarios sampleados

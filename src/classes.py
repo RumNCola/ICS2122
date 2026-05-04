@@ -84,12 +84,23 @@ class Truck:
     arrival_times   : list          # Lista de próximos tiempos de llegada a destinos
     is_waiting      : bool          # True si viene devuelta a depot
 
+class MSA:
+    def __init__(self, truck, actual_time):
+        '''
+        Clase que ejecuta MSA para el camión entregado, desde el momento actual. Usa método greedy para crear las rutas
+        '''
+        self.truck = truck
+        self.actual_time = actual_time
+    
+    def execute():
+        
+
 
 class MDP:
     '''
     Clase principal que almacena el MDP y todos los elementos del problema
     '''
-    def __init__(data_path, replica_id):
+    def __init__(self, data_path, replica_id):
         '''
         Inicializador. Recibe la ruta de los datos a usar y el número de replica a trabajar
         '''
@@ -124,6 +135,7 @@ class MDP:
         for i in range(self.nb_trucks):
             # Revisamos los camiones que están esperando en el depot
             if self.trucks[i].is_waiting == True and self.trucks[i].pos == [0,0]:
+
 
 
             else:

@@ -1,11 +1,16 @@
 import numpy as np
 import polars as pl
 import os
+import time
 from datetime import datetime
 
 out_folder = "simulated_data"
 
-def replica(instancia, replicas):
+def replica(instancia, replicas, t0 = 8.5 * 60 * 60):
+    '''
+    Método que samplea {replicas} escenarios distintos según la {instancia} y retorna los datos asociados, desde t0 hasta 17:00 en un
+    dataframe de polars. Además, guarda el material sampleado en un .parquet.
+    '''
     if instancia == 1:
         cant = np.random.randint(161, 232, replicas) #Cantidad de clientes a simular
 
@@ -546,8 +551,11 @@ def replica(instancia, replicas):
 
     filepath = os.path.join(out_folder, filename)
     df.write_parquet(filepath)
-    return df
+    return df.filter(pl.col('arrivals') >= t0)
 
 if __name__ == "__main__":
     print("Running Replica.py...")
-    replica(4, 100)
+    t0 = time.time()
+    data = replica(4, 1000)
+    print(data.filter(pl.col('arrivals') <= 9 * 60 * 60))
+    print(f'Tiempo de ejecución (s): {(time.time() - t0)}')

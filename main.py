@@ -5,7 +5,7 @@ import logging
 from src.instance_loader import *
 from config.settings import *
 from utils.utilities import *
-from src.Ricas_replica_creator import replica
+from src.ricas_replica_creator import replica
 
 
 def run():
@@ -38,7 +38,7 @@ def run():
         # Crear MDP
         logger.info('Iniciando creación de MDP')
         orchestrator = MDP(data_path, REPLICA_ID)
-        
+
     except Exception as e:
         logger.critical('Error en la creación de MDP. Terminando ejecución')
         raise e
