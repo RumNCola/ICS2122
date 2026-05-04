@@ -1,0 +1,465 @@
+'''Lo básico de lo básico, aprovechandosé de la capacidad ilimitada (+ bencina)
+1. El camión de pickup solo vuelve al fin del día al depot, 
+    moviendose de orden más cercana a más cercana cada segundo
+2. Los camiones de deliveries...'''
+
+from src.constants import *
+from src.classes import *
+from src.instance_loader import *
+
+VERBOSE_PICKUP = False
+VERBOSE_DELIVERY = False
+
+
+N_PICKUP = 1
+N_DELIVERY = 2
+
+g_REPLICA = Replica()
+
+
+per_second_speed = 7 # 25000/3600 # (25 km / hra) = 6.9444 m/s
+
+# States
+ATENDIENDO_CLIENTE = "Atendiendo Cliente..."
+YENDO_A_CLIENTE = "Yendo a cliente"
+
+LOADED_IN_DEPOT = "LOADED IN DEPOT"
+DELIVERING = "DELIVERING"
+BACK_TO_DEPOT = "RETURNING TO DEPOT"
+LOADING = "LOADING IN DEPOT"
+
+
+class Camion:
+
+    t_posiciones = []
+    visited = []
+    timer = 0
+    state = 0
+
+
+    def __init__(self):
+        self.t_posiciones = []
+        self.visited = []
+        self.timer = 0
+        self.state = 0
+
+
+START_ss = hh_mm_ss_to_seconds("09:00:00")
+END_ss = hh_mm_ss_to_seconds("17:00:00")
+
+def move_camion(pos_camion, objective_pos):
+    '''Returns new_pos'''
+
+    dy = objective_pos[1] - pos_camion[1]
+    dx = objective_pos[0] - pos_camion[0]
+
+    new_x, new_y = pos_camion
+    if dx > 0:
+        dx = min(dx, per_second_speed)
+        new_x += dx
+    elif dx < 0:
+        dx = abs(dx)
+        dx = min(dx, per_second_speed)
+
+        new_x -= dx
+    elif dx == 0:
+        
+        if dy > 0:
+            dy = min(dy, per_second_speed)
+            new_y += dy
+        elif dy < 0: 
+            dy = abs(dy)
+            dy = min(dy, per_second_speed)
+
+            new_y -= dy
+        elif dy == 0:
+            return objective_pos # Already there
+
+    return [new_x, new_y]
+
+def closest_index_to(origin, point_indexes):
+    '''Returns the index of the point closest to origin. -1 if point_indexes = []'''
+    min_dist = 99999999999
+    closest_index = -1
+
+    for index in point_indexes:
+        pos = g_REPLICA.points[index]
+
+        d = dist(pos, origin)
+        if d < min_dist:
+            min_dist = d
+            closest_index = index
+
+    return closest_index
+
+def get_route_pickup(camion: Camion, t_ss: int, pos_camion):
+    '''As of now, just returns closest one lol'''
+
+    # 1. Possible destinations
+    possible_pickups = []
+
+    for i in range(g_REPLICA.num_points):
+        indicador = g_REPLICA.indicador[i]
+
+        if indicador != PICKUP:
+            continue 
+        
+        time = g_REPLICA.arrivals[i]
+        if time > t_ss: 
+            continue # Doesn't yet spawn
+        
+        if camion.visited[i] != INF:
+            continue # Already visited
+
+        pos = g_REPLICA.points[i]
+
+        if pos[0] == DEPOT_POS[0] and pos[1] == DEPOT_POS[1]:
+            continue # depot
+
+        possible_pickups.append(i)
+
+    # 1.1 No candidates
+    if len(possible_pickups) == 0:
+        if VERBOSE_PICKUP:
+            print("> No hay pickups para atender...")
+        
+        return None
+    
+    return [closest_index_to(pos_camion, possible_pickups)]
+
+def panic_check(camion: Camion, t_ss, camion_pos, be_verbose: bool):
+    time_remaining = END_TIME - t_ss
+    conservative_remaining_dist = per_second_speed * (time_remaining-1)
+
+    if dist(camion_pos, DEPOT_POS) > conservative_remaining_dist:
+        if be_verbose and camion.state != BACK_TO_DEPOT:
+            print("AHHH!!! OUTTA TIME GOING BACK TO DEPOOOOT")
+
+        camion.state = BACK_TO_DEPOT
+
+# Pickup no tiene restricciones de tiempo, se mueve al más cercano
+def solve_myopic_pickup() -> list:
+    '''Returns (clientes_atendidos: list[int], posiciones_camion: list[(t_ss, pos_tuple)])\n
+    clientes_atendidos es una lista de tiempos de atención (INF si no es atendido)\n
+    posiciones_camion: es la posición del camión para cada segundo (t, (x, y))'''
+
+    global g_REPLICA
+
+    # Primera simulación son 28800 segundos, un update por segundo
+    # (TODO: Considerar updatear más inteligentemente, solo cuando ocurre una acción por ejemplo)
+
+    camion = Camion()
+    camion.state = YENDO_A_CLIENTE
+
+    camion.visited = [INF] * g_REPLICA.num_points
+    camion.t_posiciones = []
+    camion.t_posiciones.append([START_ss, DEPOT_POS])
+    curr_obj_index = -1
+    curr_obj_pos = DEPOT_POS
+
+    atendiendo_timer = 0
+    
+    ts = list(range(START_ss, END_ss+1))
+
+    for t_ss in ts[1:]:
+        prev_pos = camion.t_posiciones[-1][1]
+        camion_pos = [prev_pos[0], prev_pos[1]] # Python be dumb (Reference pass)
+
+        if t_ss % 1800 == 0 and VERBOSE_PICKUP:
+            print(f"{seconds_to_hh_mm_ss(t_ss)}: ({camion_pos}) -> ({curr_obj_pos})")
+        
+        new_pos = camion_pos
+        panic_check(camion, t_ss, camion_pos, VERBOSE_PICKUP)
+
+        if camion.state == ATENDIENDO_CLIENTE:
+            if atendiendo_timer >= 1:
+                atendiendo_timer -= 1
+
+                if atendiendo_timer == 0:
+                    if VERBOSE_PICKUP:
+                        print(f"> {seconds_to_hh_mm_ss(t_ss)}: Se termino de atender a {curr_obj_index}")
+                    camion.visited[curr_obj_index] = t_ss
+
+                    camion.state = YENDO_A_CLIENTE
+
+        if camion.state == YENDO_A_CLIENTE:
+            route = get_route_pickup(camion, t_ss, camion_pos)
+
+            if route == None:
+                if VERBOSE_PICKUP:
+                    print("No hay clientes para atender!")
+
+                curr_obj_index = None
+                curr_obj_pos = camion_pos
+            else:
+                curr_obj_index = route[0]
+                curr_obj_pos = g_REPLICA.points[curr_obj_index]
+
+            # 3. Go to current_objective
+            new_pos = move_camion(camion_pos, curr_obj_pos)
+            
+            if dist(new_pos, curr_obj_pos) == 0 and curr_obj_index != None:
+                # Llegamos!!!
+                camion.state = ATENDIENDO_CLIENTE
+                atendiendo_timer = TIEMPO_DE_SERVICIO_PICKUP
+                if VERBOSE_PICKUP:
+                    print(f"> {seconds_to_hh_mm_ss(t_ss)}: Comenzando a atender cliente {curr_obj_index} en {curr_obj_pos}")
+
+        if camion.state == BACK_TO_DEPOT:
+            new_pos = move_camion(camion_pos, DEPOT_POS)
+
+        camion.t_posiciones.append([t_ss, new_pos])
+        
+    return (camion.visited, camion.t_posiciones)
+
+DELIVERY_ROUTE_LEN = 12
+def create_delivery_route(visited, already_visited, t_ss, camion_pos) -> list:
+    '''Returns a list of indexes to visit'''
+
+    # TODO: TSP (soy muy flojo)
+    candidates = []
+    for i in range(g_REPLICA.num_points):
+
+        if g_REPLICA.indicador[i] != DELIVERY:
+            continue
+            
+        time = g_REPLICA.ready_times[i]
+        if time > t_ss: 
+            continue # Isn't yet ready
+        
+        if visited[i] < INF:
+            continue # Already visited
+
+        if already_visited[i] < INF:
+            continue # Other truck
+
+        pos = g_REPLICA.points[i]
+
+        if pos[0] == DEPOT_POS[0] and pos[1] == DEPOT_POS[1]:
+            continue # depot
+
+        candidates.append(i)
+
+    # Here do something more smart to select candidates xd
+
+    if len(candidates) == 0:
+        return []
+
+    len_route = min(DELIVERY_ROUTE_LEN, len(candidates))
+    # Ahora arma la ruta en base al candidato más cercano
+    
+    route = []
+
+    curr_pos = DEPOT_POS
+    while len(route) < len_route:
+        curr_candidates = [c for c in candidates if c not in route]
+        
+        next_destination = closest_index_to(curr_pos, curr_candidates)
+
+        route.append(next_destination)
+
+        curr_pos = g_REPLICA.points[next_destination]
+
+    return route
+
+def solve_deliveries_camion(already_visited: list[float]) -> list:
+    '''Returns (atendidos, t_pos_camion)
+    Resuelve los deliveries de 1 camión'''
+
+    camion = Camion()
+
+    visited = [INF] * g_REPLICA.num_points
+
+    camion.t_posiciones.append([START_ss, DEPOT_POS])
+    camion.state = LOADED_IN_DEPOT
+    camion.timer = 0
+
+    route = [] # A route is a series of indexes
+    route_progress = 0
+
+    objective_pos = DEPOT_POS
+
+    ts = list(range(START_ss, END_ss+1))
+
+    for t_ss in ts[1:]:
+        camion_pos = camion.t_posiciones[-1][1]
+
+        # Camion:
+        # 1. Depot (Creates Route...)
+        # 2. InRoute (Follows Route...)
+        # 1 -> 2 -> 1 -> 2 -> ...
+
+        if t_ss % 300 == 0 and VERBOSE_DELIVERY: 
+            print(f"{seconds_to_hh_mm_ss(t_ss)}: {camion.state} ({camion_pos}) -> ({objective_pos}). ROUTE: {route_progress}/{route}")
+
+
+        if camion.state == LOADING:
+            camion.timer -= 1
+            objective_pos = DEPOT_POS
+
+            if camion.timer == 0:
+                camion.state = LOADED_IN_DEPOT
+
+        
+        if camion.state == LOADED_IN_DEPOT:
+            route = create_delivery_route(visited, already_visited, t_ss, camion_pos)
+
+            if len(route) == 0:
+                objective_pos = DEPOT_POS
+                
+            else: 
+                camion.state = DELIVERING
+                route_progress = 0
+
+                camion.timer = TIEMPO_DE_SERVICIO_DELIVERY
+
+        panic_check(camion, t_ss, camion_pos, VERBOSE_DELIVERY)
+
+        if camion.state == DELIVERING:
+            objective_index = route[route_progress]
+
+            objective_pos = g_REPLICA.points[objective_index]
+
+            if dist(objective_pos, camion_pos) == 0:
+                camion.timer -= 1
+
+                if camion.timer == 0:
+                    camion.timer = TIEMPO_DE_SERVICIO_DELIVERY
+
+                    visited[objective_index] = t_ss # Add que camión lo atendió quizá
+                    route_progress += 1
+
+            if route_progress == len(route):
+                camion.state = BACK_TO_DEPOT
+
+
+        if camion.state == BACK_TO_DEPOT:
+            objective_pos = DEPOT_POS
+
+            if dist(camion_pos, DEPOT_POS) == 0:
+                camion.timer = TIEMPO_DELIVERY_LOADING
+                camion.state = LOADING
+
+        # Mueve el camión
+        new_pos = move_camion(camion_pos, objective_pos)
+
+        camion.t_posiciones.append([t_ss, new_pos])
+    
+    if VERBOSE_DELIVERY:
+        count = len([v for v in visited if v < INF])
+        print(f"Delivered to {count}")
+
+    return (visited, camion.t_posiciones)
+
+
+def solve_myopic_deliveries() -> list:
+    '''Returns ((atendidos2, atendidos3), (t_pos2, t_pos3))'''
+
+    # Camión 2
+    atendidos2, t_pos2 = solve_deliveries_camion([INF] * g_REPLICA.num_points)
+
+    # Camión 3
+    atendidos3, t_pos3 = solve_deliveries_camion(atendidos2)
+
+    return ((atendidos2, atendidos3), (t_pos2, t_pos3))
+
+def create_df_pos_rows(t_pos1, t_pos2, t_pos3):
+    '''Each row is (t, c1x, c1y, c2x, c2y, c3x, c3y)'''
+
+    good = len(t_pos1) == len(t_pos2) and len(t_pos2) == len(t_pos3)
+
+    if not good:
+        print("> Implement me in create_rows()")
+        print(len(t_pos1), len(t_pos2), len(t_pos3))
+        exit()
+
+    rows = []
+
+    for i in range(len(t_pos1)):
+        t1 = t_pos1[i][0] # Asumiremos todos tienen el mismo t xd
+        c1x, c1y = t_pos1[i][1]
+        c2x, c2y = t_pos2[i][1]
+        c3x, c3y = t_pos3[i][1]
+
+        row = [t1, c1x, c1y, c2x, c2y, c3x, c3y]
+        rows.append(row)
+
+    return rows
+
+def create_df_pos(t_pos_camion_pickup, t_pos_camion_2y3):
+
+    df_pos = pd.DataFrame(columns=["t", "c1_x", "c1_y", "c2_x", "c2_y", "c3_x", "c3_y"])
+
+    rows = create_df_pos_rows(t_pos_camion_pickup, t_pos_camion_2y3[0], t_pos_camion_2y3[1])
+
+    # A lot faster than row by row xd
+    for x in range(len(df_pos.columns)):
+        column_str = df_pos.columns[x]
+        df_pos[column_str] = [row[x] for row in rows]
+
+    return df_pos
+
+def create_df_atendidos(clientes_atendidos_pickup, clientes_atendidos_delivery2y3):
+    a1 = clientes_atendidos_pickup
+    a2, a3 = clientes_atendidos_delivery2y3
+
+    df_atendidos = pd.DataFrame()
+
+    df_atendidos["tiempos_c1"] = a1
+    df_atendidos["tiempos_c2"] = a2
+    df_atendidos["tiempos_c3"] = a3
+
+    return df_atendidos
+
+
+
+def solve_replica_myopic_and_save(output_folder: str):
+    print(f"Running a Myopic solution of {g_REPLICA}")
+
+    clientes_atendidos_pickup, t_pos_camion_pickup = solve_myopic_pickup()
+    print("Pickup processed...")
+
+    clientes_atendidos_delivery2y3, t_pos_camion_2y3 = solve_myopic_deliveries()
+    print("Deliveries processed...")
+
+    df_pos = create_df_pos(t_pos_camion_pickup, t_pos_camion_2y3)
+
+    pos_path = os.path.join(output_folder, "posiciones_camiones.csv")
+    df_pos.to_csv(pos_path, index=False)
+
+    print(f"Saved to {pos_path}")
+
+    df_atendidos = create_df_atendidos(clientes_atendidos_pickup, clientes_atendidos_delivery2y3)
+
+    atendidos_path = os.path.join(output_folder, "clientes_atendidos.csv")
+    df_atendidos.to_csv(atendidos_path, index=False)
+
+    print(f"Saved to {atendidos_path}")
+
+    # Calcula utilidad
+
+    num_pickups = len([t for t in df_atendidos["tiempos_c1"] if t < INF])
+    num_delis2 = len([t for t in df_atendidos["tiempos_c2"] if t < INF])
+    num_delis3 = len([t for t in df_atendidos["tiempos_c3"] if t < INF])
+    utilidad = num_pickups + 2 * (num_delis2 + num_delis3)
+
+    print("DESGLOSE UTILIDAD")
+    print(f"El camión 1 realizó {num_pickups} pickups")
+    print(f"El camión 2 realizó {num_delis2} deliveries")
+    print(f"El camión 3 realizó {num_delis3} deliveries")
+    print("La soluciíon es factible por teorema del careraja y el código cerrado")
+    print("---")
+    print(f"La utilidad total es de {utilidad}")
+
+
+import pandas as pd
+
+
+if __name__ == "__main__":
+    instance_I = load_instance_data(DATA_SRC[0])
+    g_REPLICA = get_replica_from_instancia(instance_I, 0)
+
+    output_folder = os.path.join("outputs", "myopic_outputs", "testingv4")
+    solve_replica_myopic_and_save(output_folder)
+
+

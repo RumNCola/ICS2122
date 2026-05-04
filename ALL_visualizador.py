@@ -1,4 +1,6 @@
-'''Plagio de mi práctica II, MUY MUY DESORDENADO, TODO TREMENDO REFACTORIZAR, DO NOT TRY TO UNDERSTAND'''
+'''Esta gueno el visualizador, heatmaps muy xds con los gradient bars'''
+# TODO: usar nueva clase de réplica en vez de g_INSTANCE jajajjaja
+
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -7,12 +9,19 @@ from src.constants import *
 from matplotlib.widgets import Slider, RadioButtons, CheckButtons
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+import pandas as pd
+
+solved_camiones_folder = os.path.join("outputs", "myopic_outputs", "testingv4")
+
 g_BACKGROUND_IMAGE = None
 g_INSTANCE_LIST = []
 g_INSTANCE_INDEX = 0
 g_CURRENT_REPLICA = 0
-g_CURRENT_TIME = (START_TIME+END_TIME)//2
+g_CURRENT_TIME = END_TIME #(START_TIME+END_TIME)//2
 g_INSTANCE = None
+
+g_T_POS_CAMIONES_DF = pd.DataFrame()
+g_CLIENTES_ATENDIDOS_DF = pd.DataFrame()
 
 IMAGE_DPI = 300 # Kinda weird ngl
 FIGURE_WIDTH_PX = 1600
@@ -21,7 +30,13 @@ FIGURE_HEIGHT_PX = 900
 MARKER_PICKUP = "*b"
 MARKER_DELIVERY = "dg"
 MARKER_DEPOT = "8k"
+
+TRON_TRAIL = [".c", ".m", ".y"]
+MARKERS_CAMIONES = ["Pc", "Pm", "Py"]
+MARKERS_ATENDIDOS = ["*c", "dm", "dy"]
+
 MARKER_SIZE = 20
+TRON_SIZE = MARKER_SIZE/4
 
 LINEWIDTH = 1
 POLYGON_STROKE_WIDTH = 0.1
@@ -29,12 +44,16 @@ POLYGON_STROKE_WIDTH = 0.1
 cb_show_grid_label = "Mostrar Grilla y ejes"
 cb_manhattan_background = "Manhattan fotorealístico"   
 cb_heatmap = "heatmap"
+cb_show_camiones = "Mostrar camiones"
+cb_tron_trails = "FJ's Tron Trails"
 cb_save_images_label = "Guardar Imágenes"
 
 VISUAL_CONFIG_DICT = {
     cb_show_grid_label: False,
     cb_manhattan_background: False,
-    cb_heatmap: True,
+    cb_heatmap: False,
+    cb_show_camiones: True,
+    cb_tron_trails: True,
     cb_save_images_label: False
 }
 
@@ -48,6 +67,77 @@ def save_graph(destination_filepath: str): # This should probably go in another 
 
     plt.savefig(destination_filepath, dpi=IMAGE_DPI)
 # --------------------------- Drawing with MatPlotLib -----------------------------
+
+def plot_camiones(ax_plot: plt.Axes):
+    '''Mi amigo NO conoce los for loops!'''
+    global g_T_POS_CAMIONES_DF # Explicit
+
+    time_index = max(0, g_CURRENT_TIME-CAMIONES_START_ss)
+
+    c1_x = g_T_POS_CAMIONES_DF["c1_x"][time_index]
+    c1_y = g_T_POS_CAMIONES_DF["c1_y"][time_index]
+
+    c2_x = g_T_POS_CAMIONES_DF["c2_x"][time_index]
+    c2_y = g_T_POS_CAMIONES_DF["c2_y"][time_index]
+
+    c3_x = g_T_POS_CAMIONES_DF["c3_x"][time_index]
+    c3_y = g_T_POS_CAMIONES_DF["c3_y"][time_index]
+
+    if VISUAL_CONFIG_DICT[cb_tron_trails]:
+        # h is for history!
+        h1x = g_T_POS_CAMIONES_DF["c1_x"][:time_index]
+        h1y = g_T_POS_CAMIONES_DF["c1_y"][:time_index]
+
+        h2x = g_T_POS_CAMIONES_DF["c2_x"][:time_index]
+        h2y = g_T_POS_CAMIONES_DF["c2_y"][:time_index]
+
+        h3x = g_T_POS_CAMIONES_DF["c3_x"][:time_index]
+        h3y = g_T_POS_CAMIONES_DF["c3_y"][:time_index]
+
+        tt_c1,  = ax_plot.plot(h1x, h1y, TRON_TRAIL[0],  markersize=TRON_SIZE)
+        tt_c2,  = ax_plot.plot(h2x, h2y, TRON_TRAIL[1],  markersize=TRON_SIZE)
+        tt_c3,  = ax_plot.plot(h3x, h3y, TRON_TRAIL[2],  markersize=TRON_SIZE)
+
+    
+    l_c1, = ax_plot.plot(c1_x, c1_y, MARKERS_CAMIONES[0],  markersize=MARKER_SIZE, label="C. #1 (Pickup)\n")
+    l_c2, = ax_plot.plot(c2_x, c2_y, MARKERS_CAMIONES[1],  markersize=MARKER_SIZE, label="C. #2 (Delivery)\n")
+    l_c3, = ax_plot.plot(c3_x, c3_y, MARKERS_CAMIONES[2],  markersize=MARKER_SIZE, label="C. #3 (Delivery)\n")
+
+def get_atendidos_xs_ys(tiempos_camion_i, points):
+    '''Returns [xs: list[float], ys: list[float]]'''
+
+    xs = []
+    ys = []
+
+    for j in range(len(tiempos_camion_i)):
+
+        t_camion_i_point_j = tiempos_camion_i[j]
+
+        if g_CURRENT_TIME >= t_camion_i_point_j:
+            px, py = points[j]
+            xs.append(px)
+            ys.append(py)
+
+    return [xs, ys]
+
+
+def plot_atendidos(ax_plot: plt.Axes, points):
+    global g_CLIENTES_ATENDIDOS_DF # Explicit
+
+    tiempos_c1 = g_CLIENTES_ATENDIDOS_DF["tiempos_c1"]
+    tiempos_c2 = g_CLIENTES_ATENDIDOS_DF["tiempos_c2"]
+    tiempos_c3 = g_CLIENTES_ATENDIDOS_DF["tiempos_c3"]
+
+    atendidos1 = get_atendidos_xs_ys(tiempos_c1, points)
+    atendidos2 = get_atendidos_xs_ys(tiempos_c2, points)
+    atendidos3 = get_atendidos_xs_ys(tiempos_c3, points)
+        
+
+    # Después es fácil cambiar los markers para cuando se separen
+    l_a1, = ax_plot.plot(atendidos1[0], atendidos1[1], MARKERS_ATENDIDOS[0],  markersize=MARKER_SIZE, label=f"{len(atendidos1[0])} Atendidos (#1)\n")
+    l_a2, = ax_plot.plot(atendidos2[0], atendidos2[1], MARKERS_ATENDIDOS[1],  markersize=MARKER_SIZE, label=f"{len(atendidos2[0])} Atendidos (#2)\n")
+    l_a3, = ax_plot.plot(atendidos3[0], atendidos3[1], MARKERS_ATENDIDOS[2],  markersize=MARKER_SIZE, label=f"{len(atendidos3[0])} Atendidos (#3)\n")
+
 
 def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Axes):
     global VISUAL_CONFIG_DICT # Unnecessary, but explicit
@@ -88,6 +178,7 @@ def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Ax
         if indicador == PICKUP:
             xs_pickups.append(x)
             ys_pickups.append(y)
+
         else:
             xs_delivery.append(x)
             ys_delivery.append(y)
@@ -98,6 +189,12 @@ def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Ax
     l0, = ax_plot.plot(xs_pickups, ys_pickups, MARKER_PICKUP, markersize=MARKER_SIZE, label=f"{len(xs_pickups)} Pickups\n")
     l1, = ax_plot.plot(xs_delivery, ys_delivery, MARKER_DELIVERY,  markersize=MARKER_SIZE, label=f"{len(xs_delivery)} Deliveries\n")
     l2, = ax_plot.plot(*DEPOT_POS, MARKER_DEPOT,  markersize=MARKER_SIZE, label="1 Supply Depot\n")
+    
+    # Se plottea encima:
+    if VISUAL_CONFIG_DICT[cb_show_camiones]:
+        plot_camiones(ax_plot)
+        plot_atendidos(ax_plot, points)
+    
 
     ax_plot.legend(loc='upper right', fontsize = "large")
 
@@ -134,7 +231,7 @@ def create_replica_slider(slider_ax):
 
     return replica_slider
 
-def get_discretized_time(precision_in_seconds = 60*15):
+def get_discretized_time(precision_in_seconds = 60):
     '''returns a list of seconds!'''
 
     work_time_s = END_TIME - START_TIME
@@ -179,7 +276,7 @@ def create_control_panel():
     return (radio_instances, check_visuals)
 
 def show_heatmap(ax_plot: plt.Axes, instancia, num_x_boxes = 10, num_y_boxes = 10):
-    '''TODO: Add legend!!'''
+    '''TODO: Fix gradient!!!'''
     counts = []
     for y in range(num_y_boxes):
         counts.append([0]*num_x_boxes)
@@ -269,13 +366,16 @@ import numpy as np
 from PIL import Image
 from src.instance_loader import *
 def init_cool_app():
-    global g_INSTANCE_LIST, g_INSTANCE, g_INSTANCE_INDEX, g_BACKGROUND_IMAGE
+    global g_INSTANCE_LIST, g_INSTANCE, g_INSTANCE_INDEX, g_BACKGROUND_IMAGE, g_T_POS_CAMIONES_DF, g_CLIENTES_ATENDIDOS_DF
 
     g_INSTANCE_LIST = load_default_instances()
 
     g_INSTANCE = g_INSTANCE_LIST[g_INSTANCE_INDEX]
 
     g_BACKGROUND_IMAGE = np.asarray(Image.open(MANHATTAN_FILEPATH))
+
+    g_T_POS_CAMIONES_DF = pd.read_csv(os.path.join(solved_camiones_folder, "posiciones_camiones.csv"))
+    g_CLIENTES_ATENDIDOS_DF = pd.read_csv(os.path.join(solved_camiones_folder, "clientes_atendidos.csv"))
 
     print("Initialized correctly")
     
@@ -342,6 +442,6 @@ def launch_cool_app():
     plt.show()
 
 if __name__ == "__main__":
-    print("Running ALL_visualizador.py?\n")
+    print("Running ALL_visualizador.py!\n")
 
     launch_cool_app()

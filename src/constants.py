@@ -1,12 +1,19 @@
 '''CONSTANTES específicas al problema'''
 
+INF = 10**12
+
+TIEMPO_DELIVERY_LOADING = 900
+
+TIEMPO_DE_SERVICIO_PICKUP = 180
+TIEMPO_DE_SERVICIO_DELIVERY = 180
+
 PICKUP = True
 DELIVERY = False
 
 WIDTH_MAPA = 20000 # metros
 HEIGHT_MAPA = 20000 # metros
 
-DEPOT_POS = (10000, 10000)
+DEPOT_POS = [10000, 10000]
 
 NUM_REPLICAS = 100
 
@@ -15,6 +22,7 @@ NUM_CAMIONES = 3
 LABELS_INSTANCIAS = ["I", "II", "III", "IV"]
 
 def seconds_to_hh_mm_ss(seconds_since_0000):
+    '''7261 -> 02:01:01'''
     seconds_since_0000 = int(seconds_since_0000)
 
     hh = seconds_since_0000//3600
@@ -27,6 +35,7 @@ def seconds_to_hh_mm_ss(seconds_since_0000):
     return f"{hh:02}:{mm:02}:{ss:02}"
 
 def hh_mm_ss_to_seconds(hh_mm_ss):
+    '''8:30:00 -> 43543'''
     hh, mm, ss = [int(d) for d in hh_mm_ss.split(":")]
 
     seconds_since_00 = hh*3600 + mm*60 + ss
@@ -35,6 +44,8 @@ def hh_mm_ss_to_seconds(hh_mm_ss):
 
 START_TIME = hh_mm_ss_to_seconds("8:30:00")
 END_TIME = hh_mm_ss_to_seconds("17:00:00")
+
+CAMIONES_START_ss = hh_mm_ss_to_seconds("9:00:00")
 
 
 if __name__ == "__main__":
@@ -45,6 +56,13 @@ if __name__ == "__main__":
     print(seconds_to_hh_mm_ss(hh_mm_ss_to_seconds("21:59:20")))
 
     print(START_TIME, END_TIME)
+
+def dist(pA: tuple, pB: tuple):
+    '''Manhattan distance: |x2 - x1| + |y2 - y1| Igual que la vida real'''
+    dx = pB[0] - pA[0]
+    dy = pB[1] - pA[1]
+    return abs(dx) + abs(dy) 
+
 
 import os
 MANHATTAN_FILEPATH = os.path.join("images", "ImageSources", "GoogleEarthManhattan.png")
