@@ -1,7 +1,22 @@
 # Archivo con funciones generales que permiten el desarrollo del código. Nada muy específico.
 import matplotlib.pyplot as plt
 
+
+def rtb_feasibility_check(route:list, actual_time: int) -> bool:
+    '''
+    Funcion que recibe una ruta en formato simulated_data y retorna un booleano si es factible el RTB
+    '''
+
+def feasibility_check(route: list, actual_time: int) -> bool:
+    '''
+    Funcion que recibe una lista de clientes a visitar en formato simulated_data y retorna un booleano si es factible
+    '''
+
+
+
+
 def view_raw_data(data, target: str) -> None:
+
     '''
     Método que imprime en histogramas los datos de todas las isntancias asociadas a scen_{target}_sample.pkl
     Con este metodo saqué los plots de data_analyisis.md

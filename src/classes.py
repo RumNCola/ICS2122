@@ -86,25 +86,46 @@ class Truck:
     is_waiting      : bool          # True si viene devuelta a depot
 
 class MSA:
-    def __init__(self, truck, actual_time, current_data):
+    def __init__(self, truck, actual_time, current_data, data_assigned):
         '''
         Clase que ejecuta MSA para el camión entregado, desde el momento actual. Usa método greedy para crear las rutas
         '''
         self.truck          = truck
         self.actual_time    = actual_time
         self.log            = logging.getLogger(__name__)
-        self.current_data   = current_data
+        self.current_data   = current_data.filter(pl.col('arrivals') <= actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
+        self.to_be_assigned = self.current_data.join(data_assigned, how='anti')
     
-    def execute():
+    def greedy(dataframe: pl.DataFrame) -> list:
+        '''
+        Metodo que aplica el greedy sobre un DataFrame y retorna la lista de rutas a seguir
+        '''
+        
+
+    def execute() -> pl.DataFrame:
+        '''
+        Método que ejecuta el MSA
+        '''
         self.log.info(f'Iniciando ejecución de MSA en el minuto {actual_time / 60}')
 
-        demand
-        
         try:
-            sampling = replica(INSTANCE, NB_SCENARIOS, self.actual_time)
+            sampling = replica(INSTANCE, NB_SCENARIOS, self.actual_time).filter(pl.col('arrivals') >= actual_time) # Notar que se muestra solo lo que no ha pasado todavía
         except Exception as e:
             self.log.critical(f'Error {e} al samplear escenarios. Deteniendo ejecución.')
             raise e
+        
+        try:
+            for i in range(NB_SCENARIOS):
+
+        
+        except Exception as e:
+
+
+        # try:
+        #     self.data = 
+        
+        # except Exception as e:
+        #     self.log.critical(f'Error {e} al unir dataframes sampling y current_data. Deteniendo ejecucion')
         
 
 
@@ -134,6 +155,7 @@ class MDP:
         self.trucks         = []                    # Lista de camiones
         self.t_actual       = 9 * 60 * 60           # Tiempo actual. inicia siendo las 9:00
         self.data           = pl.read_parquet(data_path).filter(pl.col('replica') == replica_id) # Datos de instancia 'replica_id'
+        self.data_assigned  = pl.DataFrame()
         self.available_data = self.data.filter(pl.col('arrivals') <= self.t_actual)              # Inicialmente solo está disponible la data de las 9:00
         self.log            = logging.getLogger(__name__)
 
