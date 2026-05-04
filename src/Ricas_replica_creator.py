@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as pd
+import polars as pl
 import os
 from datetime import datetime
 
@@ -537,15 +537,16 @@ def replica(instancia, replicas):
         "service_times": service_times
     }
     
-    df = pd.DataFrame(datos_dict)
+    df = pl.DataFrame(datos_dict, schema=[i for i in datos_dict.keys()], strict=False)
     timestamp_raw = datetime.now()
     timestamp_no_ms = str(timestamp_raw).split(".")[0]
     timestamp = timestamp_no_ms.replace(" ", "_").replace(":", "-")
 
-    filename = f"Instancia_{instancia}_{replicas}_replicas_{timestamp}.csv"
+    filename = f"Instancia_{instancia}_{replicas}_replicas_{timestamp}.parquet"
 
     filepath = os.path.join(out_folder, filename)
-    df.to_csv(filepath, index=False)
+    df.write_parquet(filepath)
+    return df
 
 if __name__ == "__main__":
     print("Running Replica.py...")

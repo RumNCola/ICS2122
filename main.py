@@ -5,6 +5,7 @@ import logging
 from src.instance_loader import *
 from config.settings import *
 from utils.utilities import *
+from src.Ricas_replica_creator import replica
 
 
 def run():
@@ -21,14 +22,27 @@ def run():
         raise ImportError
     
     try:
-        data = [load_instance_data(DATA_SRC[i]) for i in range(len(DATA_SRC))] #Data es un list de len 4 con cada instancia cargada
-    
+        # Obtener datos simulados
+        if SIMULATE_DATA:
+            logger.info('Creando replica con metodo Rica')
+            data_path = replica(INSTANCE, NB_REPLICAS)
+        else:
+            logger.info(f'Obteniendo replica del archivo {DATA_FILE}')
+            data_path = DATA_FILE
+            
     except Exception as e:
-        logger.critical('Error en la carga de datos. terminando Ejecución')
+        logger.critical('Error en la carga de replica. Terminando ejecución')
         raise e
 
-    #Visualizador de datos con histograma, opcional
-    view_raw_data(data, 'arrivals')
+    try:
+        # Crear MDP
+        logger.info('Iniciando creación de MDP')
+        orchestrator = MDP(data_path, REPLICA_ID)
+        
+    except Exception as e:
+        logger.critical('Error en la creación de MDP. Terminando ejecución')
+        raise e
+
 
     logger.info('Ejecución finalizada con éxito')
     return
