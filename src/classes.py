@@ -7,6 +7,7 @@ from typing import Dict
 from dataclasses import dataclass, field
 from config.settings import *
 from src.ricas_replica_creator import replica
+from utils.utilities import *
 
 # Dataclass asociado a los datos de las instancias.
 @dataclass
@@ -96,11 +97,19 @@ class MSA:
         self.current_data   = current_data.filter(pl.col('arrivals') <= actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
         self.to_be_assigned = self.current_data.join(data_assigned, how='anti')
     
-    def greedy(dataframe: pl.DataFrame) -> list:
+    def greedy() -> list:
         '''
         Metodo que aplica el greedy sobre un DataFrame y retorna la lista de rutas a seguir
         '''
-        
+        taboo = []
+        routes = []
+        for i in range(ROUTES_PER_SCENARIO):
+            route = []
+            for j in range(len(self.to_be_assigned)):
+
+
+
+        return routes
 
     def execute() -> pl.DataFrame:
         '''
@@ -109,7 +118,7 @@ class MSA:
         self.log.info(f'Iniciando ejecución de MSA en el minuto {actual_time / 60}')
 
         try:
-            sampling = replica(INSTANCE, NB_SCENARIOS, self.actual_time).filter(pl.col('arrivals') >= actual_time) # Notar que se muestra solo lo que no ha pasado todavía
+            self.sampling = replica(INSTANCE, NB_SCENARIOS, self.actual_time).filter(pl.col('arrivals') >= actual_time) # Notar que se muestra solo lo que no ha pasado todavía
         except Exception as e:
             self.log.critical(f'Error {e} al samplear escenarios. Deteniendo ejecución.')
             raise e

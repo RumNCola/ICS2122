@@ -1,19 +1,33 @@
 # Archivo con funciones generales que permiten el desarrollo del código. Nada muy específico.
 import matplotlib.pyplot as plt
+import numpy as np
 
-
-def rtb_feasibility_check(route:list, actual_time: int) -> bool:
+def feasibility_check_rtb(route:list, actual_time: int) -> bool:
     '''
     Funcion que recibe una ruta en formato simulated_data y retorna un booleano si es factible el RTB
     '''
+    pass
+
+def feasibility_check_tw(route: list, actual_time: int) -> bool:
+    '''
+    Función que recibe una ruta (lista), tiempo actual y retorna un booleano si es factible considerando los timewindows
+    '''
+    pass
+
 
 def feasibility_check(route: list, actual_time: int) -> bool:
     '''
     Funcion que recibe una lista de clientes a visitar en formato simulated_data y retorna un booleano si es factible
     '''
+    pass
 
+def distance(point_a: list, point_b: list) -> float:
+    '''
+    Funcion que calcula la distancia euclideana entre dos puntos
+    '''
+    return np.sqrt( np.square(point_a[0] - point_b[0]) + np.square(point_a[1] - point_b[1]) )
 
-
+def nearest_neighbor(pos: list, )
 
 def view_raw_data(data, target: str) -> None:
 

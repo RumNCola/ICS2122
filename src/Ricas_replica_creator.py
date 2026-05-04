@@ -556,6 +556,8 @@ def replica(instancia, replicas, t0 = 8.5 * 60 * 60):
 if __name__ == "__main__":
     print("Running Replica.py...")
     t0 = time.time()
-    data = replica(4, 1000)
+    data = replica(4, 100)
     print(data.filter(pl.col('arrivals') <= 9 * 60 * 60))
     print(f'Tiempo de ejecución (s): {(time.time() - t0)}')
+    for i in range(len(data)):
+        print(data[i])

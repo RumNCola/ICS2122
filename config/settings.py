@@ -48,3 +48,4 @@ MAX_PICKUP      = math.ceil(15.75 * 60 * 60)
 
 # Parámetros para MSA
 NB_SCENARIOS    = 100                            # Número de escenarios sampleados
+ROUTES_PER_SCENARIO = 100                        # Numero de rutas x escenario
