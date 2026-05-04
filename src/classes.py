@@ -86,10 +86,11 @@ class Truck:
     routes          : list[list]    # Lista de lista de customers
     current_route   : list          # Lista de customers
     arrival_times   : list          # Lista de próximos tiempos de llegada a destinos
-    is_waiting      : bool          # True si viene devuelta a depot
+    is_waiting      : bool          # True si el camión está esperando
+    is_rtb          : bool          # True si el camión va devuelta al depot
 
 class MSA:
-    def __init__(self, truck: Truck, actual_time: int, current_data: pl.DataFrame, data_assigned: pl.DataFrame):
+    def __init__(self, truck: Truck, actual_time: int, current_data: pl.DataFrame, data_assigned: pl.DataFrame, sampling_data: pl.DataFrame):
         '''
         Clase que ejecuta MSA para el camión entregado, desde el momento actual. Usa método greedy para crear las rutas
         '''
@@ -97,8 +98,12 @@ class MSA:
         self.actual_time    = actual_time
         self.log            = logging.getLogger(__name__)
         # SUPUESTO ENTREGA 2: LOS QUE NO ESTÁN LISTOS NO SE CONSIDERAN
+        # Data REVELADA disponible actualmente
         self.current_data   = current_data.filter(pl.col('arrivals') <= actual_time & pl.col('ready_times') <= actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
+        # Clientes REVELADOS pendientes de asignacion
         self.to_be_assigned = self.current_data.join(data_assigned, how='anti')
+        # Clientes SAMPLEADOS. solo nos interesa PICKUPS que podría pasar despues hasta un tiempo determinado Horizonte de dos horas
+        self.sampling_data  = sampling_data.filter(pl.col('arrivals') >= actual_time & pl.col('indicador') == True & pl.col('arrivals') <= actual_time + 2 * 60 * 60)
     
     def create_routes(self) -> list:
         '''
@@ -110,75 +115,68 @@ class MSA:
             clients         = len(self.to_be_assigned) # Número de clientes revelados
             # Crear una ruta, iniciando desde cada cliente realizado
             for j in range(clients):
-                route = []
-                route.append(self.to_be_assigned[j])
-
-
-
-            # Pendiente de desarrollo: CW - LONGEST - greedys
-            # route_greedy_lin= [self.to_be_assigned[u]]
-            # route_cw        = [self.to_be_assigned[u]]
-            route_nearest   = [self.to_be_assigned[u]]
-            # route_longest   = [self.to_be_assigned[u]]
-            # route_greedy    = []
-            
-            # Greedy según distancia y earliness
-            for i in range(clients):
-                earliness = self.to_be_assigned.sort("deadlines", descending=False)
-
-
-            # Greedy lineal- lo realmente greedy es insertar los mas cercanos y los earliest vencimiento
-            for i in range(clients):        # Para cada cliente pendiente de asignacion
-                if i in route_greedy:       # Omitiendo los que ya están en la ruta
+                route   = [self.to_be_assigned[j]]
+                # Nota, no se incluye si es infactible atender al cliente
+                if not feasibility_check(route, self.actual_time):
                     continue
-                else:
-                    new_route           = route_greedy_lin
-                    new_route.append(self.to_be_assigned[i])
-                    new_route           = sort_route(new_route)
-                    if feasibility_check(new_route):
-                        route_greedy    = new_route
+                domain  = self.to_be_assigned.vstack(self.sampling_data)
+                flag = True
+                while flag:
+                    nearest = nearest_neighbor(route[-1], domain, route, self.actual_time)
+                    if nearest == None:
+                        flag = False
                     else:
-                        continue
-            
-            
-
-
-
-
-
-
+                        if travel_time(route + [nearest]) <= ROUTE_TIMELIMIT:
+                            route.append(nearest)
+                if feasibility_check(route, self.actual_time):
+                    routes.append(route)
+        
+        # Proyectar rutas <=> eliminar los nodos simulados
+        for i in range(len(routes)):
+            for j in range(len(routes[i])):
+                if routes[i][j] not in self.to_be_assigned:
+                    routes[i].pop(j)
+                
         return routes
-
+    
     def execute(self) -> pl.DataFrame:
         '''
         Método que ejecuta el MSA
         '''
         self.log.info(f'Iniciando ejecución de MSA en el minuto {self.actual_time / 60}')
 
+        # Me queda actualizar el dataframe de atendidos
         try:
-            self.sampling = replica(INSTANCE, NB_SCENARIOS, self.actual_time).filter(pl.col('arrivals') >= self.actual_time) # Notar que se muestra solo lo que no ha pasado todavía
+            routes = self.create_routes()
+        
         except Exception as e:
-            self.log.critical(f'Error {e} al samplear escenarios. Deteniendo ejecución.')
+            self.log.critical(f'Error {e} al crear las rutas MSA.create_routes')
             raise e
-        
+
+        # Aqui se crea la matriz de consenso y se escoge la mejor - PARA LA ENTREGA 3. Ahora sera msad
         try:
-            for i in range(NB_SCENARIOS):
-                continue
-
-        
+        # En esta entrega se escoge la que tiene mayor razon de utilidad / distancia
+            best_route = None
+            best_razon = -10e6
+            for i in range(len(routes)):
+                for j in range(len(routes[i])):
+                    razon = find_utility(routes[i][j]) / route_distance(routes[i][j])
+                    if razon > best_razon:
+                        best_razon = razon
+                        best_route = routes[i][j]
         except Exception as e:
-            pass
-
-
-        # try:
-        #     self.data = 
+            self.log.critical('Error al calcular la mejor ruta bajo criterio Anton')
         
-        # except Exception as e:
-        #     self.log.critical(f'Error {e} al unir dataframes sampling y current_data. Deteniendo ejecucion')
+        if best_route == None or best_razon == -10e6:
+            raise Exception
         
+        self.truck.routes           = routes
+        self.truck.current_route    = best_route
+        self.truck.is_waiting       = False
+        self.truck.is_rtb           = False
 
-
-        return
+                
+        return self.truck
 
 class ALNS:
     def __init__(self):
@@ -189,7 +187,7 @@ class MDP:
     '''
     Clase principal que almacena el MDP y todos los elementos del problema
     '''
-    def __init__(self, data_path: str, replica_id: int):
+    def __init__(self, data_df: pl.DataFrame, replica_id: int):
         '''
         Inicializador. Recibe la ruta de los datos a usar y el número de replica a trabajar
         '''
@@ -203,9 +201,10 @@ class MDP:
         self.events         = []                    # Cola de Eventos
         self.trucks         = []                    # Lista de camiones
         self.t_actual       = 9 * 60 * 60           # Tiempo actual. inicia siendo las 9:00
-        self.data           = pl.read_parquet(data_path).filter(pl.col('replica') == replica_id) # Datos de instancia 'replica_id'
+        self.data           = data_df.filter(pl.col('replica') == replica_id) # Datos de instancia 'replica_id'
         self.data_assigned  = pl.DataFrame()
         self.available_data = self.data.filter(pl.col('arrivals') <= self.t_actual)              # Inicialmente solo está disponible la data de las 9:00
+        self.msa_sampling   = replica(INSTANCE, NB_REPLICA)
         self.log            = logging.getLogger(__name__)
 
         self.create_trucks()
@@ -236,8 +235,10 @@ class MDP:
         try:
             for i in range(self.nb_trucks):
                 # Revisamos los camiones que están esperando en el depot
-                if self.trucks[i].is_waiting == True and self.trucks[i].pos == [0,0]:
-                    continue
+                if self.trucks[i].is_rtb == True:
+                    msa = MSA(self.trucks[i], self.t_actual, self.data, self.data_assigned)
+                    msa.execute()
+                    #actualizar data_assigned
                 else:
                     continue
 

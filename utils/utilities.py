@@ -34,6 +34,27 @@ def travel_time(route: list[pl.DataFrame]) -> int:
 
     return travel_time
 
+def find_utility(route: list[pl.DataFrame]) -> int:
+    '''
+    Funcion que calcula la utilidad de una solucion
+    '''
+    u = 0
+    for i in range(len(route)):
+        if route[i]['indicador'] == True:
+            u += REWARDS[1]
+        else:
+            u += REWARDS[0]
+    return u
+
+def route_distance(route: list[pl.DataFrame]) -> int:
+    '''
+    Funcion que calcula la distancia de una ruta
+    '''
+    dist = distance([0,0], route[0]) + distance([0,0], route[-1])
+    for i in range(len(route) - 1):
+        dist += distance(route[i], route[i + 1])
+    return dist
+
 def feasibility_check_rtb(route:list, actual_time: int) -> bool:
     '''
     Funcion que recibe una ruta en formato simulated_data y retorna un booleano si es factible el RTB
@@ -44,7 +65,6 @@ def feasibility_check_rtb(route:list, actual_time: int) -> bool:
     else:
         return True
     
-
 def feasibility_check_tw(route: list, actual_time: int) -> bool:
     '''
     Función que recibe una ruta (lista), tiempo actual y retorna un booleano si es factible considerando los timewindows
@@ -56,14 +76,15 @@ def feasibility_check_tw(route: list, actual_time: int) -> bool:
     for i in range(len(route)):
         # Caso para el último nodo
         timelimit = route[i]['deadlines'][0]
+        timelimit_low = route[i]['ready_times'][0]
         
         if i == len(route) - 1:
-            if actual_time + travel_time <= timelimit:
+            if timelimit_low <= actual_time + travel_time <= timelimit:
                 return True
             else:
                 return False
         else:    
-            if actual_time + travel_time <= timelimit:
+            if timelimit_low <= actual_time + travel_time <= timelimit:
                 travel_time += distance(route[i], route[i + 1]) / SPEED + 3 * 60
                 continue
             else:
@@ -79,21 +100,22 @@ def feasibility_check(route: list, actual_time: int) -> bool:
     else:
         return False
 
-def nearest_neighbor(center: pl.DataFrame, data: pl.DataFrame, current_route: list, actual_time: int) -> pl.DataFrame:
+def nearest_neighbor(center: pl.DataFrame, to_be_assigned: pl.DataFrame, current_route: list, actual_time: int) -> pl.DataFrame:
     '''
     Metodo que recibe un cliente en formato dataframe y los clientes to_be_assigned y retorna un
     dataframe con el cliente más cercano y su índice en data
     '''
     nearest = None
     min_d = 10e8
-    for i in range(len(data)):
-        if data[i] == center or data[i] in current_route: # se salta el nodo si es el centro o ya esta en la ruta
+    for i in range(len(to_be_assigned)):
+        if to_be_assigned[i] == center or to_be_assigned[i] in current_route: # se salta el nodo si es el centro o ya esta en la ruta
             continue
         else:
-            dist = distance(center, data[i])
+            dist = distance(center, to_be_assigned[i])
             if dist < min_d:
-                if feasibility_check(current_route.append(data[i]), actual_time):
-                    nearest = data[i]
+                new_route = current_route + to_be_assigned[i]
+                if feasibility_check(new_route, actual_time):
+                    nearest = to_be_assigned[i]
                     min_d = dist
     return nearest
 

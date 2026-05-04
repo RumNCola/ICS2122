@@ -24,7 +24,7 @@ def run():
         # Obtener datos simulados
         if SIMULATE_DATA:
             logger.info('Creando replica con metodo Rica')
-            data_path = replica(INSTANCE, NB_SCENARIOS)
+            data_df = replica(INSTANCE, NB_SCENARIOS)
         else:
             logger.info(f'Obteniendo replica del archivo {DATA_FILE}')
             data_path = DATA_FILE
@@ -36,7 +36,7 @@ def run():
     try:
         # Crear MDP
         logger.info('Iniciando creación de MDP')
-        orchestrator = MDP(data_path, REPLICA_ID)
+        orchestrator = MDP(data_df, REPLICA_ID)
 
     except Exception as e:
         logger.critical('Error en la creación de MDP. Terminando ejecución')
