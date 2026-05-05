@@ -265,7 +265,7 @@ class MDP:
             raise e
         return
     
-    def create_routes(self):
+    def create_routes(self) -> None:
         '''
         Método que crea las rutas a los camiones en espera dentro del depot - SUPUESTO: La creación de rutas inicia a las 9:00 y no entre 8:30 y 9:00
         '''
@@ -284,14 +284,19 @@ class MDP:
                     self.data_assigned.vstack(self.trucks[i].current_route)
                     # actualizar la lista de eventos y ordenarla
                     self.epochs.extend(self.trucks[i].arrival_times).sort()
-                    
                 else:
                     continue
-
         except Exception as e:
             self.log.error(f'Error {e} en la creacion de rutas.')
             raise e
         return
+    
+    def main_loop(self) -> None:
+        '''
+        Funcion que ejecuta el loop principal del MDP
+        '''
+        
+
 
 
 
