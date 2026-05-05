@@ -89,6 +89,7 @@ class Truck:
     departure_times : list          # Lista de próximos tiempos de salida a destinos
     is_waiting      : bool          # True si el camión está esperando
     is_rtb          : bool          # True si el camión va devuelta al depot
+    rtb_time        : int           # Tiempo (s) en el que el camión volverá al depot. -1 es que ya volvió
 
 class MSA:
     def __init__(self, truck: Truck, actual_time: int, current_data: pl.DataFrame, data_assigned: pl.DataFrame, sampling_data: pl.DataFrame):
@@ -96,20 +97,24 @@ class MSA:
         Clase que ejecuta MSA para el camión entregado, desde el momento actual. Usa método greedy para crear las rutas
         '''
         self.truck          = truck
-        self.actual_time    = actual_time
+        # El ´tiempo actual' es el el máximo entre el tiempo actual y la llegada del truck al depot
+        if self.truck.rtb_time == -1:
+            self.actual_time = actual_time
+        else:
+            self.actual_time    = max(actual_time, self.truck.rtb_time)
         self.log            = logging.getLogger(__name__)
         # SUPUESTO ENTREGA 2: LOS QUE NO ESTÁN LISTOS NO SE CONSIDERAN
         # Data REVELADA disponible actualmente
-        self.current_data   = current_data.filter(pl.col('arrivals') <= actual_time & pl.col('ready_times') <= actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
+        self.current_data   = current_data.filter(pl.col('arrivals') <= self.actual_time & pl.col('ready_times') <= self.actual_time) # Filtro para robustez. Lo hago igual en la MDP cuando se lo entrega
         # Clientes REVELADOS pendientes de asignacion
         self.to_be_assigned = self.current_data.join(data_assigned, how='anti')
         # Clientes SAMPLEADOS. solo nos interesa PICKUPS que podría pasar despues hasta un tiempo determinado Horizonte de dos horas
-        self.sampling_data  = sampling_data.filter(pl.col('arrivals') >= actual_time & pl.col('indicador') == True & pl.col('arrivals') <= actual_time + 2 * 60 * 60)
+        self.sampling_data  = sampling_data.filter(pl.col('arrivals') >= self.actual_time & pl.col('indicador') == True & pl.col('arrivals') <= self.actual_time + 2 * 60 * 60)
     
     def create_routes(self) -> list:
         '''
         Metodo que aplica el greedy sobre un DataFrame y retorna la lista de rutas a seguir
-        Utilizaré distintos métodos para crear rutas
+        Actualiza el camion con su ruta a seguir, set de rutas y tiempos de departure, arribo
         '''
         routes = []
         for i in range(NB_SCENARIOS):
@@ -133,27 +138,48 @@ class MSA:
                     routes.append(route)
 
         # Encontrar tiempos de arrivo y salida
-        arrivals    = [] # Los arrivalss se quedan igual
+        arrivals    = [] # Los arrivals se quedan igual
         departures  = [] # Los departures cambian al realizar la proyeccion
         final_routes = [] # Las rutas finales las creo a medida que verifico que sean nodos reales.
 
         # Proyectar rutas <=> eliminar los nodos simulados
+        # i es la ruta, j es el nodo
         for i in range(len(routes)):
-            route       = [routes[i][0]]
+            route            = [routes[i][0]]
             base_arrival     = find_arrivals(routes[i])
-            base_departures  = find_departures(routes[i])
-            
+            arrival          = []
+            departure        = []
+                       
             for j in range(len(routes[i])):
+                # Si el nodo es simulado
                 if routes[i][j] not in self.to_be_assigned:
-                           
+                    continue
+
+                # Si el nodo es real
                 else:
+                    # Se agrega el nodo a la ruta
                     route.append(routes[i][j])
+                    # El tiempo de llegada no cambia
+                    arrival.append(base_arrival[j])
                     
+            # Los departures se calculan como a_{k+1} - d(N[p],N[q]) /SPEED - 3 * 60
+            for k in len(arrival):
+                if k == 0:
+                    departure.append(arrival[0] - distance(route[0], [0, 0]) / SPEED - 3 * 60)
+                elif k < len(arrival) - 1:
+                    departure.append(arrival[k] - (distance(route[k], route[k+1]) / SPEED + 3 * 60))
+                else:
+                    departure.append(arrival[-1] - distance(route[-1], [0, 0]) / SPEED)
+            
+            departures.append(departure)
+            arrivals.append(arrival)
+            final_routes.append(route)        
                     
 #AQUI VOY ANTON
             final_routes.append(route)
 
         self.truck.arrival_times = arrivals
+        self.truck.rtb_trime = arrivals[-1]
         self.truck.routes = final_routes
                 
         return final_routes
@@ -178,11 +204,10 @@ class MSA:
             best_route = None
             best_razon = -10e6
             for i in range(len(routes)):
-                for j in range(len(routes[i])):
-                    razon = find_utility(routes[i][j]) / route_distance(routes[i][j])
-                    if razon > best_razon:
-                        best_razon = razon
-                        best_route = routes[i][j]
+                razon = find_utility(routes[i]) / route_distance(routes[i])
+                if razon > best_razon:
+                    best_razon = razon
+                    best_route = routes[i]
         except Exception as e:
             self.log.critical('Error al calcular la mejor ruta bajo criterio Anton')
         
@@ -215,7 +240,6 @@ class MDP:
         self.max_pickup     = MAX_PICKUP            # Hora límite entrada de pickups (15:45)
         self.max_horizon    = MAX_HORIZON           # Horizonte de tiempo (17:00) por default
         self.epochs         = [9 * 60 * 60]                   # Epocas - 'an epoch begins when the vehicle arrives at a location and observes new customer requests'.
-        self.events         = []                    # Cola de Eventos
         self.trucks         = []                    # Lista de camiones
         self.t_actual       = 9 * 60 * 60           # Tiempo actual. inicia siendo las 9:00
         self.data           = data_df.filter(pl.col('replica') == replica_id) # Datos de instancia 'replica_id'
@@ -251,11 +275,16 @@ class MDP:
             self.log.info('Creando nuevas rutas')
         try:
             for i in range(self.nb_trucks):
+                # Crear la ruta es cuando rtb es true. Despachar cuando rtb true y pos = [0,0]
                 # Revisamos los camiones que están esperando en el depot
                 if self.trucks[i].is_rtb == True:
                     msa = MSA(self.trucks[i], self.t_actual, self.data, self.data_assigned)
-                    msa.execute()
-                    #actualizar data_assigned
+                    self.trucks[i] = msa.execute()
+                    # actualizar data_assigned
+                    self.data_assigned.vstack(self.trucks[i].current_route)
+                    # actualizar la lista de eventos y ordenarla
+                    self.epochs.extend(self.trucks[i].arrival_times).sort()
+                    
                 else:
                     continue
 
