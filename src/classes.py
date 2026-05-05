@@ -248,7 +248,11 @@ class MDP:
         self.msa_sampling   = replica(INSTANCE, NB_REPLICA)
         self.log            = logging.getLogger(__name__)
 
+        # Se agregan la entrada de pickups al pool de epochs
+        self.initialize_epochs()
+        # Crear los camiones
         self.create_trucks()
+        # Crear rutas MSA
         self.create_routes()
         self.log.info('Inicialización de MDP realizada con exito')
 
@@ -295,7 +299,21 @@ class MDP:
         '''
         Funcion que ejecuta el loop principal del MDP
         '''
+
+    def initialize_epochs(self) -> None:
+        '''
+        Método que inicializa los eventos. Es decir, agrega las solicitudes de pickups reveladas en el tiempo
+        a las epochs de decision.
+        '''
+        # Solo los eventos de pickup (indicador true). Se obtiene su tiempo de arribal exclusivamente. por eso i[0]
+        # Tambien solo dejé los que ocurren dsps del inicio de operaciones
+        epochs = [i[0] for i in self.data.filter(pl.col('indicador') == True & pl.col('arrivals') > 9 * 60 * 60)['arrival']]
+        self.epochs += epochs
+        return
         
+        
+
+
 
 
 
