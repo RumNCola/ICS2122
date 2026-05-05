@@ -140,15 +140,20 @@ class MSA:
         # Proyectar rutas <=> eliminar los nodos simulados
         for i in range(len(routes)):
             route       = [routes[i][0]]
-            arrival     = [self.actual_time + distance([0,0], routes[i][0]) / SPEED + 3 * 60]
-            departures  = [self.actual_time]
-            wait_time = 0
+            base_arrival     = find_arrivals(routes[i])
+            base_departures  = find_departures(routes[i])
+            
             for j in range(len(routes[i])):
                 if routes[i][j] not in self.to_be_assigned:
-                    wait_time += self.arrival[-1] +             
+                           
                 else:
+                    route.append(routes[i][j])
+                    
+                    
+#AQUI VOY ANTON
+            final_routes.append(route)
 
-
+        self.truck.arrival_times = arrivals
         self.truck.routes = final_routes
                 
         return final_routes

@@ -42,7 +42,18 @@ def find_arrivals(route: list[pl.DataFrame], actual_time: int) -> list:
     for i in range(len(route) - 1):
         new = arrival[-1] + distance(route[i], route[i + 1]) / SPEED + 3 * 60
         arrival.append(new)
+    new = arrival[-1] + distance(route[i], [0,0])
+    arrival.append(new)
     
+    return arrival
+
+def find_departures(route: list[pl.DataFrame], actual_time: int) -> list:
+    '''
+    FUncion que entrega un lista con los tiempos de departure de los nodos
+    '''
+    arrivals = find_arrivals(route, actual_time)
+    departures = [actual_time] + arrivals[1:-1]
+    return departures 
     
 
 def find_utility(route: list[pl.DataFrame]) -> int:
