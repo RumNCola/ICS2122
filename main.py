@@ -62,27 +62,18 @@ def run():
             event = orchestrator.identify_event(event_time=next_epoch)
 
             # Si el event es un arrival, no es relevante. Si es un pickup, se lanza ICD
-            if event != None:
+            if event == None:
+                # Encontrar el truck y eliminar el nodo de la current_route.
+                for i in range(len(orchestrator.trucks)):
+                    for j in range(len(orchestrator.trucks[i].current_route)):
+                        node = orchestrator.trucks[i].current_route[j]['']
+                        if 
+            else:
                 orchestrator.launch_ICDA(next_epoch)
             
             # Popear la época actual
             orchestrator.epochs.pop(0)
-            
-            
-
-            
-
-
-
-        
-
-
-
-
-
-
-
-
+                        
     except Exception as e:
         logger.critical(f'Error {e} en la ejecución principal. Deteniendo ejecucion.')
         raise e
