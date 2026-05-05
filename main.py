@@ -41,6 +41,52 @@ def run():
     except Exception as e:
         logger.critical('Error en la creación de MDP. Terminando ejecución')
         raise e
+    
+    # Main Loop
+    try:
+        realized_epochs = [9 * 60 * 60] # Puse que la inicialización del mdp se haga cargo del msa inicial
+        flag = True
+        while flag:
+            # Se ejecuta siempre y cuando hayan eventos restantes
+            if len(orchestrator.epochs) == 0:
+                flag = False
+            
+            # Identificar la siguiente época no realizada
+            for i in range(len(orchestrator.epochs)):
+                if orchestrator.epochs[i] not in realized_epochs:
+                    next_epoch = orchestrator.epochs[i]
+                    realized_epochs.append(next_epoch)
+            
+            # Actualizar el tiempo actual
+            orchestrator.t_actual = next_epoch
+            event = orchestrator.identify_event(event_time=next_epoch)
+
+            # Si el event es un arrival, no es relevante. Si es un pickup, se lanza ICD
+            if event != None:
+                orchestrator.launch_ICDA(next_epoch)
+            
+            # Popear la época actual
+            orchestrator.epochs.pop(0)
+            
+            
+
+            
+
+
+
+        
+
+
+
+
+
+
+
+
+    except Exception as e:
+        logger.critical(f'Error {e} en la ejecución principal. Deteniendo ejecucion.')
+        raise e
+        
 
     logger.info('Ejecución finalizada con éxito')
     return

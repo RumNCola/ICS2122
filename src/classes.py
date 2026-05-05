@@ -227,8 +227,22 @@ class ALNS:
         pass
 
 class ICD:
-    def __init__(self):
-        pass
+    def __init__(self, trucks):
+        self.trucks = trucks
+
+    def best_insertion
+    def rejection_policy(self, pickup: pl.DataFrame) -> bool:
+        '''
+        Funcion que recibe un pickup nuevo y retorna un booleano si este es atendible
+        o no. Además actualiza los camiones
+        '''
+        # Revisamos cada camion. Buscaremos la insercion que genere el menor retraso.
+        costs = []
+        for i in range(len(self.trucks)):
+            cost = travel_time(self.trucks[i].current_route)
+
+
+
 
 
 class MDP:
@@ -261,6 +275,7 @@ class MDP:
         self.create_trucks()
         # Crear rutas MSA
         self.create_routes()
+        self.epochs.pop(0)
         self.log.info('Inicialización de MDP realizada con exito')
 
     def create_trucks(self):
@@ -313,13 +328,12 @@ class MDP:
         self.epochs += epochs
         return
         
-    def identify_event(self) -> None:
+    def identify_event(self, event_time: int) -> None:
         '''
         Método que identifica si un epoch registrado está asociado a un pickup ingresado al sistema o
         al arrivo de una nueva solicitud.
         Hice robusta la resolucion. QUe revise los arrivals y los pickups entrantes, no solo 1
         '''
-        event_time = self.epochs[0]
         for i in range(len(self.trucks)):
             for j in range(len(self.trucks[i].arrival_times)):
                 if event_time == self.trucks[i].arrival_times[j]:
@@ -333,6 +347,16 @@ class MDP:
         else:
             return None
         
+    def launch_ICD(self, event_time: int) -> None:
+        '''
+        Método que inicia ICD ante la llegada de un cliente pickup nuevo.
+        Lo asigna a un camión y le actualiza en el MDP.
+        '''
+        
+        
+
+        return
+
 
 
 

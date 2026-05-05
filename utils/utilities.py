@@ -33,7 +33,7 @@ def travel_time(route: list[pl.DataFrame]) -> int:
     travel_time    += distance(route[-1], [0, 0])
 
     return travel_time
-
+ 
 def find_arrivals(route: list[pl.DataFrame], actual_time: int) -> list:
     '''
     Funcion que entrega una lista con los tiempos arrival de una ruta
@@ -121,6 +121,50 @@ def feasibility_check(route: list, actual_time: int) -> bool:
         return True
     else:
         return False
+    
+def best_insertion(actual_time: int, truck, node: pl.DataFrame) -> list[pl.DataFrame]:
+    '''
+    funcion que recibe una ruta y un nodo y devuelve la ruta modificada según la mejor insercion
+    revisa factibilidad.
+    '''
+    
+    arrivals    = truck.arrival_times
+    # Encontrar el proximo nodo a visitar
+    starting_node = None
+    for i in range(len(arrivals)):
+        if actual_time < arrivals[i]:
+            starting_node = i
+            break
+    # Si llega cuando el camion va rtb, se ignora.
+    if starting_node == None:
+        return False
+
+    best_cost   = 10e6    
+    route_after_insertion = None
+    largo = len(truck.current_route)
+
+    # Aca tengo que revisar bien los indices. Debe probar insercion desde el nodo 
+    for i in range(starting_node, largo):
+        test_route = truck.current_route
+        test_route.insert(i, node)
+        if feasibility_check(test_route):
+            cost = travel_time(test_route)
+            if cost < best_cost:
+                best_cost = cost
+                route_after_insertion = test_route
+        else:
+            continue
+    
+    # Si no se encontró solucion factible
+    if route_after_insertion == None:
+        return False
+
+
+
+
+
+
+
 
 def nearest_neighbor(center: pl.DataFrame, to_be_assigned: pl.DataFrame, current_route: list, actual_time: int) -> pl.DataFrame:
     '''
