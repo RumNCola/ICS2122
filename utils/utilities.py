@@ -34,6 +34,17 @@ def travel_time(route: list[pl.DataFrame]) -> int:
 
     return travel_time
 
+def find_arrivals(route: list[pl.DataFrame], actual_time: int) -> list:
+    '''
+    Funcion que entrega una lista con los tiempos arrival de una ruta
+    '''
+    arrival = [actual_time + distance([0,0], route[0]) / SPEED + 3 * 60]
+    for i in range(len(route) - 1):
+        new = arrival[-1] + distance(route[i], route[i + 1]) / SPEED + 3 * 60
+        arrival.append(new)
+    
+    
+
 def find_utility(route: list[pl.DataFrame]) -> int:
     '''
     Funcion que calcula la utilidad de una solucion

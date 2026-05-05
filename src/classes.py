@@ -86,6 +86,7 @@ class Truck:
     routes          : list[list]    # Lista de lista de customers
     current_route   : list          # Lista de customers
     arrival_times   : list          # Lista de próximos tiempos de llegada a destinos
+    departure_times : list          # Lista de próximos tiempos de salida a destinos
     is_waiting      : bool          # True si el camión está esperando
     is_rtb          : bool          # True si el camión va devuelta al depot
 
@@ -130,14 +131,27 @@ class MSA:
                             route.append(nearest)
                 if feasibility_check(route, self.actual_time):
                     routes.append(route)
-        
+
+        # Encontrar tiempos de arrivo y salida
+        arrivals    = [] # Los arrivalss se quedan igual
+        departures  = [] # Los departures cambian al realizar la proyeccion
+        final_routes = [] # Las rutas finales las creo a medida que verifico que sean nodos reales.
+
         # Proyectar rutas <=> eliminar los nodos simulados
         for i in range(len(routes)):
+            route       = [routes[i][0]]
+            arrival     = [self.actual_time + distance([0,0], routes[i][0]) / SPEED + 3 * 60]
+            departures  = [self.actual_time]
+            wait_time = 0
             for j in range(len(routes[i])):
                 if routes[i][j] not in self.to_be_assigned:
-                    routes[i].pop(j)
+                    wait_time += self.arrival[-1] +             
+                else:
+
+
+        self.truck.routes = final_routes
                 
-        return routes
+        return final_routes
     
     def execute(self) -> pl.DataFrame:
         '''
@@ -170,12 +184,10 @@ class MSA:
         if best_route == None or best_razon == -10e6:
             raise Exception
         
-        self.truck.routes           = routes
         self.truck.current_route    = best_route
-        self.truck.is_waiting       = False
+        self.truck.is_waiting       = False # Camion despachado
         self.truck.is_rtb           = False
 
-                
         return self.truck
 
 class ALNS:
