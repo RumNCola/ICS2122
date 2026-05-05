@@ -91,6 +91,8 @@ class Truck:
     is_rtb          : bool          # True si el camión va devuelta al depot
     rtb_time        : int           # Tiempo (s) en el que el camión volverá al depot. -1 es que ya volvió
 
+
+# ENTREgA 3: EL CAMIÓN NUNCA CONSIDERA ESPERAR EN EL DEPOT.
 class MSA:
     def __init__(self, truck: Truck, actual_time: int, current_data: pl.DataFrame, data_assigned: pl.DataFrame, sampling_data: pl.DataFrame):
         '''
@@ -224,6 +226,10 @@ class ALNS:
     def __init__(self):
         pass
 
+class ICD:
+    def __init__(self):
+        pass
+
 
 class MDP:
     '''
@@ -243,7 +249,8 @@ class MDP:
         self.trucks         = []                    # Lista de camiones
         self.t_actual       = 9 * 60 * 60           # Tiempo actual. inicia siendo las 9:00
         self.data           = data_df.filter(pl.col('replica') == replica_id) # Datos de instancia 'replica_id'
-        self.data_assigned  = pl.DataFrame()
+        self.data_assigned  = pl.DataFrame()        # Clientes asignados
+        self.data_served    = pl.DataFrame()        # Clientes efectivamente atendidos
         self.available_data = self.data.filter(pl.col('arrivals') <= self.t_actual)              # Inicialmente solo está disponible la data de las 9:00
         self.msa_sampling   = replica(INSTANCE, NB_REPLICA)
         self.log            = logging.getLogger(__name__)
@@ -263,7 +270,7 @@ class MDP:
         self.log.info('Iniciando creacion de camiones')
         try:
             for i in range(self.nb_trucks):
-                self.trucks.append(Truck(i, [0,0], [], [], [], True))
+                self.trucks.append(Truck(i, [0,0], [], [], [], [], True, True, -1))
         except Exception as e:
             self.log.critical(f'Error {e} en la creación de camiones. Deteniendo Ejecución')
             raise e
@@ -294,11 +301,6 @@ class MDP:
             self.log.error(f'Error {e} en la creacion de rutas.')
             raise e
         return
-    
-    def main_loop(self) -> None:
-        '''
-        Funcion que ejecuta el loop principal del MDP
-        '''
 
     def initialize_epochs(self) -> None:
         '''
@@ -311,6 +313,25 @@ class MDP:
         self.epochs += epochs
         return
         
+    def identify_event(self) -> None:
+        '''
+        Método que identifica si un epoch registrado está asociado a un pickup ingresado al sistema o
+        al arrivo de una nueva solicitud.
+        Hice robusta la resolucion. QUe revise los arrivals y los pickups entrantes, no solo 1
+        '''
+        event_time = self.epochs[0]
+        for i in range(len(self.trucks)):
+            for j in range(len(self.trucks[i].arrival_times)):
+                if event_time == self.trucks[i].arrival_times[j]:
+                    return None
+
+        domain = self.data.filter(pl.col('indicador') == True & pl.col('arrivals') == event_time)
+        # Si es un pickup
+        if len(domain) != 0:
+            return domain[0] # Al retornar un no nulo debería llamar al icd
+        # Si es un arrival
+        else:
+            return None
         
 
 
