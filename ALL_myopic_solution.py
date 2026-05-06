@@ -51,7 +51,7 @@ START_ss = hh_mm_ss_to_seconds("09:00:00")
 END_ss = hh_mm_ss_to_seconds("17:00:00")
 
 def move_camion(pos_camion, objective_pos):
-    '''Returns new_pos'''
+    '''Returns new_pos, TODO: Fix corners'''
 
     dy = objective_pos[1] - pos_camion[1]
     dx = objective_pos[0] - pos_camion[0]
@@ -162,7 +162,7 @@ def solve_myopic_pickup() -> list:
 
     atendiendo_timer = 0
     
-    ts = list(range(START_ss, END_ss+1))
+    ts = T_SS_CAMION
 
     for t_ss in ts[1:]:
         prev_pos = camion.t_posiciones[-1][1]
@@ -317,7 +317,7 @@ def solve_deliveries_camion(already_visited: list[float], id_str = "<undefined>"
 
     objective_pos = DEPOT_POS
 
-    ts = list(range(START_ss, END_ss+1))
+    ts = T_SS_CAMION
 
     for t_ss in ts[1:]:
         camion_pos = camion.t_posiciones[-1][1]
@@ -469,7 +469,7 @@ def solve_replica_myopic_and_save(output_folder: str):
 
     df_atendidos = create_df_atendidos(clientes_atendidos_pickup, clientes_atendidos_delivery2y3)
 
-    df_atendidos = add_columna_rappi(df_atendidos)
+    df_atendidos = add_columna_rappi(df_atendidos, g_REPLICA)
 
     atendidos_path = os.path.join(output_folder, "clientes_atendidos.csv")
     df_atendidos.to_csv(atendidos_path, index=False)
@@ -491,7 +491,9 @@ def solve_replica_myopic_and_save(output_folder: str):
     print("---")
     print(f"La utilidad total es de {utilidad}")
 
-def add_columna_rappi(df_atendidos):
+def add_columna_rappi(df_atendidos, replica: Replica):
+    '''Modifica df_atendidos, que debe ya tener las columnas tiempos_c1, tiempos_c2, tiempos_c3'''
+
     t_c1 = df_atendidos["tiempos_c1"]
     t_c2 = df_atendidos["tiempos_c2"]
     t_c3 = df_atendidos["tiempos_c3"]
@@ -506,9 +508,9 @@ def add_columna_rappi(df_atendidos):
         t_sale_el_rappi = INF
 
         if no_atendido:
-            pos_cliente = g_REPLICA.points[j]
-            tipo_cliente = g_REPLICA.indicador[j]
-            deadline_cliente = min(g_REPLICA.deadlines[j], END_TIME) # Esto es insólito!!!
+            pos_cliente = replica.points[j]
+            tipo_cliente = replica.indicador[j]
+            deadline_cliente = min(replica.deadlines[j], END_TIME) # Esto es insólito!!!
 
             rappi_duration = duracion_rappi(pos_cliente, tipo_cliente)
 

@@ -45,12 +45,6 @@ def hh_mm_ss_to_seconds(hh_mm_ss):
 
     return seconds_since_00
 
-START_TIME = hh_mm_ss_to_seconds("8:30:00")
-END_TIME = hh_mm_ss_to_seconds("17:00:00")
-
-CAMIONES_START_ss = hh_mm_ss_to_seconds("9:00:00")
-
-
 if __name__ == "__main__":
     print(hh_mm_ss_to_seconds("12:05:43"))
     print(seconds_to_hh_mm_ss("7200"), seconds_to_hh_mm_ss("7261"))
@@ -86,7 +80,12 @@ def duracion_rappi(pos_cliente, indicador_cliente): # ESTO nooooo va aquí
     
     return duracion_rappi
 
+START_TIME = hh_mm_ss_to_seconds("8:30:00")
+END_TIME = hh_mm_ss_to_seconds("17:00:00")
 
+CAMIONES_START_ss = hh_mm_ss_to_seconds("9:00:00")
+
+T_SS_CAMION = list(range(CAMIONES_START_ss, END_TIME+1))
 
 import os
 MANHATTAN_FILEPATH = os.path.join("images", "ImageSources", "GoogleEarthManhattan.png")

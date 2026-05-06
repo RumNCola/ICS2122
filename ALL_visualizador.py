@@ -11,7 +11,10 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import pandas as pd
 
-solved_camiones_folder = os.path.join("outputs", "myopic_outputs", "testingv6_rappis")
+testing_v6_folder = os.path.join("outputs", "myopic_outputs", "testingv6_rappis")
+CR_testing_folder = "outputs/CR_outputs/worked/CR_I1_R1_25ms"
+
+solved_camiones_folder = CR_testing_folder
 
 g_BACKGROUND_IMAGE = None
 g_INSTANCE_LIST = []
@@ -124,6 +127,15 @@ def plot_rappis(ax_plot: plt.axes,  points, indicadores):
     l_rp, = ax_plot.plot(r_px, r_py, MARKER_PICKUP_RAPPI,  markersize=MARKER_SIZE, label=f"{len(r_px)} Pickup Rappi\n")
     l_rd, = ax_plot.plot(r_dx, r_dy, MARKER_DELIVERY_RAPPI,  markersize=MARKER_SIZE, label=f"{len(r_dx)} Delivery Rappi\n")        
     
+def atendidos_por_hasta(id_camion: int, t_ss):
+    '''Alexa define rascation'''
+    global g_CLIENTES_ATENDIDOS_DF
+
+    columna = g_CLIENTES_ATENDIDOS_DF[f"tiempos_c{id_camion}"]
+    
+    filtered = [t for t in columna if t_ss >= t]
+
+    return len(filtered)
 
 def plot_camiones(ax_plot: plt.Axes):
     '''Mi amigo NO conoce los for loops!'''
@@ -161,19 +173,23 @@ def plot_camiones(ax_plot: plt.Axes):
             tt_c3,  = ax_plot.plot(h3x, h3y, TRON_TRAIL[2],  markersize=TRON_SIZE)
 
     if VISUAL_CONFIG_DICT[cb_show_camion1]:
-        l_c1, = ax_plot.plot(c1_x, c1_y, MARKERS_CAMIONES[0],  markersize=MARKER_SIZE, label="C. #1 (Pickup)\n")
+        atendidos_c1 = atendidos_por_hasta(1, g_CURRENT_TIME)
+        l_c1, = ax_plot.plot(c1_x, c1_y, MARKERS_CAMIONES[0],  markersize=MARKER_SIZE, label=f"C1 - #A = {atendidos_c1}: \n")
 
     if VISUAL_CONFIG_DICT[cb_show_camion2]:
-        l_c2, = ax_plot.plot(c2_x, c2_y, MARKERS_CAMIONES[1],  markersize=MARKER_SIZE, label="C. #2 (Delivery)\n")
+        atendidos_c2 = atendidos_por_hasta(2, g_CURRENT_TIME)
+        l_c2, = ax_plot.plot(c2_x, c2_y, MARKERS_CAMIONES[1],  markersize=MARKER_SIZE, label=f"C2 - #A = {atendidos_c2}\n")
 
     if VISUAL_CONFIG_DICT[cb_show_camion3]:
-        l_c3, = ax_plot.plot(c3_x, c3_y, MARKERS_CAMIONES[2],  markersize=MARKER_SIZE, label="C. #3 (Delivery)\n")
+        atendidos_c3 = atendidos_por_hasta(3, g_CURRENT_TIME)
+        l_c3, = ax_plot.plot(c3_x, c3_y, MARKERS_CAMIONES[2],  markersize=MARKER_SIZE, label=f"C3 - #A = {atendidos_c3}\n")
 
-def get_atendidos_xs_ys(tiempos_camion_i, points):
-    '''Returns [xs: list[float], ys: list[float]]'''
+def get_atendidos_xs_ys_indicadores(tiempos_camion_i, points, indicadores):
+    '''Returns [xs: list[float], ys: list[float], inds: list]'''
 
     xs = []
     ys = []
+    inds = []
 
     for j in range(len(tiempos_camion_i)):
 
@@ -184,29 +200,61 @@ def get_atendidos_xs_ys(tiempos_camion_i, points):
             xs.append(px)
             ys.append(py)
 
-    return [xs, ys]
+            inds.append(indicadores[j])
 
+    return [xs, ys, inds]
 
-def plot_atendidos(ax_plot: plt.Axes, points):
+def plot_atendidos_1_camion(ax_plot, atendidos, id_camion: int):
+    '''Actual plotting'''
+
+    px = []
+    py = []
+
+    dx = []
+    dy = []
+
+    num_atendidos = len(atendidos[0])
+    for j in range(num_atendidos):
+        x = atendidos[0][j]
+        y = atendidos[1][j]
+        ind = atendidos[2][j]
+
+        if ind == PICKUP:
+            px.append(x)
+            py.append(y)
+        else:
+            dx.append(x)
+            dy.append(y)
+            
+
+    index_camion = id_camion - 1
+    camion_color = MARKERS_CAMIONES[index_camion][1]
+    pickup_marker = f"{MARKER_PICKUP[0]}{camion_color}"
+    delivery_marker = f"{MARKER_DELIVERY[0]}{camion_color}"
+    l_a_pic, = ax_plot.plot(px, py, pickup_marker,  markersize=MARKER_SIZE)
+    l_a_del, = ax_plot.plot(dx, dy, delivery_marker,  markersize=MARKER_SIZE)
+
+def plot_atendidos(ax_plot: plt.Axes, points, indicadores):
     global g_CLIENTES_ATENDIDOS_DF # Explicit
 
     tiempos_c1 = g_CLIENTES_ATENDIDOS_DF["tiempos_c1"]
     tiempos_c2 = g_CLIENTES_ATENDIDOS_DF["tiempos_c2"]
     tiempos_c3 = g_CLIENTES_ATENDIDOS_DF["tiempos_c3"]
 
-    atendidos1 = get_atendidos_xs_ys(tiempos_c1, points)
-    atendidos2 = get_atendidos_xs_ys(tiempos_c2, points)
-    atendidos3 = get_atendidos_xs_ys(tiempos_c3, points) 
+    atendidos1 = get_atendidos_xs_ys_indicadores(tiempos_c1, points, indicadores)
+    atendidos2 = get_atendidos_xs_ys_indicadores(tiempos_c2, points, indicadores)
+    atendidos3 = get_atendidos_xs_ys_indicadores(tiempos_c3, points, indicadores) 
 
-    # Después es fácil cambiar los markers para cuando se separen
     if VISUAL_CONFIG_DICT[cb_show_camion1]:
-        l_a1, = ax_plot.plot(atendidos1[0], atendidos1[1], MARKERS_ATENDIDOS[0],  markersize=MARKER_SIZE, label=f"{len(atendidos1[0])} Atendidos (#1)\n")
+        plot_atendidos_1_camion(ax_plot, atendidos1, 1)
 
     if VISUAL_CONFIG_DICT[cb_show_camion2]:
-        l_a2, = ax_plot.plot(atendidos2[0], atendidos2[1], MARKERS_ATENDIDOS[1],  markersize=MARKER_SIZE, label=f"{len(atendidos2[0])} Atendidos (#2)\n")
+        plot_atendidos_1_camion(ax_plot, atendidos2, 2)
+        #l_a2, = ax_plot.plot(atendidos2[0], atendidos2[1], MARKERS_ATENDIDOS[1],  markersize=MARKER_SIZE, label=f"{len(atendidos2[0])} Atendidos (#2)\n")
 
     if VISUAL_CONFIG_DICT[cb_show_camion3]:
-        l_a3, = ax_plot.plot(atendidos3[0], atendidos3[1], MARKERS_ATENDIDOS[2],  markersize=MARKER_SIZE, label=f"{len(atendidos3[0])} Atendidos (#3)\n")
+        plot_atendidos_1_camion(ax_plot, atendidos3, 3)
+        #l_a3, = ax_plot.plot(atendidos3[0], atendidos3[1], MARKERS_ATENDIDOS[2],  markersize=MARKER_SIZE, label=f"{len(atendidos3[0])} Atendidos (#3)\n")
 
 
 def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Axes):
@@ -270,7 +318,7 @@ def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Ax
 
     if VISUAL_CONFIG_DICT[cb_show_camiones]:
         plot_camiones(ax_plot)
-        plot_atendidos(ax_plot, points)
+        plot_atendidos(ax_plot, points, indicadores)
     
 
     ax_plot.legend(loc='upper right', fontsize = "large")
