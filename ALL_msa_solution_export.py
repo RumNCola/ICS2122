@@ -6,8 +6,7 @@ from src.msa_policy import simular_msa
 from src.core import DEPOT, T_INICIO, V_CAMIONES
 
 
-############################ AAAAANNTTTOOOONNNNN little #################################
-# 8==D ---- configurar para el export ----- 8==D
+############################ Anton Little #################################
 INSTANCIA_IDX = 0
 REPLICA_IDX = 0
 OUTPUT_CSV = "output_msa.csv"
