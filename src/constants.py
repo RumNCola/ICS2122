@@ -19,6 +19,9 @@ NUM_REPLICAS = 100
 
 NUM_CAMIONES = 3
 
+VEL_RAPPI_MS = 25000 / 3600
+VEL_CAMION_MS = 25000 / 3600 # (25 km / hra) = 6.9444 m/s
+
 LABELS_INSTANCIAS = ["I", "II", "III", "IV"]
 
 def seconds_to_hh_mm_ss(seconds_since_0000):
@@ -61,7 +64,28 @@ def dist(pA: tuple, pB: tuple):
     '''Manhattan distance: |x2 - x1| + |y2 - y1| Igual que la vida real'''
     dx = pB[0] - pA[0]
     dy = pB[1] - pA[1]
-    return abs(dx) + abs(dy) 
+    return abs(dx) + abs(dy)
+
+def travel_time(pA: tuple, pB: tuple, v = 25000/3600):
+    '''returns t = dist(pA, pB) / v'''
+
+    t = (dist(pA, pB) / v)
+
+    return t
+
+import math
+def duracion_rappi(pos_cliente, indicador_cliente): # ESTO nooooo va aquí
+    '''Salen del depot: travel_time + service_time'''
+    tiempo_de_servicio = TIEMPO_DE_SERVICIO_DELIVERY
+    if indicador_cliente == PICKUP:
+        tiempo_de_servicio = TIEMPO_DE_SERVICIO_PICKUP
+
+    duracion_rappi = travel_time(DEPOT_POS, pos_cliente, VEL_RAPPI_MS) + tiempo_de_servicio
+
+    duracion_rappi = int(math.ceil(duracion_rappi))
+    
+    return duracion_rappi
+
 
 
 import os

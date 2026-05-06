@@ -11,7 +11,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import pandas as pd
 
-solved_camiones_folder = os.path.join("outputs", "myopic_outputs", "testingv4")
+solved_camiones_folder = os.path.join("outputs", "myopic_outputs", "testingv6_rappis")
 
 g_BACKGROUND_IMAGE = None
 g_INSTANCE_LIST = []
@@ -35,6 +35,10 @@ TRON_TRAIL = [".c", ".m", ".y"]
 MARKERS_CAMIONES = ["Pc", "Pm", "Py"]
 MARKERS_ATENDIDOS = ["*c", "dm", "dy"]
 
+MARKER_RAPPI = "Xk"
+MARKER_PICKUP_RAPPI = "*k"
+MARKER_DELIVERY_RAPPI = "dk"
+
 MARKER_SIZE = 20
 TRON_SIZE = MARKER_SIZE/4
 
@@ -46,7 +50,15 @@ cb_manhattan_background = "Manhattan fotorealístico"
 cb_heatmap = "heatmap"
 cb_show_camiones = "Mostrar camiones"
 cb_tron_trails = "FJ's Tron Trails"
-cb_save_images_label = "Guardar Imágenes"
+cb_show_camion1 = "Show Camión 1"
+cb_show_camion2 = "Show Camión 2"
+cb_show_camion3 = "Show Camión 3"
+cb_show_rappis = "Show Rappis"
+cb_show_pickups = "Show Pickups"
+cb_show_deliveries = "Show Deliveries"
+
+
+# cb_save_images_label = "Guardar Imágenes"
 
 VISUAL_CONFIG_DICT = {
     cb_show_grid_label: False,
@@ -54,7 +66,12 @@ VISUAL_CONFIG_DICT = {
     cb_heatmap: False,
     cb_show_camiones: True,
     cb_tron_trails: True,
-    cb_save_images_label: False
+    cb_show_camion1: True,
+    cb_show_camion2: True,
+    cb_show_camion3: True,
+    cb_show_rappis: True,
+    cb_show_pickups: True,
+    cb_show_deliveries: True
 }
 
 CONTROL_PANEL_WIDTH = 0.225 # Percentage
@@ -67,6 +84,46 @@ def save_graph(destination_filepath: str): # This should probably go in another 
 
     plt.savefig(destination_filepath, dpi=IMAGE_DPI)
 # --------------------------- Drawing with MatPlotLib -----------------------------
+
+def plot_rappis(ax_plot: plt.axes,  points, indicadores):
+    global g_CLIENTES_ATENDIDOS_DF
+
+    t_rappis = g_CLIENTES_ATENDIDOS_DF["t_sale_el_rappi"]
+
+    # 1) Clientes atendidos por rappi en negro
+
+    r_dx = []
+    r_dy = []
+
+    r_px = []
+    r_py = []
+    for j in range(len(t_rappis)):
+        t_sale_el_rappi = t_rappis[j]
+
+        if t_sale_el_rappi >= INF:
+            continue
+
+        pos_cliente = points[j]
+        indicador_cliente = indicadores[j]
+
+        duracion = duracion_rappi(pos_cliente, indicador_cliente)
+
+        t_termina_el_rappi = t_sale_el_rappi + duracion
+
+        if g_CURRENT_TIME >= t_termina_el_rappi:
+            px, py = pos_cliente
+
+            if indicador_cliente == PICKUP:
+                r_px.append(px)
+                r_py.append(py)
+            else:
+                r_dx.append(px)
+                r_dy.append(py)
+
+
+    l_rp, = ax_plot.plot(r_px, r_py, MARKER_PICKUP_RAPPI,  markersize=MARKER_SIZE, label=f"{len(r_px)} Pickup Rappi\n")
+    l_rd, = ax_plot.plot(r_dx, r_dy, MARKER_DELIVERY_RAPPI,  markersize=MARKER_SIZE, label=f"{len(r_dx)} Delivery Rappi\n")        
+    
 
 def plot_camiones(ax_plot: plt.Axes):
     '''Mi amigo NO conoce los for loops!'''
@@ -94,14 +151,23 @@ def plot_camiones(ax_plot: plt.Axes):
         h3x = g_T_POS_CAMIONES_DF["c3_x"][:time_index]
         h3y = g_T_POS_CAMIONES_DF["c3_y"][:time_index]
 
-        tt_c1,  = ax_plot.plot(h1x, h1y, TRON_TRAIL[0],  markersize=TRON_SIZE)
-        tt_c2,  = ax_plot.plot(h2x, h2y, TRON_TRAIL[1],  markersize=TRON_SIZE)
-        tt_c3,  = ax_plot.plot(h3x, h3y, TRON_TRAIL[2],  markersize=TRON_SIZE)
+        if VISUAL_CONFIG_DICT[cb_show_camion1]:
+            tt_c1,  = ax_plot.plot(h1x, h1y, TRON_TRAIL[0],  markersize=TRON_SIZE)
+        
+        if VISUAL_CONFIG_DICT[cb_show_camion2]:
+            tt_c2,  = ax_plot.plot(h2x, h2y, TRON_TRAIL[1],  markersize=TRON_SIZE)
 
-    
-    l_c1, = ax_plot.plot(c1_x, c1_y, MARKERS_CAMIONES[0],  markersize=MARKER_SIZE, label="C. #1 (Pickup)\n")
-    l_c2, = ax_plot.plot(c2_x, c2_y, MARKERS_CAMIONES[1],  markersize=MARKER_SIZE, label="C. #2 (Delivery)\n")
-    l_c3, = ax_plot.plot(c3_x, c3_y, MARKERS_CAMIONES[2],  markersize=MARKER_SIZE, label="C. #3 (Delivery)\n")
+        if VISUAL_CONFIG_DICT[cb_show_camion3]:
+            tt_c3,  = ax_plot.plot(h3x, h3y, TRON_TRAIL[2],  markersize=TRON_SIZE)
+
+    if VISUAL_CONFIG_DICT[cb_show_camion1]:
+        l_c1, = ax_plot.plot(c1_x, c1_y, MARKERS_CAMIONES[0],  markersize=MARKER_SIZE, label="C. #1 (Pickup)\n")
+
+    if VISUAL_CONFIG_DICT[cb_show_camion2]:
+        l_c2, = ax_plot.plot(c2_x, c2_y, MARKERS_CAMIONES[1],  markersize=MARKER_SIZE, label="C. #2 (Delivery)\n")
+
+    if VISUAL_CONFIG_DICT[cb_show_camion3]:
+        l_c3, = ax_plot.plot(c3_x, c3_y, MARKERS_CAMIONES[2],  markersize=MARKER_SIZE, label="C. #3 (Delivery)\n")
 
 def get_atendidos_xs_ys(tiempos_camion_i, points):
     '''Returns [xs: list[float], ys: list[float]]'''
@@ -130,13 +196,17 @@ def plot_atendidos(ax_plot: plt.Axes, points):
 
     atendidos1 = get_atendidos_xs_ys(tiempos_c1, points)
     atendidos2 = get_atendidos_xs_ys(tiempos_c2, points)
-    atendidos3 = get_atendidos_xs_ys(tiempos_c3, points)
-        
+    atendidos3 = get_atendidos_xs_ys(tiempos_c3, points) 
 
     # Después es fácil cambiar los markers para cuando se separen
-    l_a1, = ax_plot.plot(atendidos1[0], atendidos1[1], MARKERS_ATENDIDOS[0],  markersize=MARKER_SIZE, label=f"{len(atendidos1[0])} Atendidos (#1)\n")
-    l_a2, = ax_plot.plot(atendidos2[0], atendidos2[1], MARKERS_ATENDIDOS[1],  markersize=MARKER_SIZE, label=f"{len(atendidos2[0])} Atendidos (#2)\n")
-    l_a3, = ax_plot.plot(atendidos3[0], atendidos3[1], MARKERS_ATENDIDOS[2],  markersize=MARKER_SIZE, label=f"{len(atendidos3[0])} Atendidos (#3)\n")
+    if VISUAL_CONFIG_DICT[cb_show_camion1]:
+        l_a1, = ax_plot.plot(atendidos1[0], atendidos1[1], MARKERS_ATENDIDOS[0],  markersize=MARKER_SIZE, label=f"{len(atendidos1[0])} Atendidos (#1)\n")
+
+    if VISUAL_CONFIG_DICT[cb_show_camion2]:
+        l_a2, = ax_plot.plot(atendidos2[0], atendidos2[1], MARKERS_ATENDIDOS[1],  markersize=MARKER_SIZE, label=f"{len(atendidos2[0])} Atendidos (#2)\n")
+
+    if VISUAL_CONFIG_DICT[cb_show_camion3]:
+        l_a3, = ax_plot.plot(atendidos3[0], atendidos3[1], MARKERS_ATENDIDOS[2],  markersize=MARKER_SIZE, label=f"{len(atendidos3[0])} Atendidos (#3)\n")
 
 
 def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Axes):
@@ -186,11 +256,18 @@ def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Ax
     if VISUAL_CONFIG_DICT[cb_manhattan_background]:
         ax_plot.imshow(g_BACKGROUND_IMAGE, extent=[0, WIDTH_MAPA, 0, HEIGHT_MAPA])
 
-    l0, = ax_plot.plot(xs_pickups, ys_pickups, MARKER_PICKUP, markersize=MARKER_SIZE, label=f"{len(xs_pickups)} Pickups\n")
-    l1, = ax_plot.plot(xs_delivery, ys_delivery, MARKER_DELIVERY,  markersize=MARKER_SIZE, label=f"{len(xs_delivery)} Deliveries\n")
+    if VISUAL_CONFIG_DICT[cb_show_pickups]:
+        l0, = ax_plot.plot(xs_pickups, ys_pickups, MARKER_PICKUP, markersize=MARKER_SIZE, label=f"{len(xs_pickups)} Pickups\n")
+    
+    if VISUAL_CONFIG_DICT[cb_show_deliveries]:
+        l1, = ax_plot.plot(xs_delivery, ys_delivery, MARKER_DELIVERY,  markersize=MARKER_SIZE, label=f"{len(xs_delivery)} Deliveries\n")
+
     l2, = ax_plot.plot(*DEPOT_POS, MARKER_DEPOT,  markersize=MARKER_SIZE, label="1 Supply Depot\n")
     
     # Se plottea encima:
+    if VISUAL_CONFIG_DICT[cb_show_rappis]:
+        plot_rappis(ax_plot, points, indicadores)
+
     if VISUAL_CONFIG_DICT[cb_show_camiones]:
         plot_camiones(ax_plot)
         plot_atendidos(ax_plot, points)
@@ -263,13 +340,13 @@ def create_control_panel():
     fp = {"s": 100}
     cp = {"s": 100}
 
-    raxis_instancia = plt.axes([0.01, 0.20, CONTROL_PANEL_WIDTH - 0.04, 0.20])
+    raxis_instancia = plt.axes([0.01, 0.50, CONTROL_PANEL_WIDTH - 0.04, 0.30])
     radio_instances = RadioButtons(raxis_instancia, LABELS_INSTANCIAS, radio_props=rp)
     raxis_instancia.set_title("Instancia: ", loc="left")
     radio_instances.set_active(g_INSTANCE_INDEX) # Default
 
     labels_visuals = VISUAL_CONFIG_DICT.keys()
-    caxis_visuals = plt.axes([0.01, 0.01, CONTROL_PANEL_WIDTH - 0.04, 0.15])
+    caxis_visuals = plt.axes([0.01, 0.01, CONTROL_PANEL_WIDTH - 0.04, 0.40])
     check_visuals = CheckButtons(caxis_visuals, labels_visuals, actives=[VISUAL_CONFIG_DICT[key] for key in labels_visuals], frame_props=fp, check_props=cp)
     caxis_visuals.set_title("Visuals: ", loc="left")
 
@@ -352,7 +429,7 @@ def launch_image_app(periodos_save_images = [1]):
     return
 
 
-def update_visuals_from_cb(check_buttons: CheckButtons):
+def update_visuals_from_cb(check_buttons: CheckButtons, label: str):
     global VISUAL_CONFIG_DICT
 
     checked_labels = check_buttons.get_checked_labels()
@@ -411,7 +488,7 @@ def launch_cool_app():
         update_screen_from_rb(replica_slider)
 
     def cb_visual_func(label): # label is not used on purpose
-        update_visuals_from_cb(check_visuals)
+        update_visuals_from_cb(check_visuals, label)
 
         update_screen_from_rb(replica_slider)
              

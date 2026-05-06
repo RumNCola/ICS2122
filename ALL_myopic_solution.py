@@ -7,6 +7,8 @@ from src.constants import *
 from src.classes import *
 from src.instance_loader import *
 
+import math
+
 VERBOSE_PICKUP = False
 VERBOSE_DELIVERY = False
 
@@ -16,8 +18,9 @@ N_DELIVERY = 2
 
 g_REPLICA = Replica()
 
+OUTPUT_FOLDER_NAME = "testingv6_rappis"
 
-per_second_speed = 7 # 25000/3600 # (25 km / hra) = 6.9444 m/s
+NONE_INDEX = -1
 
 # States
 ATENDIENDO_CLIENTE = "Atendiendo Cliente..."
@@ -55,21 +58,21 @@ def move_camion(pos_camion, objective_pos):
 
     new_x, new_y = pos_camion
     if dx > 0:
-        dx = min(dx, per_second_speed)
+        dx = min(dx, VEL_CAMION_MS)
         new_x += dx
     elif dx < 0:
         dx = abs(dx)
-        dx = min(dx, per_second_speed)
+        dx = min(dx, VEL_CAMION_MS)
 
         new_x -= dx
     elif dx == 0:
         
         if dy > 0:
-            dy = min(dy, per_second_speed)
+            dy = min(dy, VEL_CAMION_MS)
             new_y += dy
         elif dy < 0: 
             dy = abs(dy)
-            dy = min(dy, per_second_speed)
+            dy = min(dy, VEL_CAMION_MS)
 
             new_y -= dy
         elif dy == 0:
@@ -78,9 +81,9 @@ def move_camion(pos_camion, objective_pos):
     return [new_x, new_y]
 
 def closest_index_to(origin, point_indexes):
-    '''Returns the index of the point closest to origin. -1 if point_indexes = []'''
+    '''Returns the index of the point closest to origin. NONE_INDEX if point_indexes = []'''
     min_dist = 99999999999
-    closest_index = -1
+    closest_index = NONE_INDEX
 
     for index in point_indexes:
         pos = g_REPLICA.points[index]
@@ -129,7 +132,7 @@ def get_route_pickup(camion: Camion, t_ss: int, pos_camion):
 
 def panic_check(camion: Camion, t_ss, camion_pos, be_verbose: bool):
     time_remaining = END_TIME - t_ss
-    conservative_remaining_dist = per_second_speed * (time_remaining-1)
+    conservative_remaining_dist = VEL_CAMION_MS * (time_remaining-1)
 
     if dist(camion_pos, DEPOT_POS) > conservative_remaining_dist:
         if be_verbose and camion.state != BACK_TO_DEPOT:
@@ -154,7 +157,7 @@ def solve_myopic_pickup() -> list:
     camion.visited = [INF] * g_REPLICA.num_points
     camion.t_posiciones = []
     camion.t_posiciones.append([START_ss, DEPOT_POS])
-    curr_obj_index = -1
+    curr_obj_index = NONE_INDEX
     curr_obj_pos = DEPOT_POS
 
     atendiendo_timer = 0
@@ -212,7 +215,32 @@ def solve_myopic_pickup() -> list:
         
     return (camion.visited, camion.t_posiciones)
 
-DELIVERY_ROUTE_LEN = 12
+def tiempo_de_finalizada_atencion(curr_pos, candidate_index, curr_time):
+    next_pos = g_REPLICA.points[candidate_index]
+
+    travel_time = dist(curr_pos, next_pos) / VEL_CAMION_MS # t = d / v
+
+    final_time = curr_time + travel_time + TIEMPO_DE_SERVICIO_DELIVERY
+
+    final_time = int(math.ceil(final_time)) # integer
+    return final_time
+
+
+def closest_index_but_delivery(curr_pos, curr_candidates, predicted_curr_time):
+    '''Returns the closest index, s.t. llego a tiempo!!! Returns '''
+
+    filtered_candidates = []
+    for candidate in curr_candidates:
+        tiempo_finalizado_atencion = tiempo_de_finalizada_atencion(curr_pos, candidate, predicted_curr_time)
+
+        if tiempo_finalizado_atencion <= g_REPLICA.deadlines[candidate]:
+            filtered_candidates.append(candidate)
+
+    return closest_index_to(curr_pos, filtered_candidates)
+
+
+
+DELIVERY_ROUTE_LEN = 10
 def create_delivery_route(visited, already_visited, t_ss, camion_pos) -> list:
     '''Returns a list of indexes to visit'''
 
@@ -246,25 +274,35 @@ def create_delivery_route(visited, already_visited, t_ss, camion_pos) -> list:
         return []
 
     len_route = min(DELIVERY_ROUTE_LEN, len(candidates))
-    # Ahora arma la ruta en base al candidato más cercano
     
     route = []
 
     curr_pos = DEPOT_POS
+
+    predicted_curr_time = t_ss
     while len(route) < len_route:
         curr_candidates = [c for c in candidates if c not in route]
         
-        next_destination = closest_index_to(curr_pos, curr_candidates)
+        next_destination = closest_index_but_delivery(curr_pos, curr_candidates, predicted_curr_time)
+        if next_destination == NONE_INDEX:
+            # No more candidates!
+            break
+
+        next_pos = g_REPLICA.points[next_destination]
 
         route.append(next_destination)
 
-        curr_pos = g_REPLICA.points[next_destination]
+        predicted_curr_time = tiempo_de_finalizada_atencion(curr_pos, next_destination, predicted_curr_time)
+        curr_pos = next_pos
 
     return route
 
-def solve_deliveries_camion(already_visited: list[float]) -> list:
+def solve_deliveries_camion(already_visited: list[float], id_str = "<undefined>") -> list:
     '''Returns (atendidos, t_pos_camion)
     Resuelve los deliveries de 1 camión'''
+
+    if VERBOSE_DELIVERY:
+        print(f"Soy el camión {id_str}")
 
     camion = Camion()
 
@@ -289,8 +327,8 @@ def solve_deliveries_camion(already_visited: list[float]) -> list:
         # 2. InRoute (Follows Route...)
         # 1 -> 2 -> 1 -> 2 -> ...
 
-        if t_ss % 300 == 0 and VERBOSE_DELIVERY: 
-            print(f"{seconds_to_hh_mm_ss(t_ss)}: {camion.state} ({camion_pos}) -> ({objective_pos}). ROUTE: {route_progress}/{route}")
+        if t_ss % 300 == 0 and VERBOSE_DELIVERY:
+            print(f"{seconds_to_hh_mm_ss(t_ss)}: {camion.state} ({[round(float(x), 2) for x in camion_pos]}) -> ({objective_pos}). ROUTE: {route_progress}/{route}")
 
 
         if camion.state == LOADING:
@@ -356,10 +394,10 @@ def solve_myopic_deliveries() -> list:
     '''Returns ((atendidos2, atendidos3), (t_pos2, t_pos3))'''
 
     # Camión 2
-    atendidos2, t_pos2 = solve_deliveries_camion([INF] * g_REPLICA.num_points)
+    atendidos2, t_pos2 = solve_deliveries_camion([INF] * g_REPLICA.num_points, "#2")
 
     # Camión 3
-    atendidos3, t_pos3 = solve_deliveries_camion(atendidos2)
+    atendidos3, t_pos3 = solve_deliveries_camion(atendidos2, "#3")
 
     return ((atendidos2, atendidos3), (t_pos2, t_pos3))
 
@@ -431,6 +469,8 @@ def solve_replica_myopic_and_save(output_folder: str):
 
     df_atendidos = create_df_atendidos(clientes_atendidos_pickup, clientes_atendidos_delivery2y3)
 
+    df_atendidos = add_columna_rappi(df_atendidos)
+
     atendidos_path = os.path.join(output_folder, "clientes_atendidos.csv")
     df_atendidos.to_csv(atendidos_path, index=False)
 
@@ -447,9 +487,39 @@ def solve_replica_myopic_and_save(output_folder: str):
     print(f"El camión 1 realizó {num_pickups} pickups")
     print(f"El camión 2 realizó {num_delis2} deliveries")
     print(f"El camión 3 realizó {num_delis3} deliveries")
-    print("La soluciíon es factible por teorema del careraja y el código cerrado")
+    print("La solución es factible con 90% certeza")
     print("---")
     print(f"La utilidad total es de {utilidad}")
+
+def add_columna_rappi(df_atendidos):
+    t_c1 = df_atendidos["tiempos_c1"]
+    t_c2 = df_atendidos["tiempos_c2"]
+    t_c3 = df_atendidos["tiempos_c3"]
+    
+    t_rappis = []
+    for j in range(len(t_c1)):
+        t1 = t_c1[j]
+        t2 = t_c2[j]
+        t3 = t_c3[j]
+        no_atendido = (t1 >= INF) and (t2 >= INF) and (t3 >= INF)
+
+        t_sale_el_rappi = INF
+
+        if no_atendido:
+            pos_cliente = g_REPLICA.points[j]
+            tipo_cliente = g_REPLICA.indicador[j]
+            deadline_cliente = min(g_REPLICA.deadlines[j], END_TIME) # Esto es insólito!!!
+
+            rappi_duration = duracion_rappi(pos_cliente, tipo_cliente)
+
+            t_sale_el_rappi = deadline_cliente - rappi_duration
+            
+        t_rappis.append(t_sale_el_rappi)
+
+
+    df_atendidos["t_sale_el_rappi"] = t_rappis
+
+    return df_atendidos
 
 
 import pandas as pd
@@ -459,7 +529,7 @@ if __name__ == "__main__":
     instance_I = load_instance_data(DATA_SRC[0])
     g_REPLICA = get_replica_from_instancia(instance_I, 0)
 
-    output_folder = os.path.join("outputs", "myopic_outputs", "testingv4")
+    output_folder = os.path.join("outputs", "myopic_outputs", OUTPUT_FOLDER_NAME)
     solve_replica_myopic_and_save(output_folder)
 
 
