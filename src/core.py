@@ -12,7 +12,7 @@ verificación de factibilidad, heurística de asignación y cargador de instanci
 
 #-------- Constantes del problema ---------------
 
-V_CAMIONES: float = 10.0 #m/s
+V_CAMIONES: float = 25000 / 3600 # 25km / hr = m/s
 DEPOT: Tuple[float, float] = (10_000.0, 10_000.0) #centro en cuadrado de 20x20
 T_INICIO: float = 30_600.0  #08:30:00 (secs desde las 00.00)
 T_FINAL: float = 61_200.0  #17:00:00

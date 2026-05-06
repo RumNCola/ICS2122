@@ -5,6 +5,7 @@ from src.instance_loader import load_default_instances
 from src.msa_policy import simular_msa
 from src.core import DEPOT, T_INICIO, V_CAMIONES
 
+print("Running ALL_msa_solution_export.py")
 
 ############################ Anton Little #################################
 INSTANCIA_IDX = 0
@@ -44,4 +45,4 @@ df["camion_pos"] = camion_pos
 
 #exportar
 df.to_csv(OUTPUT_CSV, index=False)
-print(f"Exportado {len(df)} eventos a {OUTPUT_CSV}")
+print(f"Se exportaron {len(df)} eventos a {OUTPUT_CSV}")
