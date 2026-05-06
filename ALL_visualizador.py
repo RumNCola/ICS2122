@@ -12,7 +12,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import pandas as pd
 
 testing_v6_folder = os.path.join("outputs", "myopic_outputs", "testingv6_rappis")
-CR_testing_folder = "outputs/CR_outputs/worked/CR_I1_R1_25ms"
+CR_testing_folder = "outputs/CR_outputs/worked/CR_I1_R1"
 
 solved_camiones_folder = CR_testing_folder
 
