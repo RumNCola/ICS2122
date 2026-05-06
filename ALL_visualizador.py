@@ -14,6 +14,8 @@ import pandas as pd
 testing_v6_folder = os.path.join("outputs", "myopic_outputs", "testingv6_rappis")
 CR_testing_folder = "outputs/CR_outputs/worked/CR_I1_R1"
 
+# ESTA CARPETA ES LA DE POST OUTPUT DEL TRADUCTOR, recomiendo hablar con Anton Little
+# Antes de cargar otro "solved camiones"
 solved_camiones_folder = CR_testing_folder
 
 g_BACKGROUND_IMAGE = None
