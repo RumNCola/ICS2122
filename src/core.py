@@ -14,7 +14,7 @@ verificación de factibilidad, heurística de asignación y cargador de instanci
 
 V_CAMIONES: float = 25000 / 3600 # 25km / hr = m/s
 DEPOT: Tuple[float, float] = (10_000.0, 10_000.0) #centro en cuadrado de 20x20
-T_INICIO: float = 30_600.0  #08:30:00 (secs desde las 00.00)
+T_INICIO: float = 32_400.0  #09:00:00 (secs desde las 00.00)
 T_FINAL: float = 61_200.0  #17:00:00
 T_SERVICIO: float = 180.0 #3 min por cliente
 NUM_CAMIONES: int = 3

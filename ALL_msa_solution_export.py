@@ -1,4 +1,3 @@
-import math
 import pandas as pd
 
 from src.instance_loader import load_default_instances
@@ -29,7 +28,7 @@ for camion in m["estados_camiones"]:
     x, y = DEPOT
     t = T_INICIO
     for cliente in camion.visited:
-        t_viaje = math.hypot(cliente.x- x, cliente.y - y)/V_CAMIONES
+        t_viaje = (abs(cliente.x - x) + abs(cliente.y - y))/V_CAMIONES
         t = max(t + t_viaje, cliente.ready)
         timestamps.append(t)
         camion_pos.append((cliente.x, cliente.y))
