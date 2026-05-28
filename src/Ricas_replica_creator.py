@@ -546,6 +546,7 @@ def replica(instancia, replicas):
 
     filepath = os.path.join(out_folder, filename)
     df.to_csv(filepath, index=False)
+    return df, filepath
 
 if __name__ == "__main__":
     print("Running Replica.py...")
