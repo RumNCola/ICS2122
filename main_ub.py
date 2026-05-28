@@ -8,7 +8,7 @@ def main(instancia: int = 1):
     # 1. Crear réplicas simuladas
     # instancia puede ser 1, 2, 3 o 4
     # replicas es la cantidad de días/escenarios que quieres samplear
-    replicas = 100
+    replicas = 1
     df, csv_path = replica(instancia, replicas)
 
     print(f"Archivo generado: {csv_path}")
