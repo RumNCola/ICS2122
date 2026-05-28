@@ -4,6 +4,7 @@
 :: instalacion de requirements si corresponde Descomentar si es la primera ejecución
 :: pip install -r requirements.txt
 ::python -m pip install --upgrade pip
+::pip install hexaly -i https://pip.hexaly.com
 
 :: Activación de variables de entorno
 call .venv\Scripts\activate.bat

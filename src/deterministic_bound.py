@@ -317,6 +317,50 @@ class VRPTWSolution:
             "solver_status": self.solver_status,
             **self.objective_summary,
         }
+    
+    def camion_positions_as_dataframe(self, include_depot: bool = False) -> pd.DataFrame:
+        rows = []
+
+        depot_xy = self.objective_summary.get("depot_xy", None)
+
+        for route in self.routes:
+            camion_id = route.vehicle
+
+            if include_depot and depot_xy is not None:
+                rows.append({
+                    "camion": camion_id,
+                    "timestamps": route.departure_time_from_depot,
+                    "camion_pos": str(tuple(depot_xy)),
+                })
+
+            for stop in route.stops:
+                rows.append({
+                    "camion": camion_id,
+                    "timestamps": stop.service_start,
+                    "camion_pos": str((stop.x, stop.y)),
+                })
+
+            if include_depot and depot_xy is not None:
+                rows.append({
+                    "camion": camion_id,
+                    "timestamps": route.return_to_depot_time,
+                    "camion_pos": str(tuple(depot_xy)),
+                })
+
+        df = pd.DataFrame(rows)
+
+        if not df.empty:
+            df = df.sort_values(["camion", "timestamps"]).reset_index(drop=True)
+
+        return df
+
+    def save_camion_positions_csv(
+        self,
+        filepath: str,
+        include_depot: bool = False,
+    ) -> None:
+        df = self.camion_positions_as_dataframe(include_depot=include_depot)
+        df.to_csv(filepath, index=False)
 
 
 # ---------------------------------------------------------------------------
