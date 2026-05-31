@@ -11,9 +11,10 @@ Ajustes principales respecto de la version inicial:
 - indicador=False / "False" => delivery, recompensa 2.
 - indicador=True / "True"   => pickup, recompensa 1.
 - Deliveries deben cargarse en depot: cada camion puede hacer varios viajes depot->clientes->depot.
-  Para un delivery dentro de un viaje, el viaje no puede salir del depot antes de que ese delivery
-  este listo. Si hay varios deliveries en el mismo viaje, el viaje sale despues del max ready_time
-  de esos deliveries.
+  Para TODO delivery dentro de un viaje, el ultimo paso por depot antes de atenderlo es la salida
+  de ese viaje. Por lo tanto, el viaje no puede salir del depot antes del ready_time de ningun
+  delivery contenido en el viaje. Si hay varios deliveries en el mismo viaje, el viaje sale despues
+  del maximo ready_time de esos deliveries. Pickups no fuerzan una recarga en depot.
 - Pickups no tienen deadline propia: por defecto se pueden atender hasta fin de jornada. Por defecto
   se respeta su ready_time/arrival como release time; esto se puede cambiar con pickup_ready_policy.
 
@@ -71,8 +72,11 @@ class VRPTWConfig:
         Es una cota de modelamiento. Si queda muy baja, puedes cortar soluciones buenas.
 
     delivery_must_be_loaded_at_depot:
-        Si True, todo delivery en un viaje fuerza que la salida de ese viaje desde depot sea
-        posterior al ready_time del delivery. Esta es la forma de modelar carga instantanea en depot.
+        Si True, todo delivery en un viaje exige que la salida de ese viaje desde depot sea
+        posterior al ready_time del delivery. Es decir, para un delivery j servido en el viaje
+        r, se impone departure_time_r >= ready_time_j. Como cada viaje parte desde depot,
+        esto garantiza que el camion paso por depot despues de que el paquete estuviera listo
+        y lo pudo cargar antes de visitar al cliente. Pickups no imponen esta restriccion.
 
     pickup_ready_policy:
         "arrival": un pickup no se puede servir antes de su ready_time/arrival.
@@ -200,6 +204,8 @@ class RouteStop:
     profit: float
     travel_time_from_previous: float
     distance_km_from_previous: float
+    loaded_at_depot_time: Optional[float] = None
+    delivery_load_ready_slack_sec: Optional[float] = None
 
 
 @dataclass
@@ -216,6 +222,8 @@ class RouteResult:
     return_to_depot_time: float
     feasible_time_windows: bool
     max_delivery_ready_loaded: float
+    delivery_load_feasible: bool = True
+    n_delivery_load_violations: int = 0
 
     @property
     def customer_ids(self) -> List[Any]:
@@ -276,6 +284,8 @@ class VRPTWSolution:
                         "profit": stop.profit,
                         "travel_time_from_previous": stop.travel_time_from_previous,
                         "distance_km_from_previous": stop.distance_km_from_previous,
+                        "loaded_at_depot_time": stop.loaded_at_depot_time,
+                        "delivery_load_ready_slack_sec": stop.delivery_load_ready_slack_sec,
                     }
                 )
         return pd.DataFrame(rows)
@@ -298,6 +308,8 @@ class VRPTWSolution:
                     "return_to_depot_time": route.return_to_depot_time,
                     "feasible_time_windows": route.feasible_time_windows,
                     "max_delivery_ready_loaded": route.max_delivery_ready_loaded,
+                    "delivery_load_feasible": route.delivery_load_feasible,
+                    "n_delivery_load_violations": route.n_delivery_load_violations,
                 }
             )
         return pd.DataFrame(rows)
@@ -739,6 +751,17 @@ def solve_vrptw_hexaly(
                 # Si hay deliveries en el viaje, el camion sale del depot no antes del max ready_time
                 # de esos deliveries; asi se modela que los paquetes se cargan en depot al iniciar viaje.
                 if config.delivery_must_be_loaded_at_depot:
+                    # Regla operacional estricta para deliveries:
+                    # Si un delivery j esta en este viaje, el camion debe salir del depot
+                    # en este viaje despues de ready[j]. Como el viaje empieza en depot,
+                    # esta salida es el ultimo paso por depot antes de visitar a j.
+                    #
+                    # En forma compacta:
+                    #     departure_time >= ready[j]   para todo delivery j en seq
+                    #
+                    # Por eso el viaje sale no antes del max ready_time de todos los
+                    # deliveries incluidos. Los pickups tienen coeficiente 0 y no fuerzan
+                    # recarga ni espera en depot.
                     delivery_ready_lambda = model.lambda_function(lambda j: delivery[j] * ready[j])
                     max_delivery_ready = model.max(seq, delivery_ready_lambda)
                     departure_time = model.iif(
@@ -746,9 +769,22 @@ def solve_vrptw_hexaly(
                         model.max(available_at_depot, max_delivery_ready),
                         available_at_depot,
                     )
+
+                    # Restriccion explicita de carga: evita que el modelo pueda servir un
+                    # delivery cuya orden no fue cargada en depot en la salida de este viaje.
+                    # Es redundante con departure_time=max(...), pero deja la factibilidad
+                    # totalmente expresada y permite penalizarla si las TW fueran suaves.
+                    delivery_load_late_lambda = model.lambda_function(
+                        lambda i: delivery[seq[i]] * model.max(0, ready[seq[i]] - departure_time)
+                    )
+                    route_delivery_load_lateness = model.sum(
+                        model.range(0, c),
+                        delivery_load_late_lambda,
+                    )
                 else:
                     max_delivery_ready = 0
                     departure_time = model.iif(used, available_at_depot, available_at_depot)
+                    route_delivery_load_lateness = 0
 
                 route_profit = model.sum(seq, profit_lambda)
                 route_profit_exprs.append(route_profit)
@@ -802,7 +838,11 @@ def solve_vrptw_hexaly(
                 late_lambda = model.lambda_function(
                     lambda i: model.max(0, end_time[i] - latest[seq[i]])
                 )
-                route_lateness = home_lateness + model.sum(model.range(0, c), late_lambda)
+                route_lateness = (
+                    home_lateness
+                    + model.sum(model.range(0, c), late_lambda)
+                    + route_delivery_load_lateness
+                )
                 lateness_exprs.append(route_lateness)
 
                 # Restriccion extra de consistencia: si hay pickups y se quiere respetar arrival/ready,
@@ -952,6 +992,11 @@ def _build_solution_from_trip_sequences(
         "require_all_customers": config.require_all_customers,
         "deadline_is_latest_start": config.deadline_is_latest_start,
         "delivery_must_be_loaded_at_depot": config.delivery_must_be_loaded_at_depot,
+        "delivery_loading_rule": (
+            "each delivery in a trip requires trip departure from depot >= its ready_time"
+            if config.delivery_must_be_loaded_at_depot
+            else "disabled"
+        ),
         "pickup_ready_policy": config.pickup_ready_policy,
         "max_trips_per_vehicle": config.max_trips_per_vehicle,
         "distance_cost_per_km_in_profit": config.distance_cost_per_km_in_profit,
@@ -1004,6 +1049,17 @@ def _evaluate_trip_route(
         max_delivery_ready = 0.0
         departure_time = available_at_depot
 
+    # Verificacion post-solve de la regla operacional:
+    # todo delivery servido en este viaje debe tener ready_time <= departure_time_from_depot.
+    # Para pickups no aplica.
+    delivery_load_violations = [
+        i for i in seq
+        if is_delivery[i] and departure_time + 1e-9 < effective_ready[i]
+    ]
+    delivery_load_feasible = len(delivery_load_violations) == 0
+    if not delivery_load_feasible:
+        feasible_tw = False
+
     current_time = departure_time
     prev: Optional[int] = None
 
@@ -1043,6 +1099,10 @@ def _evaluate_trip_route(
                 profit=scenario.profits[customer],
                 travel_time_from_previous=travel_time,
                 distance_km_from_previous=distance_km,
+                loaded_at_depot_time=departure_time if is_delivery[customer] else None,
+                delivery_load_ready_slack_sec=(
+                    departure_time - effective_ready[customer] if is_delivery[customer] else None
+                ),
             )
         )
 
@@ -1065,6 +1125,8 @@ def _evaluate_trip_route(
             return_to_depot_time=available_at_depot,
             feasible_time_windows=True,
             max_delivery_ready_loaded=0.0,
+            delivery_load_feasible=True,
+            n_delivery_load_violations=0,
         )
 
     total_distance += distance_depot_km[prev]
@@ -1086,6 +1148,8 @@ def _evaluate_trip_route(
         return_to_depot_time=return_to_depot,
         feasible_time_windows=feasible_tw,
         max_delivery_ready_loaded=max_delivery_ready,
+        delivery_load_feasible=delivery_load_feasible,
+        n_delivery_load_violations=len(delivery_load_violations),
     )
 
 

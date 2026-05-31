@@ -1,5 +1,5 @@
 from src.deterministic_bound import VRPTWConfig, solve_vrptw_hexaly
-from src.Ricas_replica_creator import replica
+from src.ricas_replica_creator import replica
 import numpy as np
 import pandas as pd
 
@@ -9,7 +9,8 @@ def main(instancia: int = 1):
     # instancia puede ser 1, 2, 3 o 4
     # replicas es la cantidad de días/escenarios que quieres samplear
     replicas = 1
-    df, csv_path = replica(instancia, replicas)
+    # df, csv_path = replica(instancia, replicas)
+    df, csv_path = pd.read_csv(f'output_dir/instancia_tipo_1_I.csv'),f'output_dir/instancia_tipo_1_I.csv'
 
     print(f"Archivo generado: {csv_path}")
     print(df.head())
@@ -82,7 +83,7 @@ def main(instancia: int = 1):
         print(solution.summary_as_dict())
         solution_summaries.append(solution.summary_as_dict())
         solution.save_camion_positions_csv(
-    f"camion_positions_instancia_{instancia}_replica_{replica_id}.csv",
+    f"outputs/truck_positions_instance_{instancia}_replica_{replica_id + 1}.csv",
     include_depot=False
 )
 
@@ -94,8 +95,8 @@ def main(instancia: int = 1):
 
     # 6. Guardar resultados
     solution_summaries_df = pd.DataFrame(solution_summaries)
-    solution_summaries_df.to_csv(f"outputs/solution_summaries_instancia_{instancia}_replicas_{replicas}.csv", index=False)
-    print(f'Número de réplicas resueltas: {replicas}')
+    solution_summaries_df.to_csv(f"outputs/solution_summaries_instancia_{instancia}_replicas_{replicas+1}.csv", index=False)
+    print(f'Número de réplicas resueltas: {replicas+1}')
     print(f' --- Atencion ---')
     print(f'Promedio de clientes atendidos: {solution_summaries_df["served_customers"].mean()}')
     print(f'Promedio de clientes no atendidos: {solution_summaries_df["unserved_customers"].mean()}')
@@ -112,5 +113,6 @@ def main(instancia: int = 1):
 
 if __name__ == "__main__":
     np.random.seed(42)
-    for i in range(4):
-        main(instancia=i + 1)
+    # for i in range(4):
+    #     main(instancia=i + 1)
+    main(instancia=1)
