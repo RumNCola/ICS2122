@@ -84,8 +84,7 @@ def main(instancia: int = 1):
         solution_summaries.append(solution.summary_as_dict())
         solution.save_camion_positions_csv(
     f"outputs/truck_positions_instance_{instancia}_replica_{replica_id + 1}.csv",
-    include_depot=False
-)
+    include_depot=True)
 
     #     rutas = solution.routes_as_dataframe()
     #     viajes = solution.trips_as_dataframe()
