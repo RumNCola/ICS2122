@@ -1,4 +1,6 @@
-# Archivo encargado de procesar datos
+''' Archivo encargado de crear las instancias en base a los datos originales 
+    que fueron dados como enunciado'''
+
 import os
 import pickle
 import logging

@@ -9,3 +9,6 @@ main.log
 .DS_STORE
 # simulated_data/*
 outputs/*
+.DS_Store.orig
+simulated_data/*
+__init__.py
