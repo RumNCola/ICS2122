@@ -7,7 +7,7 @@ environment/.env
 main.log
 .vscode
 .DS_STORE
-# simulated_data/*
+simulated_data/*
 outputs/*
 .DS_Store.orig
 simulated_data/*
