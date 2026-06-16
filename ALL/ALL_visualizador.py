@@ -298,7 +298,10 @@ def plot_points(points: list, indicadores: list, arrivals: list, ax_plot: plt.Ax
         if indicador == PICKUP:
             xs_pickups.append(x)
             ys_pickups.append(y)
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
         else:
             xs_delivery.append(x)
             ys_delivery.append(y)
@@ -589,5 +592,4 @@ def launch_cool_app():
 
 if __name__ == "__main__":
     print("Running ALL_visualizador.py!\n")
-
     launch_cool_app()
