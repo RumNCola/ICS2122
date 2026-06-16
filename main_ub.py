@@ -84,7 +84,7 @@ def main(instancia: int = 1, replicas: int = 100):
     # df, csv_path = replica(instancia, replicas)
     df, csv_path = (
         pd.read_csv(f"instancias_de_geyter/instancia_tipo_{instancia}.csv"),
-        f"instancias_de_geyter/instancia_tipo_{instancia}_I.csv",
+        f"instancias_de_geyter/instancia_tipo_{instancia}.csv",
     )
 
     print(f"Archivo generado/leído: {csv_path}")
@@ -135,7 +135,7 @@ def main(instancia: int = 1, replicas: int = 100):
         # Delivery requiere carga en depot antes de atenderse
         delivery_must_be_loaded_at_depot=True,
 
-        time_limit_sec=60,
+        time_limit_sec=15,
     )
 
     # 3. Resolver cada réplica como escenario determinístico con información perfecta
@@ -303,4 +303,7 @@ def main(instancia: int = 1, replicas: int = 100):
 if __name__ == "__main__":
     # np.random.seed(42)
     for i in range(4):
-        main(instancia=i + 1, replicas=100)
+        if i == 0:
+            continue
+        else:
+            main(instancia=i + 1, replicas=100)
