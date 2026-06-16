@@ -306,6 +306,9 @@ class VRPTWSolution:
                     "departure_time_from_depot": route.departure_time_from_depot,
                     "route_end_time_at_last_customer": route.route_end_time_at_last_customer,
                     "return_to_depot_time": route.return_to_depot_time,
+                    "tour_duration_sec": route.return_to_depot_time - route.departure_time_from_depot,
+                    "tour_duration_min": (route.return_to_depot_time - route.departure_time_from_depot) / 60.0,
+                    "tour_duration_hours": (route.return_to_depot_time - route.departure_time_from_depot) / 3600.0,
                     "feasible_time_windows": route.feasible_time_windows,
                     "max_delivery_ready_loaded": route.max_delivery_ready_loaded,
                     "delivery_load_feasible": route.delivery_load_feasible,
@@ -315,6 +318,42 @@ class VRPTWSolution:
         return pd.DataFrame(rows)
 
     def summary_as_dict(self) -> Dict[str, Any]:
+        # Métricas agregadas por tour/viaje.
+        # Un tour corresponde a un RouteResult no vacío: depot -> clientes -> depot.
+        # route_duration_sec incluye esperas, servicio y traslado desde salida del depot
+        # hasta retorno al depot. total_travel_time_sec considera solo tiempo de viaje.
+        nb_tours = len(self.routes)
+        customers_per_tour = [len(route.stops) for route in self.routes]
+        tour_durations_sec = [
+            route.return_to_depot_time - route.departure_time_from_depot
+            for route in self.routes
+        ]
+
+        avg_customers_per_tour = (
+            float(np.mean(customers_per_tour)) if customers_per_tour else 0.0
+        )
+        avg_tour_duration_sec = (
+            float(np.mean(tour_durations_sec)) if tour_durations_sec else 0.0
+        )
+
+        # Desviacion estandar muestral y error estandar.
+        # Estos campos permiten construir intervalos de confianza por replica
+        # sobre la distribucion de tours de esa replica.
+        std_customers_per_tour = (
+            float(np.std(customers_per_tour, ddof=1)) if len(customers_per_tour) >= 2 else 0.0
+        )
+        se_customers_per_tour = (
+            std_customers_per_tour / math.sqrt(len(customers_per_tour))
+            if customers_per_tour else 0.0
+        )
+        std_tour_duration_sec = (
+            float(np.std(tour_durations_sec, ddof=1)) if len(tour_durations_sec) >= 2 else 0.0
+        )
+        se_tour_duration_sec = (
+            std_tour_duration_sec / math.sqrt(len(tour_durations_sec))
+            if tour_durations_sec else 0.0
+        )
+
         return {
             "nb_vehicles_used": self.nb_vehicles_used,
             "nb_trips_used": self.nb_trips_used,
@@ -326,6 +365,19 @@ class VRPTWSolution:
             "profit_rate": self.profit_rate,
             "total_distance_km": self.total_distance_km,
             "total_travel_time_sec": self.total_travel_time_sec,
+            "nb_tours": nb_tours,
+            "avg_customers_per_tour": avg_customers_per_tour,
+            "std_customers_per_tour": std_customers_per_tour,
+            "se_customers_per_tour": se_customers_per_tour,
+            "avg_tour_duration_sec": avg_tour_duration_sec,
+            "std_tour_duration_sec": std_tour_duration_sec,
+            "se_tour_duration_sec": se_tour_duration_sec,
+            "avg_tour_duration_min": avg_tour_duration_sec / 60.0,
+            "std_tour_duration_min": std_tour_duration_sec / 60.0,
+            "se_tour_duration_min": se_tour_duration_sec / 60.0,
+            "avg_tour_duration_hours": avg_tour_duration_sec / 3600.0,
+            "std_tour_duration_hours": std_tour_duration_sec / 3600.0,
+            "se_tour_duration_hours": se_tour_duration_sec / 3600.0,
             "solver_status": self.solver_status,
             **self.objective_summary,
         }
