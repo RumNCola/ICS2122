@@ -361,7 +361,7 @@ _OPS_REPARACION = [insercion_greedy, insercion_regret2]
 
 _PUNTAJE_MEJOR = 3   #nuevo mejor global
 _PUNTAJE_MEJOR_ACT = 2   #mejora sobre el actual
-_PUNTAJE_ACEPTADO  = 1   #aceptado pese a ser peor (aceptación greedy)
+_PUNTAJE_ACEPTADO  = 1   #aceptado por RRT pese a ser peor que actual
 _PUNTAJE_RECHAZADO = 0
 
 _DECAIMIENTO = 0.8  #factor de decaimiento para pesos adaptativos
@@ -370,7 +370,8 @@ def resolver_alns(customers: Dict[int, Cliente], starts: List[InicioRuta],
                n_iteraciones: int = 100, fraccion_elim: float = 0.20,
                limite_tiempo_s: float = 2.0, seed: int = 0,
                depot: Tuple[float, float] = DEPOT, t_final: float = T_FINAL,
-               velocidad: float = V_CAMIONES) -> SolucionALNS:
+               velocidad: float = V_CAMIONES,
+               umbral_rrt_inicial: float = 2.0) -> SolucionALNS:
     """
     Ejecuta ALNS (aura). Retorna mejor solucion
 
@@ -418,16 +419,23 @@ def resolver_alns(customers: Dict[int, Cliente], starts: List[InicioRuta],
         _OPS_REPARACION[idx_r](candidato, rng)    #reparar
 
         puntaje = _PUNTAJE_RECHAZADO
+        cand_gain = candidato.ganancia_total()
+        act_gain = actual.ganancia_total()
+        # umbral decays linearly from umbral_rrt_inicial to ~0 over n_iteraciones
+        umbral = umbral_rrt_inicial * (1.0 - it / n_iteraciones)
 
-        #actualizar mejor
-        if candidato.ganancia_total() > mejor.ganancia_total():
+        #actualizar mejor (estricto, sin umbral)
+        if cand_gain > mejor.ganancia_total():
             mejor = candidato.clonar()
             puntaje = _PUNTAJE_MEJOR
 
-        #actualizar actual
-        if candidato.ganancia_total() >= actual.ganancia_total():
+        #actualizar actual (RRT: acepta si no cae más de umbral respecto al actual)
+        if cand_gain >= act_gain - umbral:
             actual = candidato
-            puntaje = max(puntaje, _PUNTAJE_MEJOR_ACT)
+            if cand_gain >= act_gain:
+                puntaje = max(puntaje, _PUNTAJE_MEJOR_ACT)
+            else:
+                puntaje = max(puntaje, _PUNTAJE_ACEPTADO)
 
         #actualizar puntajes
         puntajes_d[idx_d] += puntaje
