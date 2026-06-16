@@ -4,20 +4,20 @@ TODO: Checkear realidad de rutas interpoladas'''
 from src.constants import *
 from src.classes import *
 from src.instance_loader import *
-from ALL_myopic_solution import move_camion, add_columna_rappi
+from ALL_myopic_solution import move_camion, add_columna_rappi, add_columna_indicador
+from ALL_filepaths import *
 
 import pandas as pd
 
-IDS_CAMIONES = [1, 2, 3]
-
 EPS = 0.1
 
-CR_FOLDER = os.path.join("outputs", "CR_outputs")
-CR_OUT_FOLDER = os.path.join(CR_FOLDER, "worked", "CR_I1_R1")
+raw_filename = "FJ_output_29mayv1.csv"
+out_foldername = "FJ2905EEE"
 
-CR_RAW_FILEPATH = os.path.join(CR_FOLDER, "raw", "output_msa_I1_R1.csv")
-CR_OUTPUT_FILEPATH_pc = os.path.join(CR_OUT_FOLDER, "posiciones_camiones.csv")
-CR_OUTPUT_FILEPATH_ca = os.path.join(CR_OUT_FOLDER, "clientes_atendidos.csv")
+CR_FOLDER = os.path.join("outputs", "CR_outputs")
+CR_RAW_FILEPATH = os.path.join(CR_FOLDER, "raw", raw_filename)
+
+CR_OUT_FOLDER = os.path.join(CR_FOLDER, "worked", out_foldername)
 
 df_raw = pd.read_csv(CR_RAW_FILEPATH)
 
@@ -149,9 +149,29 @@ def create_clientes_atendidos_df(df_raw: pd.DataFrame, replica: Replica):
         df[column_name] = columna
 
     add_columna_rappi(df, replica)
+    add_columna_indicador(df, replica)
     
     return df
 
+def create_worked_from_raw_csv(raw_csv_path, out_folder):
+    instance_I = load_instance_data(DATA_SRC[0])
+    replica = get_replica_from_instancia(instance_I, 0) 
+
+    print("Loaded instancia & replica")
+    
+    df_raw = pd.read_csv(raw_csv_path)
+    create_directory(out_folder)
+    
+    cr_out_pc = output_filepath_pc(out_folder)
+    cr_out_ca = output_filepath_ca(out_folder)
+    
+    df_pc = create_posiciones_camiones_df(df_raw)
+    df_pc.to_csv(cr_out_pc, index=False)
+    print(f"Writing to... {cr_out_pc}")
+
+    df_ca = create_clientes_atendidos_df(df_raw, replica)
+    df_ca.to_csv(cr_out_ca, index=False)
+    print(f"Writing to... {cr_out_ca}")
 
         
 if __name__ == "__main__":
@@ -161,13 +181,8 @@ if __name__ == "__main__":
     replica = get_replica_from_instancia(instance_I, 0) 
 
     print("Loaded instancia & replica")
-    
-    df_pc = create_posiciones_camiones_df(df_raw)
-    df_pc.to_csv(CR_OUTPUT_FILEPATH_pc, index=False)
-    print(f"Writing to... {CR_OUTPUT_FILEPATH_pc}")
 
-    df_ca = create_clientes_atendidos_df(df_raw, replica)
-    df_ca.to_csv(CR_OUTPUT_FILEPATH_ca, index=False)
-    print(f"Writing to... {CR_OUTPUT_FILEPATH_ca}")
+    create_worked_from_raw_csv(CR_RAW_FILEPATH, CR_OUT_FOLDER)
+
 
 

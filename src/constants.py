@@ -2,7 +2,7 @@
 
 INF = 10**12
 
-TIEMPO_DELIVERY_LOADING = 900
+TIEMPO_DELIVERY_LOADING = 5 # Igual que la vida real!
 
 TIEMPO_DE_SERVICIO_PICKUP = 180
 TIEMPO_DE_SERVICIO_DELIVERY = 180
@@ -18,6 +18,7 @@ DEPOT_POS = [10000, 10000]
 NUM_REPLICAS = 100
 
 NUM_CAMIONES = 3
+IDS_CAMIONES = [1, 2, 3]
 
 VEL_RAPPI_MS = 25000 / 3600
 VEL_CAMION_MS = 25000 / 3600 # (25 km / hra) = 6.9444 m/s
@@ -45,14 +46,6 @@ def hh_mm_ss_to_seconds(hh_mm_ss):
 
     return seconds_since_00
 
-if __name__ == "__main__":
-    print(hh_mm_ss_to_seconds("12:05:43"))
-    print(seconds_to_hh_mm_ss("7200"), seconds_to_hh_mm_ss("7261"))
-
-    print(hh_mm_ss_to_seconds(seconds_to_hh_mm_ss(120324)))
-    print(seconds_to_hh_mm_ss(hh_mm_ss_to_seconds("21:59:20")))
-
-    print(START_TIME, END_TIME)
 
 def dist(pA: tuple, pB: tuple):
     '''Manhattan distance: |x2 - x1| + |y2 - y1| Igual que la vida real'''
@@ -89,3 +82,9 @@ T_SS_CAMION = list(range(CAMIONES_START_ss, END_TIME+1))
 
 import os
 MANHATTAN_FILEPATH = os.path.join("images", "ImageSources", "GoogleEarthManhattan.png")
+
+if __name__ == "__main__":
+    print(f"{32160} -> {seconds_to_hh_mm_ss(32160)}")
+    print(f"{"9:00:00"} -> {hh_mm_ss_to_seconds("9:00:00")}")
+
+    print(f"{hh_mm_ss_to_seconds("17:00:00") - hh_mm_ss_to_seconds("9:00:00")}")

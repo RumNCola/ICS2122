@@ -9,6 +9,7 @@ from src.instance_loader import *
 
 import math
 
+VERBOSE_MYOPIC = False
 VERBOSE_PICKUP = False
 VERBOSE_DELIVERY = False
 
@@ -18,7 +19,7 @@ N_DELIVERY = 2
 
 g_REPLICA = Replica()
 
-OUTPUT_FOLDER_NAME = "testingv6_rappis"
+OUTPUT_FOLDER_NAME = "testingv8_fastfast"
 
 NONE_INDEX = -1
 
@@ -95,8 +96,45 @@ def closest_index_to(origin, point_indexes):
 
     return closest_index
 
+g_obj_pickup = NONE_INDEX
+g_next_pickup_spawn_time = 0
+def update_next_pickup_spawn_time(t_ss):
+    global g_next_pickup_spawn_time
+
+    arrival_times = []
+
+    for i in range(g_REPLICA.num_points):
+        indicador = g_REPLICA.indicador[i]
+        time = g_REPLICA.arrivals[i]
+
+        if indicador != PICKUP:
+            continue
+
+        if time >= t_ss: 
+            arrival_times.append(time)
+
+    if arrival_times == []:
+        g_next_pickup_spawn_time = INF
+    else:
+        arrival_times = sorted(arrival_times)
+
+        g_next_pickup_spawn_time = arrival_times[0]
+        
+
+
 def get_route_pickup(camion: Camion, t_ss: int, pos_camion):
     '''As of now, just returns closest one lol'''
+    global g_next_pickup_spawn_time, g_obj_pickup
+
+    # Rasca para poder en el informe que corre en < 1 s
+    nothing_new_has_happened = t_ss < g_next_pickup_spawn_time and g_obj_pickup != NONE_INDEX
+    if nothing_new_has_happened:
+        # Nothing new has happened, follow old route
+        if VERBOSE_PICKUP and t_ss % 300 == 0:
+            print(f"> {seconds_to_hh_mm_ss(t_ss)}: Nothing new has happened... continuing to target {g_obj_pickup}")
+        return [g_obj_pickup]
+    
+    update_next_pickup_spawn_time(t_ss)
 
     # 1. Possible destinations
     possible_pickups = []
@@ -126,9 +164,10 @@ def get_route_pickup(camion: Camion, t_ss: int, pos_camion):
         if VERBOSE_PICKUP:
             print("> No hay pickups para atender...")
         
-        return None
+        return [NONE_INDEX]
     
-    return [closest_index_to(pos_camion, possible_pickups)]
+    g_obj_pickup = closest_index_to(pos_camion, possible_pickups)
+    return [g_obj_pickup]
 
 def panic_check(camion: Camion, t_ss, camion_pos, be_verbose: bool):
     time_remaining = END_TIME - t_ss
@@ -145,11 +184,13 @@ def solve_myopic_pickup() -> list:
     '''Returns (clientes_atendidos: list[int], posiciones_camion: list[(t_ss, pos_tuple)])\n
     clientes_atendidos es una lista de tiempos de atención (INF si no es atendido)\n
     posiciones_camion: es la posición del camión para cada segundo (t, (x, y))'''
-
+    global g_obj_pickup, g_next_pickup_spawn_time # ooooh, me definitely no likey
     global g_REPLICA
 
     # Primera simulación son 28800 segundos, un update por segundo
     # (TODO: Considerar updatear más inteligentemente, solo cuando ocurre una acción por ejemplo)
+    g_obj_pickup = NONE_INDEX
+    g_next_pickup_spawn_time = 0
 
     camion = Camion()
     camion.state = YENDO_A_CLIENTE
@@ -184,11 +225,12 @@ def solve_myopic_pickup() -> list:
                     camion.visited[curr_obj_index] = t_ss
 
                     camion.state = YENDO_A_CLIENTE
+                    g_obj_pickup = NONE_INDEX
 
         if camion.state == YENDO_A_CLIENTE:
             route = get_route_pickup(camion, t_ss, camion_pos)
 
-            if route == None:
+            if route == NONE_INDEX:
                 if VERBOSE_PICKUP:
                     print("No hay clientes para atender!")
 
@@ -449,16 +491,78 @@ def create_df_atendidos(clientes_atendidos_pickup, clientes_atendidos_delivery2y
 
     return df_atendidos
 
+def calculate_utility_from_df_atendidos(df_atendidos):
+    '''Returns (utilidad, [p1, p2, p3], [d1, d2 d3])\n
+    Con pi = # pickups atendidos por i, di = # deliveries atendidos por i'''
+    # WHAT THE F*CK IS A FOR LOOP!!! https://www.youtube.com/watch?v=OUZwAefgisI
+
+    indicadores = df_atendidos["indicador"]
+
+    # pi = # pickups atendidos por i, di = # deliveries atendidos por i
+    p1 = 0
+    d1 = 0
+    p2 = 0
+    d2 = 0
+    p3 = 0
+    d3 = 0
+
+    for j in range(len(df_atendidos["tiempos_c1"])):
+        t1 = df_atendidos["tiempos_c1"][j]
+        t2 = df_atendidos["tiempos_c2"][j]
+        t3 = df_atendidos["tiempos_c3"][j]
+        if t1 < INF:
+            if indicadores[j] == PICKUP:
+                p1 += 1
+            else:
+                d1 += 1
+
+        if t2 < INF:
+            if indicadores[j] == PICKUP:
+                p2 += 1
+            else:
+                d2 += 1
+
+        if t3 < INF:
+            if indicadores[j] == PICKUP:
+                p3 += 1
+            else:
+                d3 += 1
+
+    num_pickups = p1 + p2 + p3
+    num_deliveries = d1 + d2 + d3 
+
+    utilidad = num_pickups + 2 * num_deliveries
+
+    return (utilidad, [p1, p2, p3], [d1, d2, d3])
+
+def print_desglose_utilidad(df_atendidos):
+    utilidad, ps, ds = calculate_utility_from_df_atendidos(df_atendidos)
+
+    print("DESGLOSE UTILIDAD")
+    print(f"El camión 1 realizó {ps[0]}+{ds[0]} = {ps[0]+ds[0]} =  pickups+deliveries")
+    print(f"El camión 2 realizó {ps[1]}+{ds[1]} = {ps[1]+ds[1]} = pickups+deliveries")
+    print(f"El camión 3 realizó {ps[2]}+{ds[2]} = {ps[2]+ds[2]} = pickups+deliveries")
+    print("La solución es factible con 90% certeza")
+    print("---")
+    print(f"La utilidad total es de {utilidad}")
 
 
-def solve_replica_myopic_and_save(output_folder: str):
-    print(f"Running a Myopic solution of {g_REPLICA}")
+
+def solve_replica_myopic_and_save(output_folder: str, replica = None):
+    global g_REPLICA
+
+    g_REPLICA = replica
+
+    if VERBOSE_MYOPIC:
+        print(f"Running a Myopic solution of {g_REPLICA}")
 
     clientes_atendidos_pickup, t_pos_camion_pickup = solve_myopic_pickup()
-    print("Pickup processed...")
+    if VERBOSE_MYOPIC:
+        print("Pickup processed...")
 
     clientes_atendidos_delivery2y3, t_pos_camion_2y3 = solve_myopic_deliveries()
-    print("Deliveries processed...")
+    if VERBOSE_MYOPIC:
+        print("Deliveries processed...")
 
     df_pos = create_df_pos(t_pos_camion_pickup, t_pos_camion_2y3)
 
@@ -471,25 +575,17 @@ def solve_replica_myopic_and_save(output_folder: str):
 
     df_atendidos = add_columna_rappi(df_atendidos, g_REPLICA)
 
+    df_atendidos = add_columna_indicador(df_atendidos, g_REPLICA)
+
     atendidos_path = os.path.join(output_folder, "clientes_atendidos.csv")
     df_atendidos.to_csv(atendidos_path, index=False)
 
     print(f"Saved to {atendidos_path}")
 
     # Calcula utilidad
+    if VERBOSE_MYOPIC:
+        print_desglose_utilidad(df_atendidos)
 
-    num_pickups = len([t for t in df_atendidos["tiempos_c1"] if t < INF])
-    num_delis2 = len([t for t in df_atendidos["tiempos_c2"] if t < INF])
-    num_delis3 = len([t for t in df_atendidos["tiempos_c3"] if t < INF])
-    utilidad = num_pickups + 2 * (num_delis2 + num_delis3)
-
-    print("DESGLOSE UTILIDAD")
-    print(f"El camión 1 realizó {num_pickups} pickups")
-    print(f"El camión 2 realizó {num_delis2} deliveries")
-    print(f"El camión 3 realizó {num_delis3} deliveries")
-    print("La solución es factible con 90% certeza")
-    print("---")
-    print(f"La utilidad total es de {utilidad}")
 
 def add_columna_rappi(df_atendidos, replica: Replica):
     '''Modifica df_atendidos, que debe ya tener las columnas tiempos_c1, tiempos_c2, tiempos_c3'''
@@ -523,6 +619,11 @@ def add_columna_rappi(df_atendidos, replica: Replica):
 
     return df_atendidos
 
+def add_columna_indicador(df, replica: Replica):
+    df["indicador"] = replica.indicador
+
+    return df
+
 
 import pandas as pd
 
@@ -532,6 +633,6 @@ if __name__ == "__main__":
     g_REPLICA = get_replica_from_instancia(instance_I, 0)
 
     output_folder = os.path.join("outputs", "myopic_outputs", OUTPUT_FOLDER_NAME)
-    solve_replica_myopic_and_save(output_folder)
+    solve_replica_myopic_and_save(output_folder, g_REPLICA)
 
 

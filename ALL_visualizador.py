@@ -6,22 +6,22 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from src.constants import *
+from ALL_KPIs_from_worked import analysis_replica_path
+
 from matplotlib.widgets import Slider, RadioButtons, CheckButtons
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import pandas as pd
 
-testing_v6_folder = os.path.join("outputs", "myopic_outputs", "testingv6_rappis")
-CR_testing_folder = "outputs/CR_outputs/worked/CR_I1_R1"
+# IMPORTANTOU:
+g_analysis_folder = "outputs/perkin_analysis_outputs/FJv1"
 
-# ESTA CARPETA ES LA DE POST OUTPUT DEL TRADUCTOR, recomiendo hablar con Anton Little
-# Antes de cargar otro "solved camiones"
-solved_camiones_folder = CR_testing_folder
+PRECISION_IN_SECONDS = 30
 
 g_BACKGROUND_IMAGE = None
 g_INSTANCE_LIST = []
 g_INSTANCE_INDEX = 0
-g_CURRENT_REPLICA = 0
+g_REPLICA_INDEX = 0
 g_CURRENT_TIME = END_TIME #(START_TIME+END_TIME)//2
 g_INSTANCE = None
 
@@ -126,8 +126,8 @@ def plot_rappis(ax_plot: plt.axes,  points, indicadores):
                 r_dy.append(py)
 
 
-    l_rp, = ax_plot.plot(r_px, r_py, MARKER_PICKUP_RAPPI,  markersize=MARKER_SIZE, label=f"{len(r_px)} Pickup Rappi\n")
-    l_rd, = ax_plot.plot(r_dx, r_dy, MARKER_DELIVERY_RAPPI,  markersize=MARKER_SIZE, label=f"{len(r_dx)} Delivery Rappi\n")        
+    l_rp, = ax_plot.plot(r_px, r_py, MARKER_PICKUP_RAPPI,  markersize=MARKER_SIZE)
+    l_rd, = ax_plot.plot(r_dx, r_dy, MARKER_DELIVERY_RAPPI,  markersize=MARKER_SIZE, label=f"{len(r_dx)} + {len(r_px)} = {len(r_dx)+len(r_px)} Rappis\n")        
     
 def atendidos_por_hasta(id_camion: int, t_ss):
     '''Alexa define rascation'''
@@ -176,7 +176,7 @@ def plot_camiones(ax_plot: plt.Axes):
 
     if VISUAL_CONFIG_DICT[cb_show_camion1]:
         atendidos_c1 = atendidos_por_hasta(1, g_CURRENT_TIME)
-        l_c1, = ax_plot.plot(c1_x, c1_y, MARKERS_CAMIONES[0],  markersize=MARKER_SIZE, label=f"C1 - #A = {atendidos_c1}: \n")
+        l_c1, = ax_plot.plot(c1_x, c1_y, MARKERS_CAMIONES[0],  markersize=MARKER_SIZE, label=f"C1 - #A = {atendidos_c1}\n")
 
     if VISUAL_CONFIG_DICT[cb_show_camion2]:
         atendidos_c2 = atendidos_por_hasta(2, g_CURRENT_TIME)
@@ -373,7 +373,7 @@ def get_discretized_time(precision_in_seconds = 60):
     return discretized_time
 
 def create_time_slider(slider_ax):
-    times_of_interest = get_discretized_time()
+    times_of_interest = get_discretized_time(PRECISION_IN_SECONDS)
 
     initial_t = times_of_interest[0]
     final_t = times_of_interest[-1]
@@ -442,13 +442,13 @@ def show_heatmap(ax_plot: plt.Axes, instancia, num_x_boxes = 10, num_y_boxes = 1
 
 def draw_main_graph(fig: plt.Figure, ax_plot: plt.Axes):
     '''Redibuja el plot del centro (con los puntos pickups/deliverys, etc.) nuevamente'''
-    global g_INSTANCE, g_INSTANCE_INDEX, g_CURRENT_REPLICA
+    global g_INSTANCE, g_INSTANCE_INDEX, g_REPLICA_INDEX
 
     ax_plot.cla()
 
-    points = g_INSTANCE.points[g_CURRENT_REPLICA]
-    indicadores = g_INSTANCE.indicador[g_CURRENT_REPLICA]
-    arrivals = g_INSTANCE.arrivals[g_CURRENT_REPLICA]
+    points = g_INSTANCE.points[g_REPLICA_INDEX]
+    indicadores = g_INSTANCE.indicador[g_REPLICA_INDEX]
+    arrivals = g_INSTANCE.arrivals[g_REPLICA_INDEX]
     
     if VISUAL_CONFIG_DICT[cb_heatmap]:
         show_heatmap(ax_plot, g_INSTANCE_LIST[g_INSTANCE_INDEX], 40, 40)
@@ -456,7 +456,7 @@ def draw_main_graph(fig: plt.Figure, ax_plot: plt.Axes):
 
     else:
         plot_points(points, indicadores, arrivals, ax_plot)
-        ax_plot.set_title(f"Representación Instancia {LABELS_INSTANCIAS[g_INSTANCE_INDEX]}, réplica {g_CURRENT_REPLICA}")
+        ax_plot.set_title(f"Instancia {LABELS_INSTANCIAS[g_INSTANCE_INDEX]}, Réplica {g_REPLICA_INDEX}")
 
     fig.canvas.draw_idle()
 
@@ -465,7 +465,7 @@ def update_screen_from_rb(replica_slider: Slider):
     '''Updates replica_slider (which draws the main graph)'''
 
     replica_slider.valstep = list(range(100))
-    replica_slider.set_val(g_CURRENT_REPLICA)
+    replica_slider.set_val(g_REPLICA_INDEX)
 
 def set_image_size(width_px, height_px, dpi):
     global FIGURE_HEIGHT_PX, FIGURE_WIDTH_PX, IMAGE_DPI
@@ -489,11 +489,26 @@ def update_visuals_from_cb(check_buttons: CheckButtons, label: str):
 
     print(f"Updated Visuals from Check Buttons")
 
+def update_camiones_dfs():
+    global g_T_POS_CAMIONES_DF, g_CLIENTES_ATENDIDOS_DF
+
+    solved_camiones_folder = analysis_replica_path(g_analysis_folder, g_INSTANCE_INDEX, g_REPLICA_INDEX)
+
+    if os.path.isdir(solved_camiones_folder):
+        g_T_POS_CAMIONES_DF = pd.read_csv(os.path.join(solved_camiones_folder, "posiciones_camiones.csv"))
+        g_CLIENTES_ATENDIDOS_DF = pd.read_csv(os.path.join(solved_camiones_folder, "clientes_atendidos.csv"))
+    else:
+        g_T_POS_CAMIONES_DF = None
+        g_CLIENTES_ATENDIDOS_DF = None
+
+        VISUAL_CONFIG_DICT[cb_show_camiones] = False
+        VISUAL_CONFIG_DICT[cb_show_rappis] = False
+
 import numpy as np
 from PIL import Image
 from src.instance_loader import *
-def init_cool_app():
-    global g_INSTANCE_LIST, g_INSTANCE, g_INSTANCE_INDEX, g_BACKGROUND_IMAGE, g_T_POS_CAMIONES_DF, g_CLIENTES_ATENDIDOS_DF
+def init_cool_app(analysis_folder = "default"):
+    global g_INSTANCE_LIST, g_INSTANCE, g_INSTANCE_INDEX, g_BACKGROUND_IMAGE, g_analysis_folder
 
     g_INSTANCE_LIST = load_default_instances()
 
@@ -501,8 +516,10 @@ def init_cool_app():
 
     g_BACKGROUND_IMAGE = np.asarray(Image.open(MANHATTAN_FILEPATH))
 
-    g_T_POS_CAMIONES_DF = pd.read_csv(os.path.join(solved_camiones_folder, "posiciones_camiones.csv"))
-    g_CLIENTES_ATENDIDOS_DF = pd.read_csv(os.path.join(solved_camiones_folder, "clientes_atendidos.csv"))
+    if analysis_folder != "default":
+        g_analysis_folder = analysis_folder
+        
+    update_camiones_dfs()
 
     print("Initialized correctly")
     
@@ -535,6 +552,7 @@ def launch_cool_app():
         g_INSTANCE_INDEX = LABELS_INSTANCIAS.index(label)
         g_INSTANCE = g_INSTANCE_LIST[g_INSTANCE_INDEX]
 
+        update_camiones_dfs()
         update_screen_from_rb(replica_slider)
 
     def cb_visual_func(label): # label is not used on purpose
@@ -548,9 +566,10 @@ def launch_cool_app():
     # -------- END CONTROL PANEL --------
 
     def update_from_replica_slider(replica):
-        global g_CURRENT_REPLICA
-        g_CURRENT_REPLICA = replica
+        global g_REPLICA_INDEX
+        g_REPLICA_INDEX = replica
 
+        update_camiones_dfs()
         draw_main_graph(fig, ax_plot)
 
     def update_from_time_slider(time):
@@ -561,7 +580,7 @@ def launch_cool_app():
         draw_main_graph(fig, ax_plot)
 
     replica_slider.on_changed(update_from_replica_slider)
-    replica_slider.set_val(g_CURRENT_REPLICA)
+    replica_slider.set_val(g_REPLICA_INDEX)
 
     time_slider.on_changed(update_from_time_slider)
     time_slider.set_val(g_CURRENT_TIME)
