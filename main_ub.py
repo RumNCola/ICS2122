@@ -8,9 +8,9 @@ def main(instancia: int = 1):
     # 1. Crear réplicas simuladas
     # instancia puede ser 1, 2, 3 o 4
     # replicas es la cantidad de días/escenarios que quieres samplear
-    replicas = 1
+    replicas = 100
     # df, csv_path = replica(instancia, replicas)
-    df, csv_path = pd.read_csv(f'output_dir/instancia_tipo_1_I.csv'),f'output_dir/instancia_tipo_1_I.csv'
+    df, csv_path = pd.read_csv(f'instancias_de_geyter/instancia_tipo_{instancia}.csv'),f'instancias_de_geyter/instancia_tipo_{instancia}_I.csv'
 
     print(f"Archivo generado: {csv_path}")
     print(df.head())
@@ -111,7 +111,6 @@ def main(instancia: int = 1):
 
 
 if __name__ == "__main__":
-    np.random.seed(42)
-    # for i in range(4):
-    #     main(instancia=i + 1)
-    main(instancia=1)
+    # np.random.seed(42)
+    for i in range(4):
+        main(instancia=i + 1)
