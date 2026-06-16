@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.venv/*
+environment/.env
+main.log
+.vscode
+.DS_STORE
+# simulated_data/*
+outputs/*
