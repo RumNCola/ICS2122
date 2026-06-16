@@ -2,7 +2,7 @@
 import logging
 
 
-from instance_loader import *
+from src.instance_loader import *
 from config.settings import *
 from utils.utilities import *
 
