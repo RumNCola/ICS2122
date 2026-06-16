@@ -303,7 +303,7 @@ def main(instancia: int = 1, replicas: int = 100):
 if __name__ == "__main__":
     # np.random.seed(42)
     for i in range(4):
-        if i == 0:
+        if i < 2:
             continue
         else:
             main(instancia=i + 1, replicas=100)
