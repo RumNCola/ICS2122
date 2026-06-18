@@ -30,6 +30,7 @@ class ALNSScenarioSolver:
         now_sec: float,
         physical_vehicle_ids: list[int],
         scenario_id: int,
+        time_limit_override_sec: float | None = None,
     ) -> ScenarioPlan:
         requests = normalize_requests_df(requests_df)
         if requests.empty or not physical_vehicle_ids:
@@ -53,7 +54,12 @@ class ALNSScenarioSolver:
             vehicle_ids=physical_vehicle_ids,
             seed=seed,
         )
-        ev = solver.solve(self._scenario_time_limit())
+        time_limit = (
+            float(time_limit_override_sec)
+            if time_limit_override_sec is not None
+            else self._scenario_time_limit()
+        )
+        ev = solver.solve(time_limit)
         return self._eval_to_plan(ev, scenario_id=scenario_id)
 
     def project_plan_to_known(

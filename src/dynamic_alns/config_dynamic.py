@@ -5,6 +5,8 @@ from typing import Literal
 
 DistanceMetric = Literal["manhattan", "euclidean"]
 ConsensusMode = Literal["van_hentenryck", "exact_next_stop", "served_set"]
+ParallelBackend = Literal["process", "thread", "sequential"]
+ParallelStartMethod = Literal["spawn", "fork", "forkserver"]
 
 
 @dataclass(slots=True)
@@ -34,6 +36,18 @@ class DynamicMSAConfig:
     scenario_time_limit_sec: float = 15.0
     respect_msa_event_budget: bool = False
     msa_event_budget_sec: float = 5 * 60
+
+    # Paralelizacion de escenarios MSA. ALNS es CPU-bound y esta escrito en
+    # Python puro, por lo que el backend recomendado es multiprocessing
+    # (ProcessPoolExecutor), no threads. Cada worker resuelve un escenario
+    # completo e independiente.
+    parallel_backend: ParallelBackend = "process"
+    parallel_max_workers: int | None = None
+    parallel_cpu_reserve: int = 1
+    parallel_start_method: ParallelStartMethod = "spawn"
+    parallel_fallback_to_sequential: bool = True
+    parallel_limit_native_threads: bool = True
+    parallel_log_progress: bool = True
 
     # Consenso MSA. En modo Van Hentenryck no se usa threshold.
     consensus_mode: ConsensusMode = "van_hentenryck"
@@ -89,6 +103,14 @@ class DynamicMSAConfig:
             raise ValueError("n_scenarios debe ser positivo")
         if self.scenario_time_limit_sec <= 0:
             raise ValueError("scenario_time_limit_sec debe ser positivo")
+        if self.parallel_max_workers is not None and self.parallel_max_workers <= 0:
+            raise ValueError("parallel_max_workers debe ser positivo o None")
+        if self.parallel_cpu_reserve < 0:
+            raise ValueError("parallel_cpu_reserve no puede ser negativo")
+        if self.parallel_backend not in {"process", "thread", "sequential"}:
+            raise ValueError("parallel_backend invalido")
+        if self.parallel_start_method not in {"spawn", "fork", "forkserver"}:
+            raise ValueError("parallel_start_method invalido")
         if self.consensus_threshold is not None and not (0 <= self.consensus_threshold <= 1):
             raise ValueError("consensus_threshold debe estar entre 0 y 1 o ser None")
         if not (0 <= self.icd_postpone_threshold <= self.icd_dispatch_threshold <= 1):

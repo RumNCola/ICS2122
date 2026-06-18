@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import multiprocessing as mp
 
 import pandas as pd
 
@@ -15,8 +16,12 @@ def main(
     n_scenarios: int = 25,
     lookahead_min: int = 120,
     scenario_time_limit_sec: float = 15.0,
+    parallel_backend: str = "process",
+    parallel_max_workers: int | None = None,
+    parallel_log_progress: bool = True,
+    parallel_cpu_reserve: int = 1,
 ):
-    input_path = Path(f"data/instancia_tipo_{instancia}.csv")
+    input_path = Path(f"instancias_de_geyter/instancia_tipo_{instancia}.csv")
     if input_path.exists():
         df = pd.read_csv(input_path)
     else:
@@ -35,6 +40,11 @@ def main(
         n_scenarios=n_scenarios,
         lookahead_sec=lookahead_min * 60,
         scenario_time_limit_sec=scenario_time_limit_sec,
+        parallel_backend=parallel_backend,
+        parallel_max_workers=parallel_max_workers,
+        parallel_cpu_reserve=parallel_cpu_reserve,
+        parallel_start_method="spawn",
+        parallel_log_progress=True,
         consensus_mode="van_hentenryck",
         seed=42,
         enable_dynamic_pickup_insertion=True,
@@ -66,7 +76,16 @@ def main(
 
 
 if __name__ == "__main__":
-    main(instancia=1, replica_id=0, n_scenarios=20, lookahead_min=140, scenario_time_limit_sec=15)
-
-# {'served_customers': 92, 'outsourced_customers': 96, 'total_customers': 188, 'total_profit': 125.0, 'total_possible_profit': 305.0, 'profit_rate': 0.4098360655737705, 'total_distance_km': 464.3789140624999, 'nb_trips': 6, 'dynamic_pickups_inserted': 57, 'dynamic_pickups_postponed': 9, 'dynamic_pickups_undecided': 3, 'solver': 'MSA+ALNS+ICD-dynamic-pickups', 'consensus_mode': 'van_hentenryck'}
-# 624999, 'nb_trips': 6, 'dynamic_pickups_inserted': 57, 'dynamic_pickups_postponed': 9, 'dynamic_pickups_undecided': 3, 'solver': 'MSA+ALNS+ICD-dynamic-pickups', 'consensus_mode': 'van_hentenryck'}
+    # Obligatorio/recomendado en Windows cuando se usa multiprocessing.
+    mp.freeze_support()
+    main(
+        instancia=1,
+        replica_id=0,
+        n_scenarios=20,
+        lookahead_min=140,
+        scenario_time_limit_sec=15,
+        parallel_backend="process",
+        # None = autodetectar CPUs y reservar parallel_cpu_reserve.
+        parallel_max_workers=None,
+        parallel_cpu_reserve=1,
+    )

@@ -98,6 +98,9 @@ class ALNSPrizeCollectingVRPTW:
         self.now_sec = float(now_sec)
         self.vehicle_ids = [int(v) for v in vehicle_ids]
         self.rng = random.Random(seed)
+        # La evaluacion ALNS consulta las mismas distancias miles de veces.
+        # Este cache local a cada worker evita recalcular Manhattan/Euclidea.
+        self._distance_m_cache: dict[tuple[tuple[float, float], tuple[float, float]], float] = {}
         self.customers = self._build_customers(requests_df)
         self.customer_ids = sorted(self.customers.keys())
 
@@ -155,9 +158,18 @@ class ALNSPrizeCollectingVRPTW:
         return customers
 
     def _dist_m(self, a: tuple[float, float], b: tuple[float, float]) -> float:
+        # Distancias simetricas: normalizamos la llave para que (a,b) y (b,a)
+        # compartan la misma entrada. El cache vive solo durante un escenario.
+        key = (a, b) if a <= b else (b, a)
+        cached = self._distance_m_cache.get(key)
+        if cached is not None:
+            return cached
         if self.config.distance_metric == "euclidean":
-            return math.hypot(a[0] - b[0], a[1] - b[1])
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+            value = math.hypot(a[0] - b[0], a[1] - b[1])
+        else:
+            value = abs(a[0] - b[0]) + abs(a[1] - b[1])
+        self._distance_m_cache[key] = value
+        return value
 
     def _travel_sec(self, a: tuple[float, float], b: tuple[float, float]) -> float:
         return math.ceil(self._dist_m(a, b) / self.config.vehicle_speed_m_per_s)

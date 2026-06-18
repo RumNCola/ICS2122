@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import time
 from dataclasses import asdict, dataclass
 
 import pandas as pd
@@ -13,6 +14,7 @@ from .dynamic_pickup_inserter import DynamicPickupInserter
 from .entities import OnlineState, PlannedTrip, ScenarioPlan, VehicleState
 from .icd import ICDPickupClassifier
 from .scenario_sampler_msa import FutureScenarioSampler
+from .parallel_scenarios import ScenarioBatchExecutor, build_scenario_tasks
 
 
 @dataclass
@@ -41,10 +43,13 @@ class MSADynamicDispatcherALNS:
         self.config = config
         self.sampler = FutureScenarioSampler(config)
         self.solver = ALNSScenarioSolver(config)
+        self.scenario_executor = ScenarioBatchExecutor(config)
         self.consensus = ConsensusSelector(config)
         self.icd = ICDPickupClassifier(config)
         self.dynamic_inserter = DynamicPickupInserter(config, self.sampler)
         self.dynamic_log: list[dict] = []
+        self.msa_wall_times_sec: list[float] = []
+        self.msa_scenarios_completed: int = 0
 
     def initial_state(self) -> OnlineState:
         vehicles = {
@@ -76,31 +81,40 @@ class MSADynamicDispatcherALNS:
         known = known.loc[~known["id"].astype(str).isin(blocked)].copy()
         return known.reset_index(drop=True)
 
-    def _solve_msa_at_state(self, state: OnlineState, known_unresolved: pd.DataFrame) -> tuple[ScenarioPlan | None, list[ScenarioPlan]]:
+    def _solve_msa_at_state(
+        self,
+        state: OnlineState,
+        known_unresolved: pd.DataFrame,
+    ) -> tuple[ScenarioPlan | None, list[ScenarioPlan]]:
         available = state.available_vehicle_ids()
         if not available or known_unresolved.empty:
             return None, []
 
+        started = time.perf_counter()
         future_scenarios = self.sampler.sample(state.now_sec)
-        projected_plans: list[ScenarioPlan] = []
+        if not future_scenarios:
+            return None, []
 
-        for sid, future in enumerate(future_scenarios):
-            scen_df = pd.concat([known_unresolved, future], ignore_index=True)
-            if scen_df.empty:
-                continue
-            full_plan = self.solver.solve(
-                scen_df,
-                now_sec=state.now_sec,
-                physical_vehicle_ids=available,
-                scenario_id=sid,
-            )
-            projected = self.solver.project_plan_to_known(
-                full_plan,
-                known_df=known_unresolved,
-                now_sec=state.now_sec,
-                physical_vehicle_ids=available,
-            )
-            projected_plans.append(projected)
+        per_scenario_limit = self.scenario_executor.per_scenario_time_limit(
+            len(future_scenarios)
+        )
+        tasks = build_scenario_tasks(
+            config=self.config,
+            known_df=known_unresolved,
+            future_scenarios=future_scenarios,
+            now_sec=state.now_sec,
+            physical_vehicle_ids=available,
+            per_scenario_time_limit_sec=per_scenario_limit,
+        )
+        results = self.scenario_executor.solve(tasks)
+        projected_plans = [
+            result.plan
+            for result in results
+            if result.plan is not None and result.error is None
+        ]
+
+        self.msa_scenarios_completed += len(projected_plans)
+        self.msa_wall_times_sec.append(time.perf_counter() - started)
 
         selected = self.consensus.select(projected_plans, vehicle_ids=available)
         return selected, projected_plans
@@ -199,7 +213,7 @@ class MSADynamicDispatcherALNS:
         next_stop_time = next_stop_time if next_stop_time is not None and next_stop_time > state.now_sec else math.inf
         return min(next_arrival, next_vehicle_time, next_stop_time, self.config.shift_end_sec)
 
-    def run_replica(self, requests_df: pd.DataFrame) -> DispatchResult:
+    def _run_replica_impl(self, requests_df: pd.DataFrame) -> DispatchResult:
         all_requests = normalize_requests_df(requests_df)
         state = self.initial_state()
         self.dynamic_log = []
@@ -259,5 +273,39 @@ class MSADynamicDispatcherALNS:
             "dynamic_pickups_undecided": len(state.dynamic_undecided_pickup_ids),
             "solver": "MSA+ALNS+ICD-dynamic-pickups",
             "consensus_mode": self.config.consensus_mode,
+            "parallel_backend": self.config.parallel_backend,
+            "parallel_workers": self.scenario_executor.resolved_workers,
+            "msa_calls": len(self.msa_wall_times_sec),
+            "msa_scenarios_completed": self.msa_scenarios_completed,
+            "msa_total_wall_time_sec": float(sum(self.msa_wall_times_sec)),
+            "msa_avg_wall_time_sec": (
+                float(sum(self.msa_wall_times_sec) / len(self.msa_wall_times_sec))
+                if self.msa_wall_times_sec
+                else 0.0
+            ),
+            "msa_max_wall_time_sec": (
+                float(max(self.msa_wall_times_sec)) if self.msa_wall_times_sec else 0.0
+            ),
+            "parallel_worker_errors": len(self.scenario_executor.worker_errors),
+            "parallel_fallback_tasks": self.scenario_executor.tasks_fallback,
         }
         return DispatchResult(state, trips_df, dynamic_df, summary)
+
+    def run_replica(self, requests_df: pd.DataFrame) -> DispatchResult:
+        """Ejecuta una replica y mantiene un pool persistente durante todo el dia.
+
+        Crear procesos en cada retorno al depot es caro, especialmente en Windows.
+        Por eso el pool se crea de forma perezosa en el primer MSA, se reutiliza
+        durante todos los eventos y se cierra al terminar la replica.
+        """
+
+        self.dynamic_log = []
+        self.msa_wall_times_sec = []
+        self.msa_scenarios_completed = 0
+        self.scenario_executor.worker_errors = []
+        self.scenario_executor.tasks_completed = 0
+        self.scenario_executor.tasks_fallback = 0
+        try:
+            return self._run_replica_impl(requests_df)
+        finally:
+            self.scenario_executor.close()
