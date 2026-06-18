@@ -51,7 +51,7 @@ def main(rica: bool, instancia: int = 1, replica_id: int = 0, n_scenarios: int =
 
 if __name__ == "__main__":
     # Ejemplo rapido.
-    main(rica=False, instancia=1, replica_id=0, n_scenarios=20, lookahead_min=150)
+    main(rica=False, instancia=1, replica_id=0, n_scenarios=20, lookahead_min=130)
 # Instancia 1
 # NUMERO DE ESCENARIOS
 #n_scenarios=50, lookahead_min=140 scenario_time_limit_Sec=6 entrega 45,5% de retorno
@@ -70,6 +70,10 @@ if __name__ == "__main__":
 # Conclusión: 20 escenarios es el número ideal
 
 # LOOKAHEAD_MIN
-#n_scenarios=20, lookahead_min=160 scenario_time_limit_Sec=6 entrega 54% de retorno
-#n_scenarios=20, lookahead_min=150 scenario_time_limit_Sec=6 entrega % de retorno
-#n_scenarios=20, lookahead_min=140 scenario_time_limit_Sec=6 entrega 61% de retorno
+#n_scenarios=20, lookahead_min=160 scenario_time_limit_Sec=8 entrega 54% de retorno
+#n_scenarios=20, lookahead_min=150 scenario_time_limit_Sec=8 entrega 43% de retorno
+#n_scenarios=20, lookahead_min=140 scenario_time_limit_Sec=8 entrega 61% de retorno
+#n_scenarios=20, lookahead_min=130 scenario_time_limit_Sec=8 entrega % de retorno
+
+#Mas escenarios, Mas Lookahead, Mas tiempo!
+#n_scenarios=50, lookahead_min=160 scenario_time_limit_Sec=15 entrega % de retorno

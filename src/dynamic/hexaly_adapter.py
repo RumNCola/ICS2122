@@ -29,7 +29,9 @@ class HexalyScenarioSolver:
             # Durante el peak de demanda, se aumenta el tiempo de ejecución al doble.
             factor = 12/8
         # Achico el factor para la última media hora
-        elif now_sec > 3600 * 16.5 and now_sec <= 3600 * 16.75:
+        elif now_sec > 3600 * 15 and now_sec <= 3600 * 16:
+            factor = 6 / 8
+        elif now_sec > 3600 * 16 and now_sec <= 3600 * 16.75:
             factor = 3/8
         elif now_sec > 3600 * 16.75:
             factor = 2/8
