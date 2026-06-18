@@ -2,15 +2,16 @@ import argparse
 import sys
 import os
 import time
+import numpy as np
 
 from src.instance_loader import load_default_instances
-from src.msa_policy import simular_msa, N_ESCENARIOS, UMBRAL_CONSENSO
+from src.msa_policy import simular_msa, INSTANCIA, N_REPLICAS, N_ESCENARIOS, UMBRAL_CONSENSO
 from src.constants import NUM_REPLICAS, LABELS_INSTANCIAS
 
 sys.path.insert(0, os.path.dirname(__file__))
 
 """
-Ejecutor de la política online MDP + MSA.
+Ejecutor de la política online MDP + VFA + ALNS.
 
 Arquitectura:
     Estado MDP: posiciones/tiempos de camiones + clientes pendientes + tiempo transcurrido
@@ -49,7 +50,8 @@ def correr_msa_en_instancia(datos_instancia, etiqueta: str,
                             n_escenarios: int, umbral_consenso: float,
                             verbose: bool = False) -> dict:   #imprimir inf de debug para simulacion 
        
-    ganancias = []
+    ganancias_rel = [] #Ganancia relativa en % del total
+    
     servidos_lista = []
     lista_rechazados= []
     distancias = []
@@ -65,34 +67,38 @@ def correr_msa_en_instancia(datos_instancia, etiqueta: str,
         
         transcurrido = time.perf_counter() - t_inicio
 
-        ganancias.append(m["profit_total"])
+        ganancias_rel.append(100*m["profit_relativa"])
         servidos_lista.append(m["total_aceptados"])
         lista_rechazados.append(m["total_rechazados"])
         distancias.append(m["distancia_total"])
         consenso_prom.append(m["score_consenso_promedio"])
         tiempos_escenario.append(m["tiempo_promedio_escenarios"])
 
-        print(f"réplica {r:3d}:"
-              f"ganancia={m['profit_total']:>8.1f}"
-              f"servidos={m['total_aceptados']:>3d}"
-              f"rechazados={m['total_rechazados']:>3d}"
-              f"consenso={m['score_consenso_promedio']:.2f}"
-              f"tiempo={transcurrido:.1f}s")
+        palabras = [f"réplica {r}:", f"ganancia={round(100*m['profit_relativa'],2)}%",
+                    f"profit obtenida={m["profit_obtenida"]}", f"profit total={m["profit_total"]}",
+                    f"servidos={m['total_aceptados']}", f"rechazados={m['total_rechazados']}",
+                    f"consenso={round(m['score_consenso_promedio'],2)}", f"tiempo={round(transcurrido,2)}s"]
+        print(" ".join(palabras))
 
     n = n_replicas
+
+    IC_ganancia_inf = round(np.mean(ganancias_rel) - 1.96*np.std(ganancias_rel)/np.sqrt(n), 3)
+    IC_ganancia_sup = round(np.mean(ganancias_rel) + 1.96*np.std(ganancias_rel)/np.sqrt(n), 3)
 
     return {
         "instancia": etiqueta,
         "n_replicas": n,
-        "ganancia_prom": sum(ganancias)/n,
+        "ganancia_prom": sum(ganancias_rel)/n,
+        "IC_ganancia_inf": IC_ganancia_inf,
+        "IC_ganancia_sup": IC_ganancia_sup,
         "servidos_prom": sum(servidos_lista)/n,
         "rechazados_prom": sum(lista_rechazados)/n,
         "distancia_prom_km": ((sum(distancias)/n)/1000),
         "consenso_prom": sum(consenso_prom)/n,
         "tiempo_escenario_prom": sum(tiempos_escenario)/n,
-        "ganancia_min": min(ganancias),
-        "ganancia_max": max(ganancias),
-        "ganancias": ganancias}  #lista completa para análisis
+        "ganancia_min": min(ganancias_rel),
+        "ganancia_max": max(ganancias_rel),
+        "ganancias": ganancias_rel}  #lista completa para análisis
 
 #####Perdon de acá para abajo usé chatgpt para dejarlo lindo, si quieren le hacen re-work para no usar IA.######
 
@@ -100,19 +106,20 @@ def imprimir_resumen(s: dict) -> None:
     print(f"\n{'─'*60}")
     print(f"  Instancia {s['instancia']}  ({s['n_replicas']} réplicas)")
     print(f"{'─'*60}")
-    print(f"  Ganancia promedio recolectada : {s['ganancia_prom']:.1f}")
+    print(f"  Ganancia relativa promedio recolectada : {s['ganancia_prom']:.1f}%")
+    print(f"  Intervalos de confianza ganancia rel : [{s["IC_ganancia_inf"]} , {s["IC_ganancia_sup"]}]")
     print(f"  Clientes servidos promedio    : {s['servidos_prom']:.1f}")
     print(f"  Clientes rechazados promedio  : {s['rechazados_prom']:.1f}")
     print(f"  Distancia promedio recorrida  : {s['distancia_prom_km']:.1f} km")
     print(f"  Puntaje de consenso promedio  : {s['consenso_prom']:.3f}")
     print(f"  Tiempo de escenario promedio  : {s['tiempo_escenario_prom']:.3f} s")
-    print(f"  Rango de ganancia [mín, máx]  : [{s['ganancia_min']:.0f}, {s['ganancia_max']:.0f}]")
+    print(f"  Rango de ganancia relativa [mín, máx]  : [{s['ganancia_min']:.0f}, {s['ganancia_max']:.0f}]")
 
 def main():
     parser = argparse.ArgumentParser(description="Solver SDVRPTW con MDP+MSA")
-    parser.add_argument("--instancia", type=int, default=None,
+    parser.add_argument("--instancia", type=int, default=INSTANCIA,
                         help="Índice de instancia 0-3 (default: las 4).")
-    parser.add_argument("--replicas", type=int, default=5,
+    parser.add_argument("--replicas", type=int, default=N_REPLICAS,
                         help="Número de réplicas a evaluar (default 5).")
     parser.add_argument("--escenarios", type=int, default=N_ESCENARIOS,
                         help=f"Escenarios por época (default {N_ESCENARIOS}).")
@@ -155,7 +162,7 @@ def main():
     if len(todos_resumenes) > 1:
         prom_total = sum(s["ganancia_prom"] for s in todos_resumenes) / len(todos_resumenes)
         print(f"\n{'═'*60}")
-        print(f"  Ganancia MSA promedio total (todas las instancias): {prom_total:.1f}")
+        print(f"  Ganancia MSA relativa promedio total (todas las instancias): {prom_total:.1f}")
         print(f"{'═'*60}")
 
 

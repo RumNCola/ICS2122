@@ -9,7 +9,7 @@ print("Running ALL_msa_solution_export.py")
 ############################ Anton Little #################################
 INSTANCIA_IDX = 0
 REPLICA_IDX = 0
-OUTPUT_CSV = "output_msa.csv"
+OUTPUT_CSV = "output_msaperro.csv"
 
 #cargar instancias
 instancias = load_default_instances()

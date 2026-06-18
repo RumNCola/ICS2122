@@ -45,7 +45,7 @@ def _muestrear_clientes(instancia: int, n: int, rng) -> List:
     prob_delivery = _P_DELIVERY[instancia]
     resultado = []
 
-    for _ in range(n):
+    for i in range(n): #Se generan n clientes
         #tipo de cliente (bernoulli)
         es_delivery = rng.random() < prob_delivery
 
@@ -175,7 +175,17 @@ def generar_escenarios(idx_instancia: int, t_actual: float, n_escenarios: int,
         rng = np.random.default_rng(base_semilla + k * 31357) #nº primo grande para asegurar que secuencias no se solapen 
 
         #estimacion de clientes futuros
-        n_total  = int(rng.integers(lo, hi))
+        if instancia == 1:
+            n_total  = int(np.random.normal(199.65, 13.424))
+        elif instancia == 2:
+            n_total = int(np.random.normal(200.48, 12.415))
+        elif instancia == 3:
+            n_total = int(np.random.normal(200.56, 14.02474))
+        elif instancia == 4:
+            n_total = int(np.random.normal(200.56, 14.02474))
+        else:
+            print("No se dio instancia válida")
+        
         n_futuro = max(0, n_total - n_procesados)
 
         #sobremuestreamos para compensar el filtro arrival > current_time (naturalmente)

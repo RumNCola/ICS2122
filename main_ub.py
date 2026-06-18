@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from src.deterministic_bound import VRPTWConfig, solve_vrptw_hexaly
-from src.ricas_replica_creator import replica
+from src.Ricas_replica_creator import replica
 import numpy as np
 import pandas as pd
 
@@ -299,6 +299,7 @@ def main(instancia: int = 1, replicas: int = 100):
 
     return solution_summaries_df, tour_histogram_df, metric_stats_df, tour_metric_stats_df
 
+print("Hola")
 
 if __name__ == "__main__":
     # np.random.seed(42)
@@ -306,4 +307,4 @@ if __name__ == "__main__":
         if i < 2:
             continue
         else:
-            main(instancia=i + 1, replicas=100)
+            main(instancia=i + 1, replicas=1)

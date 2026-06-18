@@ -7,7 +7,7 @@ from src.core import (
     asignar_cercano_disponible as asignar_greedy, confirmar_asignacion, _insercion_factible,
     V_CAMIONES, DEPOT, T_INICIO, T_FINAL, NUM_CAMIONES, distancia, tiempo_viaje
 )
-from src.alns_solver import InicioRuta
+from src.alns_solver import InicioRuta, resolver_alns
 from src.scenario_gen import generar_escenarios
 
 """
@@ -38,6 +38,12 @@ Lógica de decisión por etapa:
 
 
 #---------------------- Parámetros ajustables (editar para afinar ejecución (ANTON)) -----------------------
+
+#Instancia a resolver, del 0 al 3. SI es None resuelve todas
+INSTANCIA = 0
+
+# Replicas por instancia a resolver
+N_REPLICAS = 1
 
 #escenarios muestreados por etapa de decisión
 N_ESCENARIOS = 50   #50 escenarios x 4 acciones candidatas = 200 rollouts
@@ -148,7 +154,7 @@ def decidir_msa(cliente: Cliente, camiones: List[EstadoCamion],
     #muestrear escenarios futuros
     escenarios_futuros = generar_escenarios(idx_instancia=idx_instancia, t_actual=cliente.arrival,
         n_escenarios=n_escenarios, n_procesados=n_procesados,
-        base_semilla=base_semilla, max_futuro=MAX_CLIENTES_FUTUROS)
+        base_semilla=base_semilla, max_futuro=MAX_CLIENTES_FUTUROS) #Aqui puede haber problema
 
     #Q(a,s) = recompensa_inmediata(a) + rollout_greedy(futuro_s | starts_por_accion[a])
 
@@ -159,11 +165,10 @@ def decidir_msa(cliente: Cliente, camiones: List[EstadoCamion],
         q_s: Dict[int, float] = {}
 
         for accion in acciones_factibles:
-            ganancia_futura = _simulacion_greedy(clientes_futuros,
-                                              starts_por_accion[accion],  #estado proyectado
-                                              fin_horizonte,
-                                              velocidad)
             
+            ganancia_futura = _simulacion_greedy(clientes_futuros, starts_por_accion[accion])  #estado proyectado
+            # Se demora mucho si se usa alns acá
+
             inmediata = cliente.profit if accion >= 0 else 0.0   #profit inmediato
             q_s[accion] = inmediata + ganancia_futura
             q_listas[accion].append(q_s[accion])
@@ -211,6 +216,8 @@ def simular_msa(
         consenso_promedio, n_msa_commits, n_fallbacks_greedy,
         n_rechazos_msa, tiempo_promedio_escenarios (en s.)
     """
+
+    print("Running simular_msa")
     clientes = extraer_clientes(datos_instancia, replica_idx)
     camiones = [EstadoCamion(truck_id=k) for k in range(num_camiones)]
 
@@ -222,6 +229,8 @@ def simular_msa(
     n_rechazos_msa = 0
     puntajes_consenso = []
     tiempos_escenario = []
+
+    ganancia_total = 0 #Considera rechazados y atendidos
 
     for idx_cliente, cliente in enumerate(clientes):
 
@@ -250,6 +259,10 @@ def simular_msa(
         if accion == -1:
             rechazados += 1
             n_rechazos_msa += 1
+            if cliente.is_pickup: #Pickups = 1, delivery = 2
+                ganancia_total += 1
+            else:
+                ganancia_total += 2
             continue
 
         #verificar que la acción MSA sigue siendo factible fisicamente
@@ -260,25 +273,65 @@ def simular_msa(
             n_fallbacks_greedy += 1
             if accion == -1:
                 rechazados += 1
+                if cliente.is_pickup: #Pickups = 1, delivery = 2
+                    ganancia_total += 1
+                else:
+                    ganancia_total += 2
                 continue
 
         confirmar_asignacion(cliente, camiones[accion], velocidad)
         if cliente.is_pickup:
             pickups_servidos += 1
+            ganancia_total += 1
         else:
             entregas_servidas += 1
+            ganancia_total += 2
+        
+        if accion != -1: #Si no se rechaza, usar ALNS
+
+            clientes_comprometidos = {} #Diccionario con clientes asignados guardados por id
+            for k in range(num_camiones):
+                for c in camiones[k].visited:
+                    clientes_comprometidos[c.cid] = c
+            
+            # Pa no duplicar clientes (((CHAT)))
+            starts_base = [InicioRuta(k, depot, T_INICIO) for k in range(num_camiones)]
+
+            solucion_alns = resolver_alns(
+                customers=clientes_comprometidos,
+                starts=starts_base,
+                n_iteraciones=50)
+            
+            # Actualizar camiones segun alns solo si ningún cliente aceptado quedó fuera
+            # Operadores se ocupan de no construir ruta infactible EN TEORIA
+            # Si no se mete acá alns no consiguió una solución factible
+            # Nos quedamos con la maomeno noma
+            if len(solucion_alns.sin_asignar) == 0:
+                for k in range(num_camiones): #Reinicio de camiones
+                    camiones[k].visited = []
+                    camiones[k].pos = depot
+                    camiones[k].avail_time = T_INICIO
+                    camiones[k].total_distance = 0.0
+                    camiones[k].total_profit = 0.0
+
+                    # Reconstruir ruta con el orden del alns
+                    for cid in solucion_alns.routes[k]:
+                        c_reordenado = clientes_comprometidos[cid]
+                        confirmar_asignacion(c_reordenado, camiones[k], velocidad)
 
     #calculo distancia total
     dist_total = sum(c.total_distance for c in camiones)
     dist_total += sum(distancia(c.pos, depot) for c in camiones)   #distancia de regreso
-    ganancia_total = sum(c.total_profit for c in camiones)
+    ganancia_relativa = sum(c.total_profit for c in camiones)/ganancia_total
     total_servidos = entregas_servidas + pickups_servidos
 
     #conseno promedio final
     consenso_promedio = (sum(puntajes_consenso) / len(puntajes_consenso)
                          if puntajes_consenso else 0.0)
 
-    return {"profit_total": ganancia_total,
+    return {"profit_relativa": ganancia_relativa,
+            "profit_obtenida": sum(c.total_profit for c in camiones),
+            "profit_total": ganancia_total,
             "total_aceptados": total_servidos,
             "total_rechazados": rechazados,
             "deliveries_aceptados": entregas_servidas,

@@ -170,6 +170,8 @@ class SolucionALNS:
                     mejor_costo = c
                     mejor_k = k
                     mejor_pos = p
+        
+        #Aqui debe ir check fact
 
         return mejor_k, mejor_pos, mejor_costo
 
@@ -290,6 +292,113 @@ def eliminacion_peor(sol: SolucionALNS, q: int, rng: random.Random) -> List[int]
 
     return eliminados
 
+def shaw_removal_inicio(sol:SolucionALNS, q: int, rng: random.Random) -> List[int]:
+    """
+    Elimina los q clientes que tengan inicio de ventana de atención similar a cliente asignado al azar
+    (en realidad se podría construir función de similitud que considere más factores)
+    """
+
+    #Ver todos los clientes asignados juntos
+    asignados = [] #Contiene tuplas (camion (k), número de cliente a atender (p), id del cliente (cid), tiempo ready)
+
+    for k, ruta in enumerate(sol.routes):
+        for p, cid in enumerate(ruta):
+            asignados.append((k, p, cid, sol.customers[cid].ready)) #Clase customer tiene .ready
+    
+    if not asignados: #Ve si está vacía
+        return([])
+    
+    q_real = min(q, len(asignados)) #No se puede eliminar mas clientes de los que hay
+
+    cliente_semilla = rng.choice(asignados) #Elegir cliente al azar para comparar
+    tiempo_semilla = cliente_semilla[3] #Tiempo de comparacion
+
+    asignados.sort(key=lambda x: abs(x[3] - tiempo_semilla)) #Ordenar clientes segun que tanto se parece su ready time
+    #Siempre es >= 0 y se ordena de menor a mayor
+    a_eliminar = asignados[:q_real]
+
+    # 5. Ordenar por camión (ascendente) y posición (descendente) para pop() seguro ((((CHAT))))
+    a_eliminar.sort(key=lambda x: (x[0], -x[1]))
+    
+    eliminados = []
+    for k, p, cid, _ in a_eliminar:
+        sol.routes[k].pop(p)
+        sol.sin_asignar.add(cid)
+        eliminados.append(cid)
+
+    return eliminados
+
+def shaw_removal_deadline(sol: SolucionALNS, q: int, rng: random.Random) -> List[int]:
+    " Elimina q clientes cuyo deadline se parezca al de uno random asignado"
+
+    asignados = [] #Tuplas (camion, posicion, id, deadline)
+    for k, ruta in enumerate(sol.routes):
+        for p, cid in enumerate(ruta):
+            asignados.append((k, p, cid, sol.customers[cid].deadline))
+    
+    if not asignados:
+        return([])
+    
+    q_real = min(q, len(asignados))
+    cliente_semilla = rng.choice(asignados) #Elegir cliente al azar para comparar
+    tiempo_semilla = cliente_semilla[3] #Tiempo de comparacion
+
+    asignados.sort(key=lambda x: abs(x[3] - tiempo_semilla)) #De menor diferencia de deadline a mayor
+    a_eliminar = asignados[:q_real]
+
+    # 5. Ordenar por camión (ascendente) y posición (descendente) para pop() seguro ((((CHAT))))
+    a_eliminar.sort(key=lambda x: (x[0], -x[1]))
+    
+    eliminados = []
+    for k, p, cid, _ in a_eliminar:
+        sol.routes[k].pop(p)
+        sol.sin_asignar.add(cid)
+        eliminados.append(cid)
+
+    return eliminados
+
+def matar_camion(sol: SolucionALNS, q: int, rng: random.Random) -> List[int]:
+    "Elimina toda la ruta de un camion al azar"
+    rutas = list(sol.routes) #Lista de rutas (cada una con cids)
+    camiones = len(rutas)
+    eliminar = rng.randint(0, camiones - 1)
+
+    eliminados = []
+    for cid in sol.routes[eliminar]:
+        sol.sin_asignar.add(cid)
+        eliminados.append(cid)
+    sol.routes[eliminar] = []
+
+    return eliminados
+
+def shaw_removal_geografic(sol: SolucionALNS, q: int, rng: random.Random) -> list[int]:
+    "Elimina q clientes que estén cerca de uno al azar (dist manhattan)"
+
+    asignados = [] # (camion, posicion, cid, x, y)
+    for k, rutas in enumerate(sol.routes):
+        for p, cid in enumerate(rutas):
+            asignados.append((k, p, cid, sol.customers[cid].pos[0], sol.customers[cid].pos[1]))
+    
+    q_real = min(q, len(asignados))
+    cliente_semilla = rng.choice(asignados)
+    x_semilla = cliente_semilla[3]
+    y_semilla = cliente_semilla[4]
+
+    asignados.sort(key=lambda x: abs(x[3] - x_semilla) + abs(x[4] - y_semilla)) #Manhattan
+    # Mas cerca a mas lejos
+    a_eliminar = asignados[:q_real]
+
+    # 5. Ordenar por camión (ascendente) y posición (descendente) para pop() seguro ((((CHAT))))
+    a_eliminar.sort(key=lambda x: (x[0], -x[1]))
+    
+    eliminados = []
+    for k, p, cid, x, y in a_eliminar:
+        sol.routes[k].pop(p)
+        sol.sin_asignar.add(cid)
+        eliminados.append(cid)
+
+    return eliminados
+
 #----------------- Reparación -----------------------------------
 
 #greedy
@@ -353,11 +462,73 @@ def insercion_regret2(sol: SolucionALNS,
         sol.routes[mejor_k].insert(mejor_pos, mejor_cid)
         sol.sin_asignar.discard(mejor_cid)
 
+def insercion_ratio_simple(sol: SolucionALNS, rng: random.Random) -> None:
+    """
+    Igual que en eliminacion_peor, se añaden clientes con mejor relacion
+    (ganancia/costo)
+    Se intenta añadir todos los que se pueda
+    """
+
+    while sol.sin_asignar: #Mientras esta lista no esté vacía
+        mejor_cid = None
+        mejor_ratio = -math.inf
+        mejor_k = -1
+        mejor_pos = -1
+
+        for cid in list(sol.sin_asignar):
+            k, p, costo = sol.mejor_insercion(cid)
+
+            if k > -1: #Insercion factible
+                ganancia = sol.customers[cid].profit
+                ratio = ganancia / (costo + 1e-9) #Pa no dividir por 0 (((((Chat)))))
+                ratio += rng.uniform(0, 0.05) #Ruido
+
+                if ratio > mejor_ratio:
+                    mejor_cid = cid
+                    mejor_ratio = ratio
+                    mejor_k = k
+                    mejor_pos = p
+
+        if mejor_cid is None: #Ningun cliente se asigna
+            break
+        else:
+            sol.routes[mejor_k].insert(mejor_pos, mejor_cid)
+            sol.sin_asignar.discard(mejor_cid)
+
+def insercion_cronologica_cierre(sol: SolucionALNS, rng: random.Random) -> None:
+    "De los clientes que no se atienden, meter a los que se debe atender más temprano"
+    "(Su ventana se cierra más temprano)"
+
+    pool = list(sol.sin_asignar) #Cids
+    pool.sort(key=lambda cid: (sol.customers[cid].deadline, rng.random())) #Desempate aleatorio
+    #Queda ordenado deadline de menor a mayor (temprano - tarde)
+
+    for cid in pool:
+        k, p, costo = sol.mejor_insercion(cid)
+        if k > -1: #Factible
+            sol.routes[k].insert(p, cid)
+            sol.sin_asignar.discard(cid)
+
+def insercion_cronologica_inicio(sol: SolucionALNS, rng: random.Random) -> None:
+    "Lo mismo de antes, pero con inicio de ventana"
+
+    pool = list(sol.sin_asignar) #Cid
+    pool.sort(key = lambda cid: (sol.customers[cid].ready, rng.random()))
+    # Igual, de más temprano a más tarde
+
+    for cid in pool:
+        k, p, costo = sol.mejor_insercion(cid)
+        if k > -1: #Factible
+            sol.routes[k].insert(p, cid)
+            sol.sin_asignar.discard(cid)
 
 #---------------- Loop principal ejecución ALNS ---------------------------------------------
 
-_OPS_DESTRUCCION = [eliminacion_aleatoria, eliminacion_peor]
-_OPS_REPARACION = [insercion_greedy, insercion_regret2]
+_OPS_DESTRUCCION = [eliminacion_aleatoria, eliminacion_peor, shaw_removal_inicio,
+                    shaw_removal_deadline, matar_camion, shaw_removal_geografic]
+
+_OPS_REPARACION = [insercion_greedy, insercion_ratio_simple, insercion_cronologica_cierre,
+                   insercion_cronologica_inicio, insercion_regret2]
 
 _PUNTAJE_MEJOR = 3   #nuevo mejor global
 _PUNTAJE_MEJOR_ACT = 2   #mejora sobre el actual
@@ -404,6 +575,7 @@ def resolver_alns(customers: Dict[int, Cliente], starts: List[InicioRuta],
     size_segmento = max(1, n_iteraciones // 10)
 
     for it in range(n_iteraciones):
+
         if time.perf_counter() - t_inicio > limite_tiempo_s:
             break
 
@@ -415,6 +587,11 @@ def resolver_alns(customers: Dict[int, Cliente], starts: List[InicioRuta],
 
         n_asignados = sum(len(r) for r in candidato.routes)
         q = max(1, int(fraccion_elim * n_asignados))
+        
+        nombre_destr = _OPS_DESTRUCCION[idx_d].__name__
+        nombre_repar = _OPS_REPARACION[idx_r].__name__
+        
+        
         _OPS_DESTRUCCION[idx_d](candidato, q, rng)   #destruir
         _OPS_REPARACION[idx_r](candidato, rng)    #reparar
 
