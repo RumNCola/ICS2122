@@ -22,9 +22,12 @@ class HexalyScenarioSolver:
 
     def _build_cfg(self, now_sec: float, nb_available_vehicles: int) -> VRPTWConfig:
         cfg = self.config
-        if now_sec >= 3600 * 11 and now_sec <= 3600 * 15:
+        if now_sec <= 3600 * 11:
+            factor = 13/8
+
+        elif now_sec >= 3600 * 11 and now_sec <= 3600 * 15:
             # Durante el peak de demanda, se aumenta el tiempo de ejecución al doble.
-            factor = 10/8
+            factor = 12/8
         # Achico el factor para la última media hora
         elif now_sec > 3600 * 16.5 and now_sec <= 3600 * 16.75:
             factor = 3/8

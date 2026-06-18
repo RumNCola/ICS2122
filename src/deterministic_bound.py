@@ -109,9 +109,9 @@ class VRPTWConfig:
     seed: Optional[int] = None
 
     # Objetivos lexicograficos secundarios despues de maximizar utilidad.
-    minimize_vehicles_after_profit: bool = False
-    minimize_trips_after_profit: bool = False
-    minimize_distance_after_profit: bool = False
+    minimize_vehicles_after_profit: bool = True
+    minimize_trips_after_profit: bool = True
+    minimize_distance_after_profit: bool = True
     distance_cost_per_km_in_profit: float = 0.0
 
     def validate(self) -> None:

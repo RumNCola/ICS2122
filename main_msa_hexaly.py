@@ -9,7 +9,7 @@ from src.dynamic.data_normalizer import normalize_requests_df
 from src.dynamic.dispatcher import MSADynamicDispatcher
 
 
-def main(rica: bool, instancia: int = 1, replica_id: int = 0, n_scenarios: int = 50, lookahead_min: int = 140):
+def main(rica: bool, instancia: int = 1, replica_id: int = 0, n_scenarios: int = 20, lookahead_min: int = 140):
     if not rica:
         input_path = Path(f"data/instancia_tipo_{instancia}.csv")
         if input_path.exists():
@@ -51,7 +51,7 @@ def main(rica: bool, instancia: int = 1, replica_id: int = 0, n_scenarios: int =
 
 if __name__ == "__main__":
     # Ejemplo rapido.
-    main(rica=False, instancia=1, replica_id=0, n_scenarios=20, lookahead_min=140)
+    main(rica=False, instancia=1, replica_id=0, n_scenarios=20, lookahead_min=150)
 # Instancia 1
 # NUMERO DE ESCENARIOS
 #n_scenarios=50, lookahead_min=140 scenario_time_limit_Sec=6 entrega 45,5% de retorno
@@ -59,11 +59,17 @@ if __name__ == "__main__":
 #n_scenarios=25, lookahead_min=140 scenario_time_limit_Sec=6 entrega 42,5% de retorno
 #n_scenarios=20, lookahead_min=140 scenario_time_limit_Sec=6 entrega 56% de retorno
 ######################
-# Con doble tiempo de resolucion en el peak
-#n_scenarios=20, lookahead_min=140 scenario_time_limit_Sec=6 entrega 17% de retorno -como que se bugeo igual porque suspendi el pc.
+# Con tiempo adaptativo de resolucion en el peak y la ultima media hora
+#n_scenarios=20, lookahead_min=140 scenario_time_limit_Sec=6 entrega 61% de retorno 
 ######################
 #n_scenarios=18, lookahead_min=140 scenario_time_limit_Sec=6 entrega 42% de retorno
 #n_scenarios=15, lookahead_min=140 scenario_time_limit_Sec=6 entrega 43% de retorno
 #n_scenarios=15, lookahead_min=140 scenario_time_limit_Sec=6 entrega 43% de retorno
 #n_scenarios=10, lookahead_min=140 scenario_time_limit_Sec=6 entrega 38% de retorno
-# AL parecer, mietras mas cerca se esta de las 17:00, mas tiempo necesita Hexaly. Antes con 3 segundos está bien. Despues se demora más en hacer las iteraciones.
+ 
+# Conclusión: 20 escenarios es el número ideal
+
+# LOOKAHEAD_MIN
+#n_scenarios=20, lookahead_min=160 scenario_time_limit_Sec=6 entrega 54% de retorno
+#n_scenarios=20, lookahead_min=150 scenario_time_limit_Sec=6 entrega % de retorno
+#n_scenarios=20, lookahead_min=140 scenario_time_limit_Sec=6 entrega 61% de retorno
