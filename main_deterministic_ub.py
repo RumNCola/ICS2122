@@ -83,8 +83,8 @@ def main(instancia: int = 1, replicas: int = 100):
     # replicas es la cantidad de días/escenarios que quieres resolver
     # df, csv_path = replica(instancia, replicas)
     df, csv_path = (
-        pd.read_csv(f"instancias_de_geyter/instancia_tipo_{instancia}.csv"),
-        f"instancias_de_geyter/instancia_tipo_{instancia}.csv",
+        pd.read_csv(f"data/instancia_tipo_{instancia}.csv"),
+        f"data/instancia_tipo_{instancia}.csv",
     )
 
     print(f"Archivo generado/leído: {csv_path}")

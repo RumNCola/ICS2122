@@ -22,6 +22,18 @@ class HexalyScenarioSolver:
 
     def _build_cfg(self, now_sec: float, nb_available_vehicles: int) -> VRPTWConfig:
         cfg = self.config
+        if now_sec >= 3600 * 11 and now_sec <= 3600 * 15:
+            # Durante el peak de demanda, se aumenta el tiempo de ejecución al doble.
+            factor = 10/8
+        # Achico el factor para la última media hora
+        elif now_sec > 3600 * 16.5 and now_sec <= 3600 * 16.75:
+            factor = 3/8
+        elif now_sec > 3600 * 16.75:
+            factor = 2/8
+        else:
+            factor = 1
+        print(f'Hora actual en la simulación: {now_sec/3600:.2f}h, {now_sec}s')
+
         return VRPTWConfig(
             nb_vehicles=max(1, nb_available_vehicles),
             max_trips_per_vehicle=cfg.max_trips_per_vehicle,
@@ -37,7 +49,7 @@ class HexalyScenarioSolver:
             deadline_is_latest_start=True,
             delivery_must_be_loaded_at_depot=True,
             pickup_ready_policy="arrival",
-            time_limit_sec=int(cfg.scenario_time_limit_sec),
+            time_limit_sec=int(cfg.scenario_time_limit_sec * factor),
             minimize_trips_after_profit=cfg.minimize_trips_after_profit,
             minimize_distance_after_profit=cfg.minimize_distance_after_profit,
             distance_cost_per_km_in_profit=cfg.distance_cost_per_km_in_profit,
