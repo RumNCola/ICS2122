@@ -77,15 +77,18 @@ def main(
 
 if __name__ == "__main__":
     # Obligatorio/recomendado en Windows cuando se usa multiprocessing.
+    t_0 = pd.Timestamp.now()
+    print(f'Hora actual {t_0}')
     mp.freeze_support()
     main(
         instancia=1,
         replica_id=0,
         n_scenarios=20,
-        lookahead_min=140,
-        scenario_time_limit_sec=15,
+        lookahead_min=160,
+        scenario_time_limit_sec=300,
         parallel_backend="process",
         # None = autodetectar CPUs y reservar parallel_cpu_reserve.
         parallel_max_workers=None,
         parallel_cpu_reserve=1,
     )
+    print(f'Tiempo de ejecución: {pd.Timestamp.now() - t_0}')
