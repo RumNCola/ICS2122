@@ -36,6 +36,17 @@ class FutureScenarioSampler:
         max_future = max(cfg.delivery_cutoff_sec, cfg.pickup_cutoff_sec)
         for sid in sorted(raw_df["replica"].dropna().unique().astype(int)):
             scen = raw_df.loc[raw_df["replica"].astype(int) == sid].copy()
+            if now_sec > 15 * 3600:  # Si ya estamos muy cerca del final del día, no tiene sentido mirar tan lejos.
+                cfg.lookahead_sec = max(15 * 3600 - now_sec + 1, 1)
+            elif now_sec <= 15 * 3600 and now_sec > 13.5 * 3600:
+                cfg.lookahead_sec = 90 * 60
+            elif now_sec <= 13.5 * 3600 and now_sec > 12 * 3600:
+                cfg.lookahead_sec = 120 * 60
+            elif now_sec <= 12 * 3600 and now_sec > 10.5 * 3600:
+                cfg.lookahead_sec = 150 * 60
+            else:
+                cfg.lookahead_sec = 180 * 60
+
             scen = future_window(scen, now_sec, cfg.lookahead_sec, max_future)
             if scen.empty:
                 scenarios.append(scen)

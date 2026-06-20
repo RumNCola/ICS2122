@@ -410,76 +410,15 @@ if __name__ == "__main__":
     EXPERIMENTS = build_experiment_grid(
         instancias=[1],
         replicas=range(0,100,20),
-        n_scenarios_values=[30],
-        lookahead_min_values=[120, 130, 140, 150, 160],
-        scenario_time_limit_values=[1.0],
-        parallel_backend="process",
-        parallel_max_workers_values=[16],
-        alns_max_iterations_values=[10_000],
-        dynamic_insertion_n_scenarios_values=[5],
-        seed_values=[42],
-    )
-    run_batch(
-        EXPERIMENTS,
-        batch_name=None,
-        save_individual_outputs=True,
-        stop_on_error=False,
-    )
-
-    #Evolución del n_scenarios todo lo demas constante
-    EXPERIMENTS = build_experiment_grid(
-        instancias=[1],
-        replicas=range(0, 100, 10),
-        n_scenarios_values=[15, 20, 30, 40, 50, 60],
-        lookahead_min_values=[140],
+        n_scenarios_values=[15],
+        lookahead_min_values=[120],
         scenario_time_limit_values=[15.0],
         parallel_backend="process",
-        parallel_max_workers_values=[16],
-        alns_max_iterations_values=[10_000],
-        dynamic_insertion_n_scenarios_values=[5],
+        parallel_max_workers_values=[8],
+        alns_max_iterations_values=[40_000],
+        dynamic_insertion_n_scenarios_values=[5, 10, 15],
         seed_values=[42],
     )
-
-    run_batch(
-        EXPERIMENTS,
-        batch_name=None,
-        save_individual_outputs=True,
-        stop_on_error=False,
-    )
-    #Evolución del time_limit todo lo demas constante
-    EXPERIMENTS = build_experiment_grid(
-        instancias=[1],
-        replicas=range(0, 100, 20),
-        n_scenarios_values=[20],
-        lookahead_min_values=[140],
-        scenario_time_limit_values=[15, 25, 35, 60, 120, 200],
-        parallel_backend="process",
-        parallel_max_workers_values=[16],
-        alns_max_iterations_values=[20_000],
-        dynamic_insertion_n_scenarios_values=[5],
-        seed_values=[42],
-    )
-
-    run_batch(
-        EXPERIMENTS,
-        batch_name=None,
-        save_individual_outputs=True,
-        stop_on_error=False,
-    )
-    #Toda la carne a la parrilla
-    EXPERIMENTS = build_experiment_grid(
-        instancias=[1, 2, 3, 4],
-        replicas=range(0, 100, 20),
-        n_scenarios_values=[50],
-        lookahead_min_values=[140],
-        scenario_time_limit_values=[200],
-        parallel_backend="process",
-        parallel_max_workers_values=[16],
-        alns_max_iterations_values=[20_000],
-        dynamic_insertion_n_scenarios_values=[5],
-        seed_values=[42],
-    )
-
     run_batch(
         EXPERIMENTS,
         batch_name=None,
