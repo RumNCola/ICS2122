@@ -1,0 +1,11 @@
+instancia,replica_id,n_scenarios,lookahead_min,scenario_time_limit_sec,parallel_backend,parallel_max_workers,alns_max_iterations,dynamic_insertion_n_scenarios,seed
+2,0,15,120,60.0,process,8,10000,5,42
+2,0,30,120,60.0,process,8,10000,5,42
+2,20,15,120,60.0,process,8,10000,5,42
+2,20,30,120,60.0,process,8,10000,5,42
+2,40,15,120,60.0,process,8,10000,5,42
+2,40,30,120,60.0,process,8,10000,5,42
+2,60,15,120,60.0,process,8,10000,5,42
+2,60,30,120,60.0,process,8,10000,5,42
+2,80,15,120,60.0,process,8,10000,5,42
+2,80,30,120,60.0,process,8,10000,5,42
