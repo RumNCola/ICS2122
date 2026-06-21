@@ -280,6 +280,7 @@ def run_one(
     dynamic_insertion_n_scenarios: int | None = None,
     enable_dynamic_pickup_insertion: bool | None = None,
     run_msa_on_request_arrival_if_vehicle_waiting: bool | None = None,
+    no_improvement_time_sec: int | None = None,
     seed: int | None = 42,
     input_dir: Path | str = Path("data"),
     save_individual_outputs: bool = True,
@@ -331,6 +332,7 @@ def build_experiment_grid(
     dynamic_insertion_n_scenarios_values: list[int | None] | None = None,
     enable_dynamic_pickup_insertion: bool | None = None,
     run_msa_on_request_arrival_if_vehicle_waiting: bool | None = None,
+    no_improvement_time_sec: int | None = None,
     seed_values: list[int | None] | None = None,
 ) -> list[dict[str, Any]]:
     """Construye el producto cartesiano de parámetros del batch."""
@@ -347,6 +349,7 @@ def build_experiment_grid(
         n_scenarios,
         lookahead_min,
         scenario_time_limit_sec,
+        no_improvement_time_sec,
         parallel_max_workers,
         dynamic_insertion_n_scenarios,
         seed,
@@ -356,6 +359,7 @@ def build_experiment_grid(
         n_scenarios_values,
         lookahead_min_values,
         scenario_time_limit_values,
+        [no_improvement_time_sec] if no_improvement_time_sec is not None else [5],
         parallel_max_workers_values,
         dynamic_insertion_n_scenarios_values,
         seed_values,
@@ -369,6 +373,7 @@ def build_experiment_grid(
                 "n_scenarios": n_scenarios,
                 "lookahead_min": lookahead_min,
                 "scenario_time_limit_sec": scenario_time_limit_sec,
+                "no_improvement_time_sec": no_improvement_time_sec,
                 "parallel_backend": parallel_backend,
                 "parallel_max_workers": parallel_max_workers,
                 "parallel_cpu_reserve": parallel_cpu_reserve,
@@ -629,12 +634,64 @@ if __name__ == "__main__":
 
     # Esta grilla reproduce el antiguo loop de réplicas, pero ahora genera un
     # batch consolidado con métricas individuales y agregadas en Excel.
+    # EXPERIMENTS = build_experiment_grid(
+    #     instancias=[1],
+    #     replicas=range(2, 100, 9),
+    #     n_scenarios_values=[20],
+    #     lookahead_min_values=[160],
+    #     scenario_time_limit_values=[40.0],
+    #     rica=False,
+    #     input_dir=Path("data"),
+    #     seed_values=[42],
+    # )
+
+    # run_batch(
+    #     EXPERIMENTS,
+    #     batch_name=None,
+    #     save_individual_outputs=True,
+    #     stop_on_error=False,
+    # )
+    # EXPERIMENTS = build_experiment_grid(
+    #     instancias=[2],
+    #     replicas=range(2, 100, 9),
+    #     n_scenarios_values=[20],
+    #     lookahead_min_values=[160],
+    #     scenario_time_limit_values=[40.0],
+    #     rica=False,
+    #     input_dir=Path("data"),
+    #     seed_values=[42],
+    # )
+
+    # run_batch(
+    #     EXPERIMENTS,
+    #     batch_name=None,
+    #     save_individual_outputs=True,
+    #     stop_on_error=False,
+    # )
+    # EXPERIMENTS = build_experiment_grid(
+    #     instancias=[3],
+    #     replicas=range(2, 100, 90),
+    #     n_scenarios_values=[20],
+    #     lookahead_min_values=[160],
+    #     scenario_time_limit_values=[40.0],
+    #     rica=False,
+    #     input_dir=Path("data"),
+    #     seed_values=[42],
+    # )
+
+    # run_batch(
+    #     EXPERIMENTS,
+    #     batch_name=None,
+    #     save_individual_outputs=True,
+    #     stop_on_error=False,
+    # )
     EXPERIMENTS = build_experiment_grid(
-        instancias=[1],
-        replicas=range(1, 100, 9),
+        instancias=[3],
+        replicas=range(0,20),
         n_scenarios_values=[20],
         lookahead_min_values=[160],
         scenario_time_limit_values=[40.0],
+        no_improvement_time_sec=5,
         rica=False,
         input_dir=Path("data"),
         seed_values=[42],
@@ -648,44 +705,11 @@ if __name__ == "__main__":
     )
     EXPERIMENTS = build_experiment_grid(
         instancias=[2],
-        replicas=range(1, 100, 9),
+        replicas=range(0,20),
         n_scenarios_values=[20],
         lookahead_min_values=[160],
         scenario_time_limit_values=[40.0],
-        rica=False,
-        input_dir=Path("data"),
-        seed_values=[42],
-    )
-
-    run_batch(
-        EXPERIMENTS,
-        batch_name=None,
-        save_individual_outputs=True,
-        stop_on_error=False,
-    )
-    EXPERIMENTS = build_experiment_grid(
-        instancias=[3],
-        replicas=range(1, 100, 90),
-        n_scenarios_values=[20],
-        lookahead_min_values=[160],
-        scenario_time_limit_values=[40.0],
-        rica=False,
-        input_dir=Path("data"),
-        seed_values=[42],
-    )
-
-    run_batch(
-        EXPERIMENTS,
-        batch_name=None,
-        save_individual_outputs=True,
-        stop_on_error=False,
-    )
-    EXPERIMENTS = build_experiment_grid(
-        instancias=[4],
-        replicas=range(1, 100, 9),
-        n_scenarios_values=[20],
-        lookahead_min_values=[160],
-        scenario_time_limit_values=[40.0],
+        no_improvement_time_sec=5,
         rica=False,
         input_dir=Path("data"),
         seed_values=[42],

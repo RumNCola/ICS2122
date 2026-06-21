@@ -14,19 +14,19 @@ def dinamic_time_limit(now_sec: float, time: int) -> float:
     '''
     # Despues de las 15:45 el problema es totalmente deterministico. Timelimit mínimo.
     if now_sec >= 15.75 * 3600:
-         time_limit = 5
+         time_limit = 3
     
     # Despues de las 15:30 el solo llegan solis de un tipo. Timelimit bajo.
     elif now_sec < 15.75 * 3600 and now_sec >= 15.5 * 3600:
-        time_limit = 5
+        time_limit = 4
     
     #En la ventana de alta demanda se da tiempo adicinoal de ejecución.
-    elif now_sec < 15.5 * 3600 and now_sec >= 11.5 * 3600:
-         time_limit = 40
+    elif now_sec < 15.5 * 3600 and now_sec >= 13 * 3600:
+         time_limit = 5
     
     # En las primeras hora con baja demanda, se da bajo tiempo de ejecución.
     else:
-         time_limit = 30
+         time_limit = 15
 
     return time_limit
     

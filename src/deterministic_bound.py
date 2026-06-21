@@ -105,6 +105,11 @@ class VRPTWConfig:
     pickup_ready_policy: str = "arrival"  # "arrival" o "shift_start"
     force_service_time_default: bool = True
     time_limit_sec: int = 60
+    # Detencion temprana: si el primer objetivo no mejora durante este numero
+    # de segundos, Hexaly se detiene limpiamente y conserva la mejor solucion.
+    # Usa None para desactivar esta condicion.
+    no_improvement_time_sec: Optional[float] = 5.0
+    objective_improvement_tolerance: float = 1e-9
     round_travel_time_to_int: bool = True
     seed: Optional[int] = None
 
@@ -125,6 +130,10 @@ class VRPTWConfig:
             raise ValueError("vehicle_speed_m_per_s debe ser positivo.")
         if self.time_limit_sec <= 0:
             raise ValueError("time_limit_sec debe ser positivo.")
+        if self.no_improvement_time_sec is not None and self.no_improvement_time_sec <= 0:
+            raise ValueError("no_improvement_time_sec debe ser positivo o None.")
+        if self.objective_improvement_tolerance < 0:
+            raise ValueError("objective_improvement_tolerance no puede ser negativo.")
         if self.distance_metric not in {"manhattan", "euclidean"}:
             raise ValueError("distance_metric debe ser 'manhattan' o 'euclidean'.")
         if self.pickup_ready_policy not in {"arrival", "shift_start"}:
@@ -943,6 +952,113 @@ def solve_vrptw_hexaly(
         model.close()
 
         optimizer.param.time_limit = int(config.time_limit_sec)
+
+        # Informacion de la detencion temprana para dejar trazabilidad en la salida.
+        stopped_by_no_improvement = False
+        no_improvement_stop_time_sec: Optional[int] = None
+        no_improvement_best_value: Optional[float] = None
+        no_improvement_last_improvement_time_sec: Optional[int] = None
+
+        if config.no_improvement_time_sec is not None:
+            if model.nb_objectives == 0:
+                raise ValueError(
+                    "No se puede activar no_improvement_time_sec porque el modelo no tiene objetivos."
+                )
+
+            primary_objective = model.objectives[0]
+            primary_direction = model.objective_directions[0]
+            direction_name = getattr(
+                primary_direction,
+                "name",
+                str(primary_direction).split(".")[-1],
+            ).upper()
+            primary_is_maximization = direction_name == "MAXIMIZE"
+
+            best_primary_value: Optional[float] = None
+            last_improvement_time_sec: Optional[int] = None
+
+            def stop_after_primary_objective_stagnation(
+                opt: Any,
+                _callback_type: Any,
+            ) -> None:
+                nonlocal best_primary_value
+                nonlocal last_improvement_time_sec
+                nonlocal stopped_by_no_improvement
+                nonlocal no_improvement_stop_time_sec
+                nonlocal no_improvement_best_value
+                nonlocal no_improvement_last_improvement_time_sec
+
+                # El callback se ejecuta con el optimizador pausado. Solo iniciamos
+                # el reloj de estancamiento cuando ya existe una solucion factible.
+                status = opt.solution.status
+                status_name = getattr(
+                    status,
+                    "name",
+                    str(status).split(".")[-1],
+                ).upper()
+                if status_name not in {"FEASIBLE", "OPTIMAL"}:
+                    return
+
+                running_time_sec = int(opt.statistics.running_time)
+                current_value = float(primary_objective.value)
+                if not math.isfinite(current_value):
+                    return
+
+                # Primera solucion factible observada: establece la referencia.
+                if best_primary_value is None:
+                    best_primary_value = current_value
+                    last_improvement_time_sec = running_time_sec
+                    return
+
+                if primary_is_maximization:
+                    improved = (
+                        current_value
+                        > best_primary_value + config.objective_improvement_tolerance
+                    )
+                else:
+                    improved = (
+                        current_value
+                        < best_primary_value - config.objective_improvement_tolerance
+                    )
+
+                if improved:
+                    best_primary_value = current_value
+                    last_improvement_time_sec = running_time_sec
+                    return
+
+                if last_improvement_time_sec is None:
+                    last_improvement_time_sec = running_time_sec
+                    return
+
+                elapsed_without_improvement = (
+                    running_time_sec - last_improvement_time_sec
+                )
+
+                if elapsed_without_improvement >= config.no_improvement_time_sec:
+                    stopped_by_no_improvement = True
+                    no_improvement_stop_time_sec = running_time_sec
+                    no_improvement_best_value = best_primary_value
+                    no_improvement_last_improvement_time_sec = last_improvement_time_sec
+
+                    print(
+                        "[Hexaly] Detencion limpia por estancamiento: "
+                        f"el objetivo 0 no mejoro durante "
+                        f"{elapsed_without_improvement} segundos. "
+                        f"Mejor valor={best_primary_value}."
+                    )
+
+                    # solve() retorna normalmente; la mejor solucion y las
+                    # estadisticas permanecen disponibles.
+                    opt.stop()
+
+            # Hexaly acepta intervalos enteros para TIME_TICKED. Revisar cada
+            # segundo permite detectar una ventana de estancamiento de 5 s.
+            optimizer.param.time_between_ticks = 1
+            optimizer.add_callback(
+                hexaly.optimizer.HxCallbackType.TIME_TICKED,
+                stop_after_primary_objective_stagnation,
+            )
+
         if config.seed is not None:
             for attr in ("seed", "random_seed"):
                 try:
@@ -960,7 +1076,7 @@ def solve_vrptw_hexaly(
 
         solver_status = _safe_solver_status(optimizer)
 
-    return _build_solution_from_trip_sequences(
+    solution = _build_solution_from_trip_sequences(
         selected_trip_routes=selected_trip_routes,
         scenario=scenario,
         config=config,
@@ -974,6 +1090,20 @@ def solve_vrptw_hexaly(
         travel_time_depot=travel_time_depot,
         solver_status=solver_status,
     )
+
+    solution.objective_summary.update(
+        {
+            "time_limit_sec": config.time_limit_sec,
+            "no_improvement_time_sec": config.no_improvement_time_sec,
+            "stopped_by_no_improvement": stopped_by_no_improvement,
+            "no_improvement_stop_time_sec": no_improvement_stop_time_sec,
+            "no_improvement_best_objective_0": no_improvement_best_value,
+            "no_improvement_last_improvement_time_sec": (
+                no_improvement_last_improvement_time_sec
+            ),
+        }
+    )
+    return solution
 
 
 # ---------------------------------------------------------------------------
@@ -1402,6 +1532,15 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--vehicles", type=int, default=3, help="Numero de camiones fisicos")
     parser.add_argument("--max-trips", type=int, default=10, help="Maximo de viajes por camion")
     parser.add_argument("--time-limit", type=int, default=60, help="Tiempo limite de Hexaly en segundos")
+    parser.add_argument(
+        "--no-improvement-time",
+        type=float,
+        default=5.0,
+        help=(
+            "Detener limpiamente si el objetivo 0 no mejora durante estos segundos; "
+            "usar 0 para desactivar"
+        ),
+    )
     parser.add_argument("--speed", type=float, default=8.33, help="Velocidad en m/s")
     parser.add_argument("--depot-x", type=float, default=0.0)
     parser.add_argument("--depot-y", type=float, default=0.0)
@@ -1432,6 +1571,9 @@ def main() -> None:
         vehicle_speed_m_per_s=args.speed,
         distance_metric=args.metric,
         time_limit_sec=args.time_limit,
+        no_improvement_time_sec=(
+            args.no_improvement_time if args.no_improvement_time > 0 else 5
+        ),
         require_all_customers=args.require_all,
         hard_time_windows=not args.soft_tw,
         pickup_ready_policy=args.pickup_ready_policy,
