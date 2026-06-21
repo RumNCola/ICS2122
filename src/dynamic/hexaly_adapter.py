@@ -8,7 +8,28 @@ from .config_dynamic import DynamicMSAConfig
 from .data_normalizer import normalize_requests_df
 from .entities import PlannedTrip, ScenarioPlan
 
+def dinamic_time_limit(now_sec: float, time: int) -> float:
+    '''
+    Entrega un time_limit ajustado según la hora
+    '''
+    # Despues de las 15:45 el problema es totalmente deterministico. Timelimit mínimo.
+    if now_sec >= 15.75 * 3600:
+         time_limit = 5
+    
+    # Despues de las 15:30 el solo llegan solis de un tipo. Timelimit bajo.
+    elif now_sec < 15.75 * 3600 and now_sec >= 15.5 * 3600:
+        time_limit = 5
+    
+    #En la ventana de alta demanda se da tiempo adicinoal de ejecución.
+    elif now_sec < 15.5 * 3600 and now_sec >= 11.5 * 3600:
+         time_limit = 40
+    
+    # En las primeras hora con baja demanda, se da bajo tiempo de ejecución.
+    else:
+         time_limit = 30
 
+    return time_limit
+    
 class HexalyScenarioSolver:
     """Adaptador entre MSA dinamico y tu solver deterministico Hexaly.
 
@@ -22,31 +43,13 @@ class HexalyScenarioSolver:
 
     def _build_cfg(self, now_sec: float, nb_available_vehicles: int) -> VRPTWConfig:
         cfg = self.config
-        if cfg.scenario_time_limit_sec >= 10:
-            factor = 1
-        else:
-            if now_sec <= 3600 * 11:
-                factor = 13/8
-
-            elif now_sec >= 3600 * 11 and now_sec <= 3600 * 15:
-                # Durante el peak de demanda, se aumenta el tiempo de ejecución al doble.
-                factor = 12/8
-            else:
-                factor = 1
-
-        # Achico el factor para la última media hora
-        if now_sec > 3600 * 15 and now_sec <= 3600 * 16:
-            factor = 6 / 8
-        elif now_sec > 3600 * 16 and now_sec <= 3600 * 16.75:
-            factor = 3/8
-        elif now_sec > 3600 * 16.75:
-            factor = 2/8
-            
+        
+        time_limit_sec = dinamic_time_limit(now_sec, cfg.scenario_time_limit_sec)
         print(f'Hora actual en la simulación: {now_sec/3600:.2f}h, {now_sec}s')
 
         return VRPTWConfig(
             nb_vehicles=max(1, nb_available_vehicles),
-            max_trips_per_vehicle=cfg.max_trips_per_vehicle,
+            max_trips_per_vehicle=cfg.max_trips_per_vehicle, # REVISAR
             depot_xy=cfg.depot_xy,
             shift_start_sec=float(now_sec),
             shift_end_sec=float(cfg.shift_end_sec),
@@ -59,7 +62,7 @@ class HexalyScenarioSolver:
             deadline_is_latest_start=True,
             delivery_must_be_loaded_at_depot=True,
             pickup_ready_policy="arrival",
-            time_limit_sec=int(cfg.scenario_time_limit_sec * factor),
+            time_limit_sec=int(time_limit_sec),
             minimize_trips_after_profit=cfg.minimize_trips_after_profit,
             minimize_distance_after_profit=cfg.minimize_distance_after_profit,
             distance_cost_per_km_in_profit=cfg.distance_cost_per_km_in_profit,

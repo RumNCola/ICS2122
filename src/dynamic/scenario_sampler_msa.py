@@ -5,6 +5,23 @@ import pandas as pd
 from .config_dynamic import DynamicMSAConfig
 from .data_normalizer import normalize_requests_df, future_window
 
+def dinamic_lookahead(now_sec: float, lookahead_sec_0: int) -> float:
+    '''
+    adapta dinámicamente el lookahead
+    '''
+    # Despues de las 15:45 el problema es totalmente deterministico. Timelimit mínimo.
+    if now_sec >= 15.75 * 3600:
+        lookahead = 1
+    
+    # Despues de las 15:30 el solo llegan solis de un tipo. Timelimit bajo.
+    elif now_sec < 15.75 * 3600 and now_sec >= 15.5 * 3600:
+        lookahead = 15 * 60
+    
+    #En la ventana de alta demanda se da tiempo adicinoal de ejecución.
+    else:
+        lookahead = max(140 * 60, lookahead_sec_0)
+
+    return lookahead
 
 class FutureScenarioSampler:
     """Samplea escenarios futuros para MSA usando ricas_replica_creator.replica().
