@@ -1,0 +1,11 @@
+rica,input_dir,instancia,replica_id,n_scenarios,lookahead_min,scenario_time_limit_sec,parallel_backend,parallel_max_workers,parallel_cpu_reserve,parallel_log_progress,dynamic_insertion_n_scenarios,enable_dynamic_pickup_insertion,run_msa_on_request_arrival_if_vehicle_waiting,seed
+False,data,1,0,20,140,10.0,,,,,,,,42
+False,data,1,10,20,140,10.0,,,,,,,,42
+False,data,1,20,20,140,10.0,,,,,,,,42
+False,data,1,30,20,140,10.0,,,,,,,,42
+False,data,1,40,20,140,10.0,,,,,,,,42
+False,data,1,50,20,140,10.0,,,,,,,,42
+False,data,1,60,20,140,10.0,,,,,,,,42
+False,data,1,70,20,140,10.0,,,,,,,,42
+False,data,1,80,20,140,10.0,,,,,,,,42
+False,data,1,90,20,140,10.0,,,,,,,,42
