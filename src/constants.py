@@ -21,7 +21,7 @@ NUM_CAMIONES = 3
 IDS_CAMIONES = [1, 2, 3]
 
 VEL_RAPPI_MS = 25000 / 3600
-VEL_CAMION_MS = 25000 / 3600 # (25 km / hra) = 6.9444 m/s
+VEL_CAMION_MS = 25000 / 3600 * 1.5 # (25 km / hra) = 6.9444 m/s
 
 LABELS_INSTANCIAS = ["I", "II", "III", "IV"]
 

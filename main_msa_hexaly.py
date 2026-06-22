@@ -737,30 +737,14 @@ if __name__ == "__main__":
     #     save_individual_outputs=True,
     #     stop_on_error=False,
     # )
-    EXPERIMENTS = build_experiment_grid(
-        instancias=[3],
-        replicas=range(0,20),
-        n_scenarios_values=[20],
-        lookahead_min_values=[160],
-        scenario_time_limit_values=[40.0],
-        no_improvement_time_sec=5,
-        rica=False,
-        input_dir=Path("data"),
-        seed_values=[42],
-    )
 
-    run_batch(
-        EXPERIMENTS,
-        batch_name=None,
-        save_individual_outputs=True,
-        stop_on_error=False,
-    )
+    # exPERIMENTANDO AL DOBLE DE VELOCIDAD
     EXPERIMENTS = build_experiment_grid(
-        instancias=[2],
-        replicas=range(0,20),
+        instancias=[1,2,3,4],
+        replicas=range(1,21,2),
         n_scenarios_values=[20],
         lookahead_min_values=[160],
-        scenario_time_limit_values=[30.0],
+        scenario_time_limit_values=[20.0],
         no_improvement_time_sec=5,
         rica=False,
         input_dir=Path("data"),
