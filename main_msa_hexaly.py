@@ -23,6 +23,27 @@ from src.dynamic.dispatcher import MSADynamicDispatcher
 # -----------------------------------------------------------------------------
 
 
+# Todas las rutas relativas del script se anclan al directorio donde está este
+# archivo. Esto evita que un cambio de working directory dentro del dispatcher,
+# Hexaly o multiprocessing rompa los guardados posteriores.
+SCRIPT_DIR = Path(__file__).resolve().parent
+
+
+def _resolve_path(path: Path | str) -> Path:
+    candidate = Path(path).expanduser()
+    if not candidate.is_absolute():
+        candidate = SCRIPT_DIR / candidate
+    return candidate.resolve()
+
+
+def _save_csv(df: pd.DataFrame, path: Path | str) -> Path:
+    """Guarda un CSV creando siempre su carpeta padre."""
+    target = _resolve_path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(target, index=False)
+    return target
+
+
 def _now_stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -143,13 +164,17 @@ def _execute_one(
     dynamic_insertion_n_scenarios: int | None = None,
     enable_dynamic_pickup_insertion: bool | None = None,
     run_msa_on_request_arrival_if_vehicle_waiting: bool | None = None,
+    no_improvement_time_sec: int | None = None,
     seed: int | None = 42,
     input_dir: Path | str = Path("data"),
     save_individual_outputs: bool = True,
     output_dir: Path | str = Path("outputs/msa_hexaly/batch_runs"),
 ) -> tuple[dict[str, Any], pd.DataFrame, pd.DataFrame, Any]:
     """Ejecuta una réplica y devuelve resumen, trips, log dinámico y resultado."""
-    output_dir = Path(output_dir)
+    # Usar rutas absolutas es importante: el dispatcher o una dependencia puede
+    # cambiar temporalmente el current working directory durante la corrida.
+    output_dir = _resolve_path(output_dir)
+    input_dir = _resolve_path(input_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     df = _load_real_replica(
@@ -180,6 +205,7 @@ def _execute_one(
         "run_msa_on_request_arrival_if_vehicle_waiting": (
             run_msa_on_request_arrival_if_vehicle_waiting
         ),
+        "no_improvement_time_sec": no_improvement_time_sec,
     }
     config_candidates.update(
         {key: value for key, value in optional_config.items() if value is not None}
@@ -220,6 +246,7 @@ def _execute_one(
         "run_msa_on_request_arrival_if_vehicle_waiting": (
             run_msa_on_request_arrival_if_vehicle_waiting
         ),
+        "no_improvement_time_sec": no_improvement_time_sec,
         "seed": seed,
         "config_applied_fields": applied_fields,
         "config_ignored_fields": ignored_fields,
@@ -249,17 +276,30 @@ def _execute_one(
     )
 
     if save_individual_outputs:
+        # Reforzamos la creación justo antes de escribir por si una dependencia
+        # modificó o limpió carpetas durante la ejecución.
+        output_dir.mkdir(parents=True, exist_ok=True)
         time_limit_tag = str(scenario_time_limit_sec).replace(".", "p")
+        no_improvement_tag = (
+            "off"
+            if no_improvement_time_sec is None
+            else str(no_improvement_time_sec).replace(".", "p")
+        )
         run_tag = (
             f"I{instancia}_R{replica_id}_S{n_scenarios}_"
-            f"L{lookahead_min}_TL{time_limit_tag}_SEED{seed}"
+            f"L{lookahead_min}_TL{time_limit_tag}_NI{no_improvement_tag}_SEED{seed}"
         )
-        committed_trips.to_csv(output_dir / f"trips_{run_tag}.csv", index=False)
-        dynamic_insertion_log.to_csv(
-            output_dir / f"dynamic_insertions_{run_tag}.csv", index=False
+        _save_csv(
+            committed_trips,
+            output_dir / f"trips_{run_tag}.csv",
         )
-        pd.DataFrame([row]).to_csv(
-            output_dir / f"summary_{run_tag}.csv", index=False
+        _save_csv(
+            dynamic_insertion_log,
+            output_dir / f"dynamic_insertions_{run_tag}.csv",
+        )
+        _save_csv(
+            pd.DataFrame([row]),
+            output_dir / f"summary_{run_tag}.csv",
         )
 
     return row, committed_trips, dynamic_insertion_log, result
@@ -303,6 +343,7 @@ def run_one(
         run_msa_on_request_arrival_if_vehicle_waiting=(
             run_msa_on_request_arrival_if_vehicle_waiting
         ),
+        no_improvement_time_sec=no_improvement_time_sec,
         seed=seed,
         input_dir=input_dir,
         save_individual_outputs=save_individual_outputs,
@@ -517,9 +558,13 @@ def run_batch(
 ) -> tuple[pd.DataFrame, pd.DataFrame, Path]:
     """Ejecuta secuencialmente la grilla y guarda CSV incrementales y Excel."""
     batch_name = batch_name or f"batch_{_now_stamp()}"
-    output_root = Path(output_root)
+    # Se resuelve una sola vez, antes de ejecutar el dispatcher. Desde aquí en
+    # adelante todas las rutas del batch son absolutas.
+    output_root = _resolve_path(output_root)
     batch_dir = output_root / batch_name
+    individual_runs_dir = batch_dir / "individual_runs"
     batch_dir.mkdir(parents=True, exist_ok=True)
+    individual_runs_dir.mkdir(parents=True, exist_ok=True)
 
     rows: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
@@ -529,6 +574,11 @@ def run_batch(
     print(f"Salida: {batch_dir}")
 
     for idx, params in enumerate(experiments, start=1):
+        # Garantiza que las carpetas sigan existiendo incluso si una dependencia
+        # cambió el working directory o realizó limpieza temporal.
+        batch_dir.mkdir(parents=True, exist_ok=True)
+        individual_runs_dir.mkdir(parents=True, exist_ok=True)
+
         print("-" * 90)
         print(f"Corrida {idx}/{len(experiments)} | params={params}")
 
@@ -536,7 +586,7 @@ def run_batch(
             row, _, _ = run_one(
                 **params,
                 save_individual_outputs=save_individual_outputs,
-                output_dir=batch_dir / "individual_runs",
+                output_dir=individual_runs_dir,
             )
             row = {"run_id": idx, **row}
             rows.append(row)
@@ -568,11 +618,13 @@ def run_batch(
                 break
 
         # Guardado incremental por seguridad, igual que en el batch ALNS.
-        pd.DataFrame(rows).to_csv(
-            batch_dir / "runs_detail_partial.csv", index=False
+        _save_csv(
+            pd.DataFrame(rows),
+            batch_dir / "runs_detail_partial.csv",
         )
-        pd.DataFrame(errors).to_csv(
-            batch_dir / "errors_partial.csv", index=False
+        _save_csv(
+            pd.DataFrame(errors),
+            batch_dir / "errors_partial.csv",
         )
 
     runs_df = pd.DataFrame(rows)
@@ -587,9 +639,9 @@ def run_batch(
         excel_path=excel_path,
     )
 
-    runs_df.to_csv(batch_dir / "runs_detail.csv", index=False)
-    errors_df.to_csv(batch_dir / "errors.csv", index=False)
-    experiments_df.to_csv(batch_dir / "planned_experiments.csv", index=False)
+    _save_csv(runs_df, batch_dir / "runs_detail.csv")
+    _save_csv(errors_df, batch_dir / "errors.csv")
+    _save_csv(experiments_df, batch_dir / "planned_experiments.csv")
 
     print("=" * 90)
     print(f"Batch terminado. Corridas OK: {len(runs_df)} | errores: {len(errors_df)}")
@@ -708,7 +760,7 @@ if __name__ == "__main__":
         replicas=range(0,20),
         n_scenarios_values=[20],
         lookahead_min_values=[160],
-        scenario_time_limit_values=[40.0],
+        scenario_time_limit_values=[30.0],
         no_improvement_time_sec=5,
         rica=False,
         input_dir=Path("data"),
