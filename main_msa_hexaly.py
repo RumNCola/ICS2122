@@ -686,8 +686,8 @@ if __name__ == "__main__":
     #     stop_on_error=False,
     # )
     EXPERIMENTS = build_experiment_grid(
-        instancias=[3],
-        replicas=range(0,20),
+        instancias=[1],
+        replicas=range(1,21),
         n_scenarios_values=[20],
         lookahead_min_values=[160],
         scenario_time_limit_values=[40.0],
@@ -704,8 +704,8 @@ if __name__ == "__main__":
         stop_on_error=False,
     )
     EXPERIMENTS = build_experiment_grid(
-        instancias=[2],
-        replicas=range(0,20),
+        instancias=[4],
+        replicas=range(1,21),
         n_scenarios_values=[20],
         lookahead_min_values=[160],
         scenario_time_limit_values=[40.0],
