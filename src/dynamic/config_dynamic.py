@@ -25,7 +25,7 @@ class DynamicMSAConfig:
     instancia: int = 1
     nb_vehicles: int = 3
     depot_xy: tuple[float, float] = (10_000.0, 10_000.0)
-    vehicle_speed_m_per_s: float = 25_000 / 3600 * 2
+    vehicle_speed_m_per_s: float = 25_000 / 3600 * 1.75
     distance_metric: DistanceMetric = "manhattan"
 
     arrivals_start_sec: int = 8 * 3600 + 45 * 60

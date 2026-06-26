@@ -31,7 +31,7 @@ class MSADynamicDispatcher:
     4. Hexaly resuelve rapido cada escenario; se proyecta a conocidos y se elige por consenso.
     5. Se compromete solo el primer viaje de cada camion disponible.
 
-    Esto ya usa tu solver deterministic_bound.py. La insercion en ruta de pickups dinamicos
+    usa deterministic_bound.py. La insercion en ruta de pickups dinamicos
     queda aislada para una siguiente iteracion, porque requiere extender el solver o usar
     heuristica de insercion sobre rutas parcialmente bloqueadas.
     """

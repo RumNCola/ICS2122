@@ -684,68 +684,13 @@ if __name__ == "__main__":
     # Recomendado en Windows si la implementación interna usa multiprocessing.
     mp.freeze_support()
 
-    # Esta grilla reproduce el antiguo loop de réplicas, pero ahora genera un
-    # batch consolidado con métricas individuales y agregadas en Excel.
-    # EXPERIMENTS = build_experiment_grid(
-    #     instancias=[1],
-    #     replicas=range(2, 100, 9),
-    #     n_scenarios_values=[20],
-    #     lookahead_min_values=[160],
-    #     scenario_time_limit_values=[40.0],
-    #     rica=False,
-    #     input_dir=Path("data"),
-    #     seed_values=[42],
-    # )
-
-    # run_batch(
-    #     EXPERIMENTS,
-    #     batch_name=None,
-    #     save_individual_outputs=True,
-    #     stop_on_error=False,
-    # )
-    # EXPERIMENTS = build_experiment_grid(
-    #     instancias=[2],
-    #     replicas=range(2, 100, 9),
-    #     n_scenarios_values=[20],
-    #     lookahead_min_values=[160],
-    #     scenario_time_limit_values=[40.0],
-    #     rica=False,
-    #     input_dir=Path("data"),
-    #     seed_values=[42],
-    # )
-
-    # run_batch(
-    #     EXPERIMENTS,
-    #     batch_name=None,
-    #     save_individual_outputs=True,
-    #     stop_on_error=False,
-    # )
-    # EXPERIMENTS = build_experiment_grid(
-    #     instancias=[3],
-    #     replicas=range(2, 100, 90),
-    #     n_scenarios_values=[20],
-    #     lookahead_min_values=[160],
-    #     scenario_time_limit_values=[40.0],
-    #     rica=False,
-    #     input_dir=Path("data"),
-    #     seed_values=[42],
-    # )
-
-    # run_batch(
-    #     EXPERIMENTS,
-    #     batch_name=None,
-    #     save_individual_outputs=True,
-    #     stop_on_error=False,
-    # )
-
-    # exPERIMENTANDO AL DOBLE DE VELOCIDAD
     EXPERIMENTS = build_experiment_grid(
-        instancias=[1,2,3,4],
-        replicas=range(1,21,2),
+        instancias=[1],
+        replicas=[1,3,5],
         n_scenarios_values=[20],
         lookahead_min_values=[160],
-        scenario_time_limit_values=[20.0],
-        no_improvement_time_sec=5,
+        scenario_time_limit_values=[8.0],
+        no_improvement_time_sec=3,
         rica=False,
         input_dir=Path("data"),
         seed_values=[42],
@@ -757,6 +702,8 @@ if __name__ == "__main__":
         save_individual_outputs=True,
         stop_on_error=False,
     )
+
+
 
 # Instancia 1
 # NUMERO DE ESCENARIOS

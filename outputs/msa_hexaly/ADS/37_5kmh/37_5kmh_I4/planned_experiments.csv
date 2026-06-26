@@ -1,0 +1,2 @@
+rica,input_dir,instancia,replica_id,n_scenarios,lookahead_min,scenario_time_limit_sec,no_improvement_time_sec,parallel_backend,parallel_max_workers,parallel_cpu_reserve,parallel_log_progress,dynamic_insertion_n_scenarios,enable_dynamic_pickup_insertion,run_msa_on_request_arrival_if_vehicle_waiting,seed
+False,data,4,1,20,160,20.0,5,,,,,,,,42
