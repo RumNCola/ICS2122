@@ -548,7 +548,7 @@ def print_desglose_utilidad(df_atendidos):
 
 
 
-def solve_replica_myopic_and_save(output_folder: str, replica = None):
+def solve_replica_myopic_and_save(output_folder: str, replica = None, save_df_pos = False):
     global g_REPLICA
 
     g_REPLICA = replica
@@ -564,12 +564,13 @@ def solve_replica_myopic_and_save(output_folder: str, replica = None):
     if VERBOSE_MYOPIC:
         print("Deliveries processed...")
 
-    df_pos = create_df_pos(t_pos_camion_pickup, t_pos_camion_2y3)
+    if save_df_pos:
+        df_pos = create_df_pos(t_pos_camion_pickup, t_pos_camion_2y3)
 
-    pos_path = os.path.join(output_folder, "posiciones_camiones.csv")
-    df_pos.to_csv(pos_path, index=False)
+        pos_path = os.path.join(output_folder, "posiciones_camiones.csv")
+        df_pos.to_csv(pos_path, index=False)
 
-    print(f"Saved to {pos_path}")
+        print(f"Saved to {pos_path}")
 
     df_atendidos = create_df_atendidos(clientes_atendidos_pickup, clientes_atendidos_delivery2y3)
 

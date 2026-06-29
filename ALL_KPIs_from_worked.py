@@ -181,14 +181,12 @@ def create_myopic_analysis_folder(analysis_path, instancias_indices = [0,1,2,3],
     create_resumen_kpis(analysis_path, instancias_indices, replicas_indices)
 
 if __name__ == "__main__":
-    
-
     analysis_path = os.path.join("outputs", "myopic_outputs", "analysisdelete")
     
-    num_replicas = 20
+    num_replicas = 10
     instancias_indices = [0, 1, 2, 3]
 
-    create_myopic_analysis_folder(analysis_path, [0], 1)
+    create_myopic_analysis_folder(analysis_path, instancias_indices, num_replicas)
     
 
     

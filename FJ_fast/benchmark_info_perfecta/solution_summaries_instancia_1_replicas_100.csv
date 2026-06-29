@@ -1,0 +1,501 @@
+nb_vehicles_used,nb_trips_used,served_customers,unserved_customers,service_rate,total_profit,total_possible_profit,profit_rate,total_distance_km,total_travel_time_sec,nb_tours,avg_customers_per_tour,std_customers_per_tour,se_customers_per_tour,avg_tour_duration_sec,std_tour_duration_sec,se_tour_duration_sec,avg_tour_duration_min,std_tour_duration_min,se_tour_duration_min,avg_tour_duration_hours,std_tour_duration_hours,se_tour_duration_hours,solver_status,distance_metric,depot_xy,shift_start_sec,shift_end_sec,hard_time_windows,require_all_customers,deadline_is_latest_start,delivery_must_be_loaded_at_depot,delivery_loading_rule,pickup_ready_policy,max_trips_per_vehicle,distance_cost_per_km_in_profit,time_limit_sec,no_improvement_time_sec,stopped_by_no_improvement,no_improvement_stop_time_sec,no_improvement_best_objective_0,no_improvement_last_improvement_time_sec,instancia,replica
+3,13,131,57,0.6968085106382979,215.0,305.0,0.7049180327868853,403.19614819335936,58132.0,13,10.076923076923077,5.823251360731083,1.6150793362331823,6362.461538461538,2180.925476924289,604.8798950012523,106.04102564102564,36.34875794873815,10.081331583354205,1.7673504273504272,0.6058126324789691,0.1680221930559034,"Model:  expressions = 110545, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,0
+3,13,132,56,0.7021276595744681,219.0,302.0,0.7251655629139073,385.3374339599609,55561.0,13,10.153846153846153,4.616025596516153,1.2802551520840955,6111.923076923077,2022.2379707285713,560.8678995886238,101.86538461538461,33.70396617880952,9.347798326477063,1.6977564102564102,0.5617327696468254,0.15579663877461772,"Model:  expressions = 110589, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,1
+3,11,147,72,0.6712328767123288,235.0,353.0,0.6657223796033994,362.8282553710938,52328.0,11,13.363636363636363,6.1850259057295345,1.8648554770848123,7162.545454545455,2161.6424479379734,651.7597209741468,119.37575757575759,36.027374132299556,10.862662016235781,1.9895959595959598,0.6004562355383259,0.181044366937263,"Model:  expressions = 117276, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,2
+3,13,129,81,0.6142857142857143,217.0,342.0,0.6345029239766082,406.3944376831055,58593.0,13,9.923076923076923,5.122849767813784,1.4208228857193377,6293.307692307692,1972.3591366945736,547.0340000755518,104.88846153846154,32.872652278242896,9.11723333459253,1.7481410256410257,0.5478775379707149,0.15195388890987552,"Model:  expressions = 115414, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,15.0,217.0,10.0,1,3
+3,11,124,60,0.6739130434782609,196.0,294.0,0.6666666666666666,366.4664020805359,52838.0,11,11.272727272727273,6.543560331973858,1.972957674019155,7027.909090909091,2465.777583422538,743.4599146074382,117.13181818181819,41.0962930570423,12.390998576790638,1.9521969696969697,0.6849382176173717,0.20651664294651062,"Model:  expressions = 109966, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,4
+3,13,135,57,0.703125,222.0,309.0,0.7184466019417476,391.51847981262205,56457.0,13,10.384615384615385,4.8051788301522755,1.3327168199913921,6213.0,1584.1591355247951,439.36669166379664,103.55,26.402652258746585,7.32277819439661,1.7258333333333333,0.4400442043124431,0.12204630323994352,"Model:  expressions = 111546, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,5
+3,13,117,44,0.7267080745341615,183.0,253.0,0.7233201581027668,389.3650240783691,56134.0,13,9.0,6.831300510639732,1.8946618668626838,5967.384615384615,3087.2041973945065,856.2363870410419,99.45641025641025,51.453403289908444,14.270606450684031,1.6576068376068376,0.8575567214984741,0.23784344084473386,"Model:  expressions = 105763, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,6
+3,13,141,85,0.6238938053097345,221.0,353.0,0.6260623229461756,399.8602318878174,57653.0,13,10.846153846153847,6.401121696574669,1.7753517305757702,6401.538461538462,2506.33589180782,695.1325054960663,106.6923076923077,41.77226486346367,11.585541758267771,1.7782051282051283,0.6962044143910612,0.1930923626377962,"Model:  expressions = 118935, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,7
+3,11,136,47,0.7431693989071039,218.0,291.0,0.7491408934707904,362.2465229492188,52236.0,11,12.363636363636363,5.162804030228676,1.5566439849457452,6985.090909090909,2474.719234763631,746.1559239260366,116.41818181818182,41.24532057939385,12.435932065433944,1.9403030303030302,0.6874220096565642,0.20726553442389906,"Model:  expressions = 109471, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,8
+3,11,133,59,0.6927083333333334,224.0,316.0,0.7088607594936709,350.7540931930542,50580.0,11,12.090909090909092,7.2312453347199535,2.1803025038430937,6774.545454545455,3476.8612673972593,1048.313115643295,112.90909090909092,57.94768778995432,17.471885260721585,1.8818181818181818,0.9657947964992387,0.2911980876786931,"Model:  expressions = 111416, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,9
+3,12,142,64,0.6893203883495146,228.0,333.0,0.6846846846846847,374.1532340831756,53956.0,12,11.833333333333334,6.5897073094517955,1.9022846444964194,6626.333333333333,2619.7769625167202,756.2644672629043,110.43888888888888,43.66294937527867,12.604407787715072,1.840648148148148,0.7277158229213112,0.21007346312858452,"Model:  expressions = 114470, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,10
+3,11,140,58,0.7070707070707071,214.0,306.0,0.6993464052287581,394.759943572998,56918.0,11,12.727272727272727,5.917616227686772,1.7842284255050322,7501.090909090909,2398.6787385786142,723.228851678932,125.01818181818182,39.97797897631024,12.053814194648867,2.0836363636363635,0.6662996496051706,0.20089690324414777,"Model:  expressions = 112694, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,15.0,214.0,10.0,1,11
+3,13,140,66,0.6796116504854369,233.0,342.0,0.6812865497076024,400.4672940673828,57742.0,13,10.76923076923077,4.952336925698919,1.3735311322293193,6395.153846153846,1380.125709621763,382.7780009713378,106.58589743589742,23.002095160362718,6.3796333495222965,1.7764316239316238,0.38336825267271196,0.10632722249203828,"Model:  expressions = 114345, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,12
+3,12,133,71,0.6519607843137255,220.0,336.0,0.6547619047619048,393.9378376464844,56802.0,12,11.083333333333334,7.064100448855123,2.0392301478645307,6756.416666666667,2773.308672402739,800.5852542788225,112.60694444444445,46.22181120671232,13.343087571313708,1.8767824074074075,0.7703635201118719,0.22238479285522847,"Model:  expressions = 114048, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,13
+3,11,136,63,0.6834170854271356,219.0,324.0,0.6759259259259259,361.6754324989319,52161.0,11,12.363636363636363,5.518563713009523,1.6639095652475568,6983.545454545455,2120.1108161431735,639.2374628291881,116.39242424242425,35.33518026905289,10.653957713819802,1.9398737373737376,0.5889196711508815,0.1775659618969967,"Model:  expressions = 112923, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,14
+3,11,142,60,0.7029702970297029,222.0,320.0,0.69375,368.7766849517822,53177.0,11,12.909090909090908,4.5266885347800425,1.3648479466062773,7276.181818181818,1681.7952204820785,507.08033823200793,121.26969696969697,28.029920341367976,8.451338970533465,2.021161616161616,0.4671653390227996,0.1408556495088911,"Model:  expressions = 113547, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,13.0,222.0,8.0,1,15
+3,12,127,67,0.654639175257732,211.0,317.0,0.6656151419558359,384.9513184490204,55506.0,12,10.583333333333334,5.264949854433276,1.5198601078634664,6530.5,1983.2709666792198,572.5210132441084,108.84166666666667,33.05451611132033,9.542016887401807,1.8140277777777778,0.5509086018553389,0.15903361479003011,"Model:  expressions = 112078, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,15.0,211.0,10.0,1,16
+3,12,135,70,0.6585365853658537,221.0,335.0,0.6597014925373135,377.93640640258786,54494.0,12,11.25,5.706853933489258,1.647426827362949,6624.666666666667,2149.8363715042183,620.6043039008044,110.41111111111111,35.83060619173697,10.343405065013407,1.8401851851851854,0.5971767698622829,0.17239008441689013,"Model:  expressions = 114235, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,17
+3,11,129,58,0.6898395721925134,211.0,307.0,0.6872964169381107,372.6983971252441,53734.0,11,11.727272727272727,6.278390065787711,1.8930058305193267,7000.272727272727,2570.7040316189295,775.0964290849013,116.67121212121212,42.84506719364882,12.918273818081689,1.944520202020202,0.7140844532274804,0.2153045636346948,"Model:  expressions = 110508, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,13.0,211.0,8.0,1,18
+3,13,134,80,0.6261682242990654,224.0,354.0,0.632768361581921,395.9129203796387,57083.0,13,10.307692307692308,5.0889523379017705,1.4114214302074755,6246.384615384615,1704.3104929590313,472.69068243654584,104.10641025641026,28.40517488265052,7.8781780406090975,1.7351068376068375,0.47341958137750867,0.13130296734348496,"Model:  expressions = 116072, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,19
+3,11,136,65,0.6766169154228856,209.0,314.0,0.6656050955414012,398.723592163086,57487.0,11,12.363636363636363,7.018158266564346,2.116054335411363,7538.636363636364,2420.2790860860355,729.7416014992415,125.6439393939394,40.33798476810059,12.162360024987358,2.0940656565656566,0.6722997461350099,0.20270600041645598,"Model:  expressions = 113337, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,20
+3,12,136,57,0.7046632124352331,218.0,307.0,0.7100977198697068,381.4547103881835,55007.0,12,11.333333333333334,6.329344836600867,1.8271244726027391,6906.833333333333,1965.3109785538377,567.3364112546925,115.11388888888888,32.75518297589729,9.455606854244875,1.9185648148148147,0.545919716264955,0.15759344757074792,"Model:  expressions = 111609, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,21
+3,12,135,65,0.675,214.0,327.0,0.654434250764526,365.13652545166013,52655.0,12,11.25,7.046920668568003,2.034270772477837,6430.666666666667,2730.759079727677,788.3022448863946,107.17777777777778,45.51265132879462,13.138370748106578,1.7862962962962963,0.7585441888132436,0.21897284580177628,"Model:  expressions = 113118, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,22
+3,13,138,40,0.7752808988764045,227.0,298.0,0.761744966442953,389.3928771209716,56150.0,13,10.615384615384615,6.813448240287507,1.8897105379289614,6268.153846153846,2775.63935115719,769.8238463686805,104.46923076923076,46.260655852619834,12.83039743947801,1.741153846153846,0.7710109308769972,0.21383995732463348,"Model:  expressions = 108502, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,23
+3,12,134,67,0.6666666666666666,224.0,329.0,0.6808510638297872,377.3472243041992,54412.0,12,11.166666666666666,4.281744192888376,1.2360330811826106,6592.75,1753.1875450680736,506.10165054247574,109.87916666666666,29.219792417801226,8.435027509041262,1.8313194444444445,0.4869965402966871,0.14058379181735436,"Model:  expressions = 113302, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,14.0,224.0,9.0,1,24
+3,12,130,61,0.680628272251309,210.0,309.0,0.6796116504854369,416.5695728149415,60061.0,12,10.833333333333334,6.278872703299727,1.8125544227287453,6961.5,2244.0817316180396,647.8105959165983,116.025,37.40136219363399,10.796843265276639,1.93375,0.6233560365605666,0.17994738775461064,"Model:  expressions = 111331, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,11.0,210.0,6.0,1,25
+3,13,129,55,0.7010869565217391,218.0,300.0,0.7266666666666667,390.25252188110346,56266.0,13,9.923076923076923,4.271251543001155,1.1846320345150265,6151.307692307692,1392.3510922545952,386.16871204401804,102.52179487179487,23.205851537576585,6.436145200733634,1.7086965811965813,0.3867641922929431,0.1072690866788939,"Model:  expressions = 109757, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,26
+3,12,135,67,0.6683168316831684,223.0,333.0,0.6696696696696697,364.92887184906004,52622.0,12,11.25,5.207075605715397,1.503153251325259,6467.0,1502.2023831694582,433.64847515009205,107.78333333333333,25.036706386157636,7.227474585834868,1.7963888888888888,0.41727843976929396,0.12045790976391446,"Model:  expressions = 113604, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,27
+3,11,148,58,0.7184466019417476,233.0,328.0,0.7103658536585366,363.84922868347167,52470.0,11,13.454545454545455,7.528129068548657,2.269816317613053,7224.545454545455,3319.2684544530703,1000.7970947167006,120.40909090909092,55.32114090755117,16.679951578611675,2.006818181818182,0.9220190151258528,0.27799919297686126,"Model:  expressions = 114307, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,28
+3,12,120,61,0.6629834254143646,201.0,300.0,0.67,368.9146490020752,53194.0,12,10.0,4.451761653343743,1.285112894463032,6243.583333333333,1762.0111163787885,508.6487961782033,104.05972222222222,29.366851939646477,8.47747993630339,1.7343287037037036,0.48944753232744126,0.14129133227172314,"Model:  expressions = 109341, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,29
+3,11,133,50,0.726775956284153,210.0,289.0,0.726643598615917,394.3453513450622,56857.0,11,12.090909090909092,3.6729972898042127,1.10745035147935,7466.454545454545,1538.5802782849105,463.8994084465131,124.44090909090909,25.64300463808184,7.731656807441885,2.0740151515151513,0.42738341063469737,0.1288609467906981,"Model:  expressions = 109775, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,30
+3,12,120,49,0.7100591715976331,192.0,272.0,0.7058823529411765,405.13409982299805,58406.0,12,10.0,5.081159495448044,1.4668044012461756,6688.5,1979.0306855997596,571.2969495327754,111.475,32.983844759995996,9.521615825546258,1.8579166666666667,0.5497307459999332,0.15869359709243763,"Model:  expressions = 107127, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,31
+3,12,145,74,0.6621004566210046,227.0,347.0,0.654178674351585,385.7063748168945,55623.0,12,12.083333333333334,7.341765125057813,2.1193850356395676,6848.083333333333,2690.0008265741662,776.5363506714554,114.13472222222222,44.83334710956944,12.942272511190923,1.9022453703703703,0.7472224518261573,0.21570454185318205,"Model:  expressions = 117184, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,32
+3,11,134,66,0.67,225.0,337.0,0.6676557863501483,358.53806750488286,51699.0,11,12.181818181818182,4.51260859854213,1.3606026860996152,6910.818181818182,1999.3461840402636,602.8255562264007,115.18030303030304,33.32243640067106,10.047092603773345,1.9196717171717173,0.5553739400111843,0.16745154339622242,"Model:  expressions = 113029, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,33
+3,14,127,58,0.6864864864864865,206.0,301.0,0.6843853820598007,391.96389449024207,56511.0,14,9.071428571428571,6.2936388607776115,1.6820457380797202,5868.142857142857,2286.462059001362,611.0826894743429,97.80238095238094,38.10770098335603,10.18471149123905,1.6300396825396826,0.6351283497226006,0.16974519152065082,"Model:  expressions = 110130, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,14.0,206.0,9.0,1,34
+3,13,133,64,0.6751269035532995,230.0,331.0,0.6948640483383686,382.334818359375,55130.0,13,10.23076923076923,6.043644680624517,1.676205445128991,6082.307692307692,2815.1056340338687,780.7698237966675,101.37179487179488,46.91842723389781,13.012830396611125,1.6895299145299145,0.7819737872316301,0.21688050661018543,"Model:  expressions = 112445, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,35
+3,11,144,61,0.7024390243902439,234.0,341.0,0.6862170087976539,374.3248669128418,53971.0,11,13.090909090909092,6.774282920790148,2.0425231519976172,7282.727272727273,2588.094824032114,780.3399502886732,121.37878787878789,43.134913733868565,13.005665838144553,2.022979797979798,0.7189152288978095,0.21676109730240922,"Model:  expressions = 114177, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,14.0,234.0,9.0,1,36
+3,11,142,75,0.6543778801843319,226.0,347.0,0.6512968299711815,375.51082061767585,54152.0,11,12.909090909090908,6.331738236133035,1.909090909090909,7265.454545454545,2181.735243499374,657.8179267801908,121.09090909090908,36.362254058322904,10.963632113003179,2.018181818181818,0.606037567638715,0.18272720188338631,"Model:  expressions = 116830, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,37
+3,12,146,70,0.6759259259259259,234.0,349.0,0.670487106017192,388.3272419433593,56001.0,12,12.166666666666666,5.573204290227127,1.6088454986057046,6860.0,1450.3059865233456,418.6672758632897,114.33333333333333,24.17176644205576,6.977787931054829,1.9055555555555554,0.4028627740342627,0.11629646551758048,"Model:  expressions = 116539, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,14.0,234.0,9.0,1,38
+3,12,131,54,0.7081081081081081,214.0,297.0,0.7205387205387206,393.62108949279786,56754.0,12,10.916666666666666,7.267090618714347,2.097828362470066,6706.916666666667,3016.918670622646,870.9094033035964,111.78194444444445,50.28197784371077,14.515156721726607,1.8630324074074074,0.8380329640618461,0.24191927869544344,"Model:  expressions = 110263, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,39
+3,10,131,60,0.6858638743455497,212.0,307.0,0.6905537459283387,372.3930851745605,53695.0,10,13.1,7.578478299324565,2.396525262402492,7780.3,2312.565677145432,731.2974778509159,129.67166666666668,38.5427612857572,12.188291297515265,2.1611944444444444,0.64237935476262,0.2031381882919211,"Model:  expressions = 111232, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,12.0,212.0,7.0,1,40
+3,13,137,63,0.685,209.0,312.0,0.6698717948717948,411.6601952209473,59355.0,13,10.538461538461538,8.559744784117735,2.3740460556939946,6496.461538461538,3480.847947827862,965.4135198451506,108.27435897435898,58.0141324637977,16.09022533075251,1.8045726495726495,0.9669022077299616,0.2681704221792085,"Model:  expressions = 113187, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,41
+3,12,135,70,0.6585365853658537,210.0,326.0,0.6441717791411042,368.830094329834,53187.0,12,11.25,6.929843235797422,2.0004734288147743,6485.833333333333,2581.5251247464103,745.2221128460611,108.09722222222221,43.02541874577351,12.420368547434352,1.8016203703703704,0.7170903124295585,0.2070061424572392,"Model:  expressions = 114216, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,42
+3,12,138,76,0.6448598130841121,225.0,342.0,0.6578947368421053,373.62911535644525,53881.0,12,11.5,5.64881323014763,1.630671919513827,6732.333333333333,1937.8144358732563,559.3988430954837,112.20555555555555,32.29690726455427,9.323314051591394,1.8700925925925924,0.5382817877425712,0.15538856752652325,"Model:  expressions = 116111, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,43
+3,12,134,57,0.7015706806282722,226.0,318.0,0.710691823899371,395.1153580322266,56967.0,12,11.166666666666666,4.932882862316247,1.4240006242195886,6757.25,1845.346930919643,532.7057736573529,112.62083333333334,30.75578218199405,8.878429560955881,1.877013888888889,0.5125963696999009,0.14797382601593137,"Model:  expressions = 111277, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,44
+3,12,131,63,0.6752577319587629,217.0,318.0,0.6823899371069182,374.90500158691407,54053.0,12,10.916666666666666,5.434876152027642,1.5689136046927183,6494.5,1835.782741156282,529.9448298901243,108.24166666666666,30.596379019271367,8.832413831502071,1.8040277777777778,0.5099396503211895,0.14720689719170119,"Model:  expressions = 111810, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,45
+3,12,139,90,0.6069868995633187,236.0,381.0,0.6194225721784777,367.4753861980438,52989.0,12,11.583333333333334,6.556860852757533,1.8928026891892407,6500.75,2304.906273976923,665.3691288687169,108.34583333333333,38.41510456628205,11.089485481145282,1.805763888888889,0.6402517427713674,0.18482475801908801,"Model:  expressions = 119550, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,46
+3,13,137,73,0.6523809523809524,232.0,346.0,0.6705202312138728,381.48230789947513,55005.0,13,10.538461538461538,5.606772461576931,1.5550388923134673,6128.076923076923,2385.774837851023,661.6948853525885,102.13461538461539,39.76291396418372,11.028248089209807,1.7022435897435897,0.6627152327363953,0.18380413482016347,"Model:  expressions = 115259, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,47
+3,10,129,65,0.6649484536082474,206.0,316.0,0.6518987341772152,349.20362754821775,50346.0,10,12.9,3.665151201974256,1.1590225767142472,7356.6,1133.0372358302166,358.29783390048254,122.61,18.88395393050361,5.971630565008042,2.0435000000000003,0.3147325655083935,0.09952717608346737,"Model:  expressions = 111991, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,48
+3,11,134,81,0.6232558139534884,231.0,357.0,0.6470588235294118,361.3436792602539,52104.0,11,12.181818181818182,5.231026320296655,1.5772137793543157,6929.454545454545,1560.485588759881,470.5041080612148,115.49090909090908,26.008093145998018,7.841735134353581,1.9248484848484848,0.43346821909996697,0.13069558557255967,"Model:  expressions = 116496, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,49
+3,13,134,57,0.7015706806282722,222.0,314.0,0.7070063694267515,380.19732427978516,54821.0,13,10.307692307692308,6.787054041637106,1.8823901043436686,6074.2307692307695,2578.79145317615,715.2280625503771,101.23717948717949,42.97985755293583,11.920467709172952,1.6872863247863248,0.7163309592155972,0.1986744618195492,"Model:  expressions = 111261, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,50
+3,12,137,58,0.7025641025641025,225.0,315.0,0.7142857142857143,377.9637178344727,54491.0,12,11.416666666666666,8.743395776068342,2.5240009524722473,6595.916666666667,3233.510545362377,933.434091896231,109.93194444444445,53.89184242270628,15.557234864937184,1.8321990740740741,0.8981973737117713,0.25928724774895306,"Model:  expressions = 112027, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,51
+3,12,138,71,0.6602870813397129,232.0,346.0,0.6705202312138728,366.0866047363281,52790.0,12,11.5,6.082762530298219,1.755942292142123,6469.166666666667,2804.3509647213086,809.5463921920172,107.81944444444444,46.739182745355144,13.492439869866953,1.7969907407407408,0.7789863790892524,0.22487399783111586,"Model:  expressions = 115081, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,52
+3,13,131,67,0.6616161616161617,216.0,326.0,0.6625766871165644,393.92521279907226,56800.0,13,10.076923076923077,5.707619738290479,1.5830088944043599,6183.076923076923,2215.552958124994,614.4838303096606,103.05128205128204,36.92588263541656,10.241397171827677,1.7175213675213674,0.6154313772569427,0.1706899528637946,"Model:  expressions = 112782, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,12.0,216.0,7.0,1,53
+3,11,138,59,0.700507614213198,220.0,313.0,0.7028753993610224,368.20462982177736,53098.0,11,12.545454545454545,4.8448660737658455,1.4607820842003307,7098.0,2112.8854677904337,637.0589383323107,118.3,35.21475779650723,10.61764897220518,1.9716666666666667,0.5869126299417872,0.17696081620341964,"Model:  expressions = 112462, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,12.0,220.0,7.0,1,54
+3,12,137,55,0.7135416666666666,217.0,306.0,0.7091503267973857,376.5084988708496,54294.0,12,11.416666666666666,7.279589565519765,2.1014364976214135,6596.166666666667,2981.5825216373487,860.7087357392032,109.93611111111112,49.693042027289145,14.345145595653387,1.8322685185185186,0.8282173671214857,0.23908575992755646,"Model:  expressions = 111569, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,14.0,217.0,9.0,1,55
+3,12,135,70,0.6585365853658537,226.0,339.0,0.6666666666666666,370.061290939331,53361.0,12,11.25,5.92567602587556,1.7105953243348833,6471.75,1936.8586621828467,559.1229349967625,107.8625,32.28097770304745,9.318715583279376,1.7977083333333332,0.5380162950507907,0.1553119263879896,"Model:  expressions = 114186, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,12.0,226.0,7.0,1,56
+3,12,140,70,0.6666666666666666,227.0,343.0,0.6618075801749271,370.6122665405274,53446.0,12,11.666666666666666,5.8826916123540425,1.69818679297608,6558.5,2160.9943208036098,623.8253264166083,109.30833333333334,36.01657201339349,10.397088773610138,1.8218055555555555,0.6002762002232249,0.1732848128935023,"Model:  expressions = 115290, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,57
+3,15,139,73,0.6556603773584906,228.0,339.0,0.672566371681416,405.3748197631835,58452.0,15,9.266666666666667,6.5625198412398476,1.6944353369518446,5565.133333333333,2465.992059617232,636.7164119184845,92.75222222222222,41.099867660287195,10.611940198641408,1.5458703703703702,0.68499779433812,0.1768656699773568,"Model:  expressions = 115699, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,58
+3,12,124,63,0.6631016042780749,217.0,317.0,0.6845425867507886,395.5560955657959,57032.0,12,10.333333333333334,4.458563432181702,1.2870763988845637,6632.75,1708.9824790314158,493.340747154571,110.54583333333333,28.483041317190263,8.222345785909516,1.8424305555555556,0.4747173552865044,0.13703909643182527,"Model:  expressions = 110656, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,15.0,217.0,10.0,1,59
+3,12,134,61,0.6871794871794872,218.0,310.0,0.7032258064516129,348.3505896759034,50236.0,12,11.166666666666666,5.271420945805674,1.5217281510363687,6296.583333333333,1804.03937965149,520.7813107352366,104.94305555555555,30.0673229941915,8.679688512253943,1.749050925925926,0.5011220499031916,0.1446614752042324,"Model:  expressions = 111949, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,60
+3,13,132,68,0.66,218.0,329.0,0.662613981762918,386.7492702331543,55769.0,13,10.153846153846153,6.568182826400742,1.8216861513238358,6117.615384615385,2654.0893459735407,736.1119405054066,101.9602564102564,44.234822432892344,12.268532341756776,1.699337606837607,0.7372470405482058,0.2044755390292796,"Model:  expressions = 113078, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,61
+3,13,131,52,0.7158469945355191,222.0,303.0,0.7326732673267327,398.7468182983398,57494.0,13,10.076923076923077,6.836928385144147,1.8962227584086486,6236.461538461538,2699.4502099311694,748.6927805745279,103.94102564102563,44.990836832186154,12.478213009575464,1.7323504273504273,0.7498472805364359,0.20797021682625774,"Model:  expressions = 109741, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,13.0,222.0,8.0,1,62
+3,13,133,58,0.6963350785340314,223.0,312.0,0.7147435897435898,390.1514141235351,56254.0,13,10.23076923076923,4.710871224339261,1.3065605962663869,6261.7692307692305,1871.8197097052446,519.1493801358753,104.3628205128205,31.196995161754078,8.652489668931254,1.7393803418803417,0.519949919362568,0.14420816114885424,"Model:  expressions = 111189, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,13.0,223.0,8.0,1,63
+3,13,131,66,0.6649746192893401,215.0,325.0,0.6615384615384615,388.6754713153839,56042.0,13,10.076923076923077,5.722201477018242,1.5870531410711575,6188.615384615385,1914.1523597692678,530.8903447844991,103.14358974358974,31.902539329487798,8.848172413074986,1.7190598290598291,0.5317089888247967,0.14746954021791642,"Model:  expressions = 112504, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,64
+3,10,128,69,0.649746192893401,201.0,309.0,0.6504854368932039,341.1025343933105,49187.0,10,12.8,4.3410188256265885,1.3727506854649334,7251.7,1624.3909662119866,513.6775263831494,120.86166666666666,27.073182770199775,8.561292106385823,2.014361111111111,0.45121971283666296,0.14268820177309705,"Model:  expressions = 112505, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,65
+3,13,132,66,0.6666666666666666,221.0,326.0,0.6779141104294478,400.175093102932,57700.0,13,10.153846153846153,5.320497374089411,1.4756404687116063,6317.538461538462,2649.742774163328,734.9064183873904,105.2923076923077,44.1623795693888,12.248440306456507,1.754871794871795,0.7360396594898133,0.2041406717742751,"Model:  expressions = 112732, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,14.0,221.0,9.0,1,66
+3,9,131,52,0.7158469945355191,208.0,287.0,0.7247386759581882,345.89635581970214,49886.0,9,14.555555555555555,6.482883446258908,2.1609611487529694,8343.666666666666,2191.0757061315794,730.3585687105265,139.0611111111111,36.51792843552632,12.172642811842108,2.317685185185185,0.6086321405921054,0.20287738019736845,"Model:  expressions = 109520, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,67
+3,11,137,69,0.6650485436893204,225.0,340.0,0.6617647058823529,373.7989681115151,53897.0,11,12.454545454545455,4.297991074063239,1.2958930677240337,7148.272727272727,1461.3166727926628,440.6035548676196,119.13787878787879,24.35527787987771,7.343392581126993,1.985631313131313,0.4059212979979619,0.12238987635211655,"Model:  expressions = 114400, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,68
+3,11,123,61,0.6684782608695652,198.0,297.0,0.6666666666666666,358.04936257934577,51629.0,11,11.181818181818182,5.929893452975051,1.7879301482093852,6749.0,2642.3102770113883,796.6865244133468,112.48333333333333,44.03850461685647,13.278108740222446,1.8747222222222222,0.7339750769476079,0.22130181233704077,"Model:  expressions = 110039, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,69
+3,12,144,68,0.6792452830188679,237.0,350.0,0.6771428571428572,378.0099572601319,54509.0,12,12.0,5.9237580209617855,1.710041644008246,6702.416666666667,2415.6805725898193,697.3469144304408,111.70694444444445,40.26134287649699,11.62244857384068,1.8617824074074074,0.6710223812749498,0.19370747623067802,"Model:  expressions = 115584, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,70
+3,11,146,75,0.6606334841628959,237.0,352.0,0.6732954545454546,377.8407967224121,54493.0,11,13.272727272727273,5.330870643542368,1.6073179755045874,7344.272727272727,1932.4682709379263,582.6611067243601,122.40454545454546,32.207804515632105,9.711018445406003,2.0400757575757575,0.5367967419272017,0.16185030742343337,"Model:  expressions = 117568, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,71
+3,13,129,71,0.645,217.0,325.0,0.6676923076923077,369.2221576538086,53237.0,13,9.923076923076923,4.906824133482173,1.3609081548426256,5881.307692307692,2149.6126156672735,596.1952698594324,98.02179487179487,35.82687692778789,9.93658783099054,1.6336965811965811,0.5971146154631315,0.16560979718317567,"Model:  expressions = 113143, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,13.0,217.0,8.0,1,72
+3,13,137,55,0.7135416666666666,218.0,309.0,0.7055016181229773,396.85127746582043,57226.0,13,10.538461538461538,6.603223765901327,1.8314047593322813,6303.0,2328.3831299852695,645.7772895451711,105.05,38.80638549975449,10.762954825752852,1.7508333333333332,0.6467730916625749,0.1793825804292142,"Model:  expressions = 111520, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,12.0,218.0,7.0,1,73
+3,11,132,48,0.7333333333333333,209.0,286.0,0.7307692307692307,386.70792980957026,55752.0,11,12.0,4.669047011971501,1.407770642476317,7441.909090909091,2060.8240320097907,621.3618248294401,124.03181818181818,34.34706720016318,10.356030413824003,2.06719696969697,0.5724511200027197,0.1726005068970667,"Model:  expressions = 109082, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,74
+3,11,129,69,0.6515151515151515,209.0,318.0,0.6572327044025157,385.52761880493165,55588.0,11,11.727272727272727,6.813089007064404,2.054223627247969,7302.636363636364,2795.041762576269,842.7367999853732,121.71060606060607,46.58402937627115,14.045613333089554,2.028510101010101,0.7764004896045191,0.23409355555149255,"Model:  expressions = 112764, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,75
+3,11,124,56,0.6888888888888889,208.0,294.0,0.7074829931972789,385.8083446502685,55626.0,11,11.272727272727273,5.4238530417206015,1.6353532234013717,7142.636363636364,2673.8163838501428,806.1859730487103,119.0439393939394,44.563606397502376,13.436432884145171,1.9840656565656567,0.7427267732917063,0.22394054806908617,"Model:  expressions = 109125, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,76
+3,12,142,82,0.6339285714285714,226.0,356.0,0.6348314606741573,382.6304571533203,55172.0,12,11.833333333333334,8.310271118357456,2.398968633611225,6741.25,3222.460187355448,930.2441283112599,112.35416666666667,53.707669789257466,15.504068805187666,1.8725694444444445,0.8951278298209577,0.25840114675312775,"Model:  expressions = 118614, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,14.0,226.0,9.0,1,77
+3,15,132,66,0.6666666666666666,217.0,326.0,0.6656441717791411,405.3730505065918,58444.0,15,8.8,5.734606724590125,1.4806690894257744,5483.6,2021.140229813713,521.8561633612228,91.39333333333335,33.68567049689521,8.697602722687046,1.5232222222222223,0.5614278416149202,0.14496004537811744,"Model:  expressions = 112614, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,78
+3,12,140,90,0.6086956521739131,226.0,374.0,0.6042780748663101,376.461307434082,54291.0,12,11.666666666666666,5.416025603090641,1.5634719199411435,6624.25,2345.341189561669,677.0416835674735,110.40416666666667,39.089019826027815,11.28402805945789,1.8400694444444445,0.6514836637671303,0.18806713432429817,"Model:  expressions = 119896, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,79
+3,12,136,59,0.6974358974358974,221.0,325.0,0.68,387.8261146850586,55925.0,12,11.333333333333334,5.382350506024015,1.5537507567629418,6703.833333333333,2236.9217417665463,645.743684882521,111.73055555555555,37.28202902944244,10.762394748042018,1.8621759259259258,0.6213671504907073,0.1793732458007003,"Model:  expressions = 112171, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,80
+3,11,139,83,0.6261261261261262,225.0,362.0,0.6215469613259669,385.24347454833986,55551.0,11,12.636363636363637,6.9896026678592715,2.107444498450573,7324.636363636364,1908.823211967377,575.5318532015293,122.07727272727273,31.81372019945628,9.592197553358822,2.034621212121212,0.530228669990938,0.15986995922264705,"Model:  expressions = 118138, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,81
+3,13,140,59,0.7035175879396985,230.0,324.0,0.7098765432098766,392.2518296813965,56562.0,13,10.76923076923077,6.444039185607194,1.787254900369688,6395.461538461538,2253.237286490433,624.935582479123,106.59102564102564,37.55395477484055,10.415593041318717,1.776517094017094,0.6258992462473424,0.17359321735531194,"Model:  expressions = 112890, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,82
+3,12,141,60,0.7014925373134329,229.0,328.0,0.698170731707317,381.8123671188354,55053.0,12,11.75,6.047163121512584,1.7456656280194343,6702.75,2141.27570833158,618.1330533072222,111.7125,35.687928472193,10.30221755512037,1.861875,0.5947988078698834,0.17170362591867283,"Model:  expressions = 113268, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,83
+3,10,136,50,0.7311827956989247,214.0,295.0,0.7254237288135593,348.5579454193115,50269.0,10,13.6,7.73448267321236,2.4458581770458854,7594.2,3110.468553485507,983.6165219343472,126.57,51.84114255809178,16.393608698905787,2.1095,0.8640190426348631,0.27322681164842977,"Model:  expressions = 110187, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,84
+3,11,133,72,0.6487804878048781,223.0,342.0,0.652046783625731,376.5972193603515,54306.0,11,12.090909090909092,5.3189199177003115,1.6037146960872688,7147.272727272727,2267.7513572219104,683.7527608840265,119.12121212121211,37.795855953698506,11.395879348067108,1.9853535353535352,0.6299309325616418,0.18993132246778516,"Model:  expressions = 114271, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,85
+3,13,142,78,0.6454545454545455,236.0,366.0,0.644808743169399,372.3363536071777,53690.0,13,10.923076923076923,5.423122385697782,1.5041035257499964,6096.153846153846,2081.219107724839,577.2263237213323,101.6025641025641,34.68698512874732,9.620438728688871,1.6933760683760684,0.5781164188124552,0.16034064547814786,"Model:  expressions = 117422, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,15.0,236.0,10.0,1,86
+3,12,134,72,0.6504854368932039,228.0,346.0,0.6589595375722543,372.5873939208984,53723.0,12,11.166666666666666,5.288638479769341,1.5266984249707212,6486.916666666667,1882.174634846779,543.3370160453368,108.11527777777778,31.36957724744632,9.055616934088947,1.8019212962962963,0.5228262874574386,0.15092694890148245,"Model:  expressions = 114359, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,13.0,228.0,8.0,1,87
+3,11,142,60,0.7029702970297029,219.0,321.0,0.6822429906542056,370.9374324951172,53491.0,11,12.909090909090908,5.787133063176368,1.7448862711287385,7221.818181818182,1935.3899771457855,583.542034291553,120.36363636363636,32.256499619096424,9.725700571525884,2.0060606060606063,0.5376083269849404,0.1620950095254314,"Model:  expressions = 113505, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,13.0,219.0,8.0,1,88
+3,12,142,77,0.6484018264840182,230.0,355.0,0.647887323943662,376.69185546874996,54313.0,12,11.833333333333334,6.365151334819268,1.8374609182953052,6656.083333333333,2327.6432270483897,671.9327218568985,110.93472222222222,38.79405378413983,11.198878697614976,1.8489120370370369,0.6465675630689971,0.18664797829358293,"Model:  expressions = 117246, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,89
+3,11,137,51,0.7287234042553191,222.0,302.0,0.7350993377483444,379.33015894460675,54705.0,11,12.454545454545455,5.663278844691233,1.7075428191816575,7292.181818181818,1900.2957042619353,572.9607128873644,121.53636363636363,31.671595071032254,9.549345214789406,2.0256060606060604,0.5278599178505375,0.15915575357982342,"Model:  expressions = 110587, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,90
+3,13,136,80,0.6296296296296297,221.0,347.0,0.6368876080691642,387.32824533081055,55849.0,13,10.461538461538462,5.02685097941353,1.3941976123378352,6272.615384615385,2099.3121706272245,582.2444364924665,104.54358974358975,34.98853617712041,9.70407394154111,1.7423931623931623,0.5831422696186734,0.1617345656923518,"Model:  expressions = 116738, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,91
+3,13,140,63,0.6896551724137931,221.0,324.0,0.6820987654320988,368.6705286560059,53170.0,13,10.76923076923077,6.326582096649108,1.7546781652231411,6058.153846153846,2976.0471503364392,825.4069691335784,100.96923076923076,49.60078583894065,13.756782818892974,1.6828205128205127,0.8266797639823442,0.22927971364821623,"Model:  expressions = 113827, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,92
+3,11,146,65,0.6919431279620853,229.0,338.0,0.6775147928994083,386.1460017089844,55682.0,11,13.272727272727273,6.246453539263846,1.8833766054659726,7469.909090909091,2203.180812123483,664.2840090112807,124.49848484848485,36.71968020205805,11.07140015018801,2.0749747474747475,0.6119946700343009,0.18452333583646685,"Model:  expressions = 115461, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,93
+3,12,131,54,0.7081081081081081,209.0,292.0,0.7157534246575342,381.72304587554925,55032.0,12,10.916666666666666,5.434876152027642,1.5689136046927183,6612.083333333333,2427.3452561232907,700.7142185194715,110.20138888888889,40.45575426872151,11.678570308657859,1.8366898148148147,0.6742625711453585,0.19464283847763098,"Model:  expressions = 110022, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,94
+3,14,146,85,0.6320346320346321,233.0,368.0,0.6331521739130435,399.40334720611577,57594.0,14,10.428571428571429,5.8139657551621164,1.5538477081609336,6039.142857142857,1829.3545249682957,488.91556224113987,100.65238095238095,30.489242082804928,8.148592704018998,1.6775396825396824,0.5081540347134155,0.13580987840031664,"Model:  expressions = 120207, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,True,15.0,233.0,10.0,1,95
+3,11,143,71,0.6682242990654206,231.0,351.0,0.6581196581196581,350.2299607238769,50510.0,11,13.0,5.779273310719955,1.7425164665975572,6931.818181818182,2382.9668406497735,718.4915362085386,115.53030303030303,39.71611401082956,11.974858936808976,1.9255050505050506,0.661935233513826,0.19958098228014962,"Model:  expressions = 116123, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,96
+3,10,139,56,0.7128205128205128,215.0,304.0,0.7072368421052632,372.6969402389526,53743.0,10,13.9,8.116512661098842,2.566666666666667,7947.7,3004.346076011291,950.0576479585037,132.46166666666667,50.07243460018819,15.834294132641729,2.2076944444444444,0.8345405766698031,0.26390490221069546,"Model:  expressions = 112065, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,97
+3,11,128,67,0.6564102564102564,203.0,305.0,0.6655737704918033,384.75370428466795,55479.0,11,11.636363636363637,4.842989309769893,1.4602162185644558,7233.636363636364,1583.677572786031,477.49675434836536,120.56060606060606,26.39462621310052,7.958279239139423,2.0093434343434344,0.43991043688500864,0.13263798731899037,"Model:  expressions = 112013, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,98
+3,11,132,61,0.6839378238341969,217.0,310.0,0.7,364.9245773315429,52618.0,11,12.0,6.723094525588644,2.027089270133634,6952.272727272727,2403.3838682536375,724.6475016536609,115.87121212121211,40.056397804227295,12.077458360894349,1.9311868686868685,0.6676066300704548,0.20129097268157248,"Model:  expressions = 111676, decisions = 900, constraints = 901, objectives = 3
+Param:  time limit = 15 sec, no iteration limit, time between ticks = 1
+
+[objective directions]:     maximize |     minimize |     minimize
+",manhattan,"(10000.0, 10000.0)",32400,61200,True,False,True,True,each delivery in a trip requires trip departure from depot >= its ready_time,arrival,300,0.0,15,5.0,False,,,,1,99
