@@ -10,12 +10,6 @@ from .entities import ScenarioPlan
 
 
 class ICDPickupClassifier:
-    """Clasifica pickups revelados como accepted/postponed/undecided.
-
-    La clasificacion usa frecuencia de despacho en planes de escenarios, analogamente
-    al ICD de doble umbral: si aparece en muchos planes, se acepta/despacha; si aparece
-    en pocos, se posterga; si queda al medio, se mantiene undecided.
-    """
 
     def __init__(self, config: DynamicMSAConfig):
         self.config = config

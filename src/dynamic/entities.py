@@ -41,13 +41,6 @@ class ScenarioPlan:
         known_ids: set[str],
         profit_by_id: dict[str, float] | None = None,
     ) -> "ScenarioPlan":
-        """Proyecta el plan de escenario sobre pedidos ya conocidos.
-
-        MSA resuelve escenarios con pedidos conocidos + pedidos futuros sampleados.
-        Para tomar una decision real, se eliminan los clientes futuros. Si se entrega
-        profit_by_id, la utilidad proyectada se recalcula solo con clientes conocidos
-        para que el tie-breaker del consenso no quede contaminado por pedidos futuros.
-        """
         projected_trips: list[PlannedTrip] = []
         served: set[str] = set()
         projected_profit = 0.0
