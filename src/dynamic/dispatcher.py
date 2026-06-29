@@ -22,19 +22,6 @@ class DispatchResult:
 
 
 class MSADynamicDispatcher:
-    """Runner preliminar SDVRPTW con MSA + Hexaly.
-
-    Logica operacional de esta version:
-    1. Mantiene eventos reales de la replica por arrival time.
-    2. Cuando uno o mas camiones estan en depot, resuelve MSA con Hexaly.
-    3. Cada escenario = pedidos conocidos no servidos + pedidos futuros sampleados.
-    4. Hexaly resuelve rapido cada escenario; se proyecta a conocidos y se elige por consenso.
-    5. Se compromete solo el primer viaje de cada camion disponible.
-
-    usa deterministic_bound.py. La insercion en ruta de pickups dinamicos
-    queda aislada para una siguiente iteracion, porque requiere extender el solver o usar
-    heuristica de insercion sobre rutas parcialmente bloqueadas.
-    """
 
     def __init__(self, config: DynamicMSAConfig):
         config.validate()
@@ -52,8 +39,6 @@ class MSADynamicDispatcher:
         return OnlineState(now_sec=float(self.config.shift_start_sec), vehicles=vehicles)
 
     def _outsourcing_deadline(self, row: pd.Series) -> float:
-        # Regla: tercerizar 5 min + tau_0d antes del deadline.
-        # Para simplificar tau_0d se aproxima como Manhattan depot-cliente / velocidad.
         dx = abs(float(row["x"]) - self.config.depot_xy[0])
         dy = abs(float(row["y"]) - self.config.depot_xy[1])
         tau = (dx + dy) / self.config.vehicle_speed_m_per_s
@@ -139,7 +124,6 @@ class MSADynamicDispatcher:
                 state.postponed_ids.update(postponed)
                 self._commit_plan(state, selected)
 
-            # Avanzar al proximo evento: llegada de request o retorno de camion.
             future_arrivals = all_requests.loc[all_requests["arrivals"] > state.now_sec, "arrivals"].tolist()
             next_arrival = min(future_arrivals) if future_arrivals else math.inf
             next_vehicle_time = state.next_vehicle_available_time()
@@ -150,12 +134,10 @@ class MSADynamicDispatcher:
                 break
             state.now_sec = float(next_time)
 
-            # Marcar disponibles los camiones que ya volvieron.
             for v in state.vehicles.values():
                 if v.available_time <= state.now_sec and v.status != "done":
                     v.status = "at_depot"
 
-            # Cierre: si no quedan pedidos futuros ni conocidos y todos estan en depot, avanzar al proximo arrival o terminar.
             if state.now_sec >= self.config.shift_end_sec:
                 break
 

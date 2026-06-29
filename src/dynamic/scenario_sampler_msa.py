@@ -24,12 +24,6 @@ def dinamic_lookahead(now_sec: float, lookahead_sec_0: int) -> float:
     return lookahead
 
 class FutureScenarioSampler:
-    """Samplea escenarios futuros para MSA usando ricas_replica_creator.replica().
-
-    Esta version preliminar genera replicas completas y luego filtra la ventana
-    (now, now + lookahead). Es simple y compatible con tu codigo actual.
-    Luego se puede optimizar para simular directamente desde now.
-    """
 
     def __init__(self, config: DynamicMSAConfig):
         self.config = config

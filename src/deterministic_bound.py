@@ -1,44 +1,3 @@
-"""
-
-Modelo Hexaly para el problema RICAS tipo Prize-Collecting VRPTW multi-trip.
-
-Ajustes principales respecto de la version inicial:
-- Distancia Manhattan por defecto.
-- 3 camiones por defecto.
-- Depot en (0, 0) por defecto.
-- Jornada de camiones 09:00-17:00, en segundos absolutos del dia.
-- Servicio constante de 3 minutos por cliente, salvo que el escenario indique otro valor.
-- indicador=False / "False" => delivery, recompensa 2.
-- indicador=True / "True"   => pickup, recompensa 1.
-- Deliveries deben cargarse en depot: cada camion puede hacer varios viajes depot->clientes->depot.
-  Para TODO delivery dentro de un viaje, el ultimo paso por depot antes de atenderlo es la salida
-  de ese viaje. Por lo tanto, el viaje no puede salir del depot antes del ready_time de ningun
-  delivery contenido en el viaje. Si hay varios deliveries en el mismo viaje, el viaje sale despues
-  del maximo ready_time de esos deliveries. Pickups no fuerzan una recarga en depot.
-- Pickups no tienen deadline propia: por defecto se pueden atender hasta fin de jornada. Por defecto
-  se respeta su ready_time/arrival como release time; esto se puede cambiar con pickup_ready_policy.
-
-Uso tipico:
-
-    from deterministic_bound import VRPTWConfig, solve_vrptw_hexaly
-
-    cfg = VRPTWConfig(
-        nb_vehicles=3,
-        max_trips_per_vehicle=100,
-        depot_xy=(10000, 10000),
-        shift_start_sec=9*3600,
-        shift_end_sec=17*3600,
-        vehicle_speed_m_per_s=25000/3600,
-        time_limit_sec=60,
-    )
-
-    sol = solve_vrptw_hexaly(escenario, cfg)
-    print(sol.summary_as_dict())
-    print(sol.routes_as_dataframe())
-
-Nota: requiere Hexaly instalado y PYTHONPATH apuntando al Python API de Hexaly.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -55,40 +14,8 @@ Number = Union[int, float, np.integer, np.floating]
 Point = Tuple[float, float]
 
 
-# ---------------------------------------------------------------------------
-# Dataclasses de entrada/salida
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class VRPTWConfig:
-    """Parametros del modelo RICAS.
-
-    nb_vehicles:
-        Numero de camiones fisicos.
-
-    max_trips_per_vehicle:
-        Numero maximo de viajes depot->clientes->depot que puede hacer cada camion.
-        Es una cota de modelamiento. Si queda muy baja, puedes cortar soluciones buenas.
-
-    delivery_must_be_loaded_at_depot:
-        Si True, todo delivery en un viaje exige que la salida de ese viaje desde depot sea
-        posterior al ready_time del delivery. Es decir, para un delivery j servido en el viaje
-        r, se impone departure_time_r >= ready_time_j. Como cada viaje parte desde depot,
-        esto garantiza que el camion paso por depot despues de que el paquete estuviera listo
-        y lo pudo cargar antes de visitar al cliente. Pickups no imponen esta restriccion.
-
-    pickup_ready_policy:
-        "arrival": un pickup no se puede servir antes de su ready_time/arrival.
-        "shift_start": los pickups quedan disponibles desde las 09:00.
-        Para una simulacion online, normalmente conviene "arrival" si el escenario incluye pedidos
-        futuros; si el escenario contiene solo pedidos revelados, puede usarse "shift_start".
-
-    deadline_is_latest_start:
-        True interpreta deadline como ultimo inicio de servicio. Entonces la restriccion interna
-        usa service_end <= deadline + service_time. Esto calza con la frase "puede ser atendida
-        hasta deadline_time" si atender = iniciar servicio.
-    """
 
     nb_vehicles: int = 3
     max_trips_per_vehicle: int = 10
@@ -97,7 +24,7 @@ class VRPTWConfig:
     shift_end_sec: float = 17 * 3600
     vehicle_speed_m_per_s: float = 8.33
     service_time_default: float = 180.0
-    distance_metric: str = "manhattan"  # "manhattan" o "euclidean"
+    distance_metric: str = "manhattan"  
     require_all_customers: bool = False
     hard_time_windows: bool = True
     deadline_is_latest_start: bool = True
@@ -105,9 +32,6 @@ class VRPTWConfig:
     pickup_ready_policy: str = "arrival"  # "arrival" o "shift_start"
     force_service_time_default: bool = True
     time_limit_sec: int = 60
-    # Detencion temprana: si el primer objetivo no mejora durante este numero
-    # de segundos, Hexaly se detiene limpiamente y conserva la mejor solucion.
-    # Usa None para desactivar esta condicion.
     no_improvement_time_sec: Optional[float] = 5.0
     objective_improvement_tolerance: float = 1e-9
     round_travel_time_to_int: bool = True
@@ -142,10 +66,6 @@ class VRPTWConfig:
 
 @dataclass
 class VRPTWScenario:
-    """Escenario normalizado que recibe el optimizador.
-
-    Internamente los clientes usan indices 0..n-1. ids conserva el id original.
-    """
 
     x: List[float]
     y: List[float]
@@ -327,10 +247,7 @@ class VRPTWSolution:
         return pd.DataFrame(rows)
 
     def summary_as_dict(self) -> Dict[str, Any]:
-        # Métricas agregadas por tour/viaje.
-        # Un tour corresponde a un RouteResult no vacío: depot -> clientes -> depot.
-        # route_duration_sec incluye esperas, servicio y traslado desde salida del depot
-        # hasta retorno al depot. total_travel_time_sec considera solo tiempo de viaje.
+
         nb_tours = len(self.routes)
         customers_per_tour = [len(route.stops) for route in self.routes]
         tour_durations_sec = [
@@ -345,9 +262,6 @@ class VRPTWSolution:
             float(np.mean(tour_durations_sec)) if tour_durations_sec else 0.0
         )
 
-        # Desviacion estandar muestral y error estandar.
-        # Estos campos permiten construir intervalos de confianza por replica
-        # sobre la distribucion de tours de esa replica.
         std_customers_per_tour = (
             float(np.std(customers_per_tour, ddof=1)) if len(customers_per_tour) >= 2 else 0.0
         )
@@ -434,11 +348,6 @@ class VRPTWSolution:
     ) -> None:
         df = self.camion_positions_as_dataframe(include_depot=include_depot)
         df.to_csv(filepath, index=False)
-
-
-# ---------------------------------------------------------------------------
-# Carga y normalizacion de datos
-# ---------------------------------------------------------------------------
 
 
 def load_scenario_from_pickle(
@@ -693,11 +602,6 @@ def scenario_from_instance_data_like(
     )
 
 
-# ---------------------------------------------------------------------------
-# Solver Hexaly
-# ---------------------------------------------------------------------------
-
-
 class RicasHexalyVRPTW:
     def __init__(self, config: Optional[VRPTWConfig] = None):
         self.config = config or VRPTWConfig()
@@ -809,20 +713,7 @@ def solve_vrptw_hexaly(
                     else return_time_exprs_for_vehicle[t - 1]
                 )
 
-                # Si hay deliveries en el viaje, el camion sale del depot no antes del max ready_time
-                # de esos deliveries; asi se modela que los paquetes se cargan en depot al iniciar viaje.
                 if config.delivery_must_be_loaded_at_depot:
-                    # Regla operacional estricta para deliveries:
-                    # Si un delivery j esta en este viaje, el camion debe salir del depot
-                    # en este viaje despues de ready[j]. Como el viaje empieza en depot,
-                    # esta salida es el ultimo paso por depot antes de visitar a j.
-                    #
-                    # En forma compacta:
-                    #     departure_time >= ready[j]   para todo delivery j en seq
-                    #
-                    # Por eso el viaje sale no antes del max ready_time de todos los
-                    # deliveries incluidos. Los pickups tienen coeficiente 0 y no fuerzan
-                    # recarga ni espera en depot.
                     delivery_ready_lambda = model.lambda_function(lambda j: delivery[j] * ready[j])
                     max_delivery_ready = model.max(seq, delivery_ready_lambda)
                     departure_time = model.iif(
@@ -831,10 +722,6 @@ def solve_vrptw_hexaly(
                         available_at_depot,
                     )
 
-                    # Restriccion explicita de carga: evita que el modelo pueda servir un
-                    # delivery cuya orden no fue cargada en depot en la salida de este viaje.
-                    # Es redundante con departure_time=max(...), pero deja la factibilidad
-                    # totalmente expresada y permite penalizarla si las TW fueran suaves.
                     delivery_load_late_lambda = model.lambda_function(
                         lambda i: delivery[seq[i]] * model.max(0, ready[seq[i]] - departure_time)
                     )
@@ -906,8 +793,7 @@ def solve_vrptw_hexaly(
                 )
                 lateness_exprs.append(route_lateness)
 
-                # Restriccion extra de consistencia: si hay pickups y se quiere respetar arrival/ready,
-                # el max(ready, arrival) ya queda en el end_time. original_ready queda disponible para debug.
+        
                 _ = original_ready
                 _ = pickup
 
@@ -988,8 +874,7 @@ def solve_vrptw_hexaly(
                 nonlocal no_improvement_best_value
                 nonlocal no_improvement_last_improvement_time_sec
 
-                # El callback se ejecuta con el optimizador pausado. Solo iniciamos
-                # el reloj de estancamiento cuando ya existe una solucion factible.
+
                 status = opt.solution.status
                 status_name = getattr(
                     status,
@@ -1047,12 +932,9 @@ def solve_vrptw_hexaly(
                         f"Mejor valor={best_primary_value}."
                     )
 
-                    # solve() retorna normalmente; la mejor solucion y las
-                    # estadisticas permanecen disponibles.
                     opt.stop()
 
-            # Hexaly acepta intervalos enteros para TIME_TICKED. Revisar cada
-            # segundo permite detectar una ventana de estancamiento de 5 s.
+
             optimizer.param.time_between_ticks = 1
             optimizer.add_callback(
                 hexaly.optimizer.HxCallbackType.TIME_TICKED,
@@ -1105,10 +987,6 @@ def solve_vrptw_hexaly(
     )
     return solution
 
-
-# ---------------------------------------------------------------------------
-# Evaluacion post-solve en Python
-# ---------------------------------------------------------------------------
 
 
 def _build_solution_from_trip_sequences(
@@ -1334,10 +1212,6 @@ def _evaluate_trip_route(
         n_delivery_load_violations=len(delivery_load_violations),
     )
 
-
-# ---------------------------------------------------------------------------
-# Helpers de tiempos, matrices y tipos de pedido
-# ---------------------------------------------------------------------------
 
 
 def _compute_effective_time_windows(

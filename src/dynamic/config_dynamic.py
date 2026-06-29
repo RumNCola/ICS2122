@@ -9,23 +9,10 @@ ConsensusMode = Literal["van_hentenryck", "exact_next_stop", "served_set"]
 
 @dataclass(slots=True)
 class DynamicMSAConfig:
-    """Configuracion para SDVRPTW + MSA + Hexaly.
-
-    Los tiempos estan en segundos absolutos del dia.
-    Esta configuracion sigue el caso RICAS del informe:
-    - solicitudes aparecen desde 08:45,
-    - camiones operan desde 09:00 hasta 17:00,
-    - deliveries aparecen hasta 15:30,
-    - pickups aparecen hasta 15:45.
-
-    Si tu version final usa 08:30 como inicio operacional, cambia
-    shift_start_sec y arrivals_start_sec desde el main.
-    """
-
     instancia: int = 1
-    nb_vehicles: int = 3
+    nb_vehicles: int = 8
     depot_xy: tuple[float, float] = (10_000.0, 10_000.0)
-    vehicle_speed_m_per_s: float = 25_000 / 3600 * 1.75
+    vehicle_speed_m_per_s: float = 25_000 / 3600
     distance_metric: DistanceMetric = "manhattan"
 
     arrivals_start_sec: int = 8 * 3600 + 45 * 60
@@ -43,14 +30,8 @@ class DynamicMSAConfig:
     n_scenarios: int = 25
     lookahead_sec: int = 2 * 3600
     scenario_time_limit_sec: int = 15
-    # Consenso MSA. Por defecto se usa la funcion original de Bent & Van Hentenryck.
-    # consensus_threshold NO se usa en modo van_hentenryck; queda solo para comparar
-    # contra modos legacy basados en coincidencia exacta.
     consensus_mode: ConsensusMode = "van_hentenryck"
     consensus_threshold: float | None = None
-
-    # Se ejecuta MSA cuando un camion llega o va de regreso al depot.
-    # En codigo preliminar se usa como gracia para planificar al regreso.
     replan_grace_sec: int = 5 * 60
 
     # Hexaly deterministic adapter

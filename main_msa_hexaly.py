@@ -685,8 +685,8 @@ if __name__ == "__main__":
     mp.freeze_support()
 
     EXPERIMENTS = build_experiment_grid(
-        instancias=[1],
-        replicas=[1,3,5],
+        instancias=[1,2,3,4],
+        replicas=[1,3],
         n_scenarios_values=[20],
         lookahead_min_values=[160],
         scenario_time_limit_values=[8.0],

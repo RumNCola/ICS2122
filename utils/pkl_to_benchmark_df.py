@@ -1,52 +1,3 @@
-"""
-pkl_to_benchmark_df.py
-
-Convierte los archivos .pkl del problema RICAS a DataFrames con el mismo
-formato que usa el benchmark/sampler:
-
-    replica, arrivals, deadlines, indicador, x, y,
-    profits, ready_times, service_times
-
-Uso desde Python:
-
-    from pkl_to_benchmark_df import load_all_instance_dataframes
-
-    dfs = load_all_instance_dataframes(base_dir="data")
-    df_1 = dfs[1]
-    df_2 = dfs[2]
-    df_3 = dfs[3]
-    df_4 = dfs[4]
-
-Uso desde consola:
-
-    python pkl_to_benchmark_df.py --base-dir data --out-dir processed_data --save-csv
-
-Estructura esperada:
-
-    data/
-      Instancia Tipo I/
-        scen_arrivals_sample.pkl
-        scen_deadlines_sample.pkl
-        scen_indicador_sample.pkl
-        scen_points_sample.pkl
-        scen_profits_sample.pkl
-        scen_ready_times_sample.pkl
-        scen_service_times_sample.pkl
-      Instancia Tipo II/
-        ...
-      Instancia Tipo III/
-        ...
-      Instancia Tipo IV/
-        ...
-
-Notas:
-- Los .pkl suelen traer el depot como primer nodo de cada réplica. Por defecto se elimina.
-- Por defecto se recalculan los profits desde indicador:
-      indicador False / "False" -> delivery -> profit 2
-      indicador True  / "True"  -> pickup   -> profit 1
-  Puedes cambiarlo con pickup_profit y delivery_profit.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -248,11 +199,6 @@ def pkl_folder_to_dataframe(
     return df
 
 
-# -----------------------------------------------------------------------------
-# Carga de archivos
-# -----------------------------------------------------------------------------
-
-
 def load_raw_pkl_fields(folder: Union[str, Path]) -> Dict[str, Any]:
     """
     Carga los 7 archivos .pkl de una carpeta.
@@ -331,11 +277,6 @@ def validate_raw_fields(raw: Dict[str, Any], *, folder: Union[str, Path]) -> Non
         raise ValueError(
             f"Los campos no tienen la misma cantidad de replicas en {folder}: {replica_counts}"
         )
-
-
-# -----------------------------------------------------------------------------
-# Helpers
-# -----------------------------------------------------------------------------
 
 
 def parse_instance_id(value: Union[int, str]) -> int:
@@ -451,10 +392,6 @@ def save_dataframes(
             df.to_pickle(pkl_path)
             print(f"PKL guardado: {pkl_path} | filas={len(df):,}")
 
-
-# -----------------------------------------------------------------------------
-# CLI
-# -----------------------------------------------------------------------------
 
 
 def _parse_args() -> argparse.Namespace:

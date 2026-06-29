@@ -8,24 +8,6 @@ from .entities import ScenarioPlan
 
 
 class ConsensusSelector:
-    """Selecciona el plan distinguido de MSA.
-
-    Modo por defecto: funcion de consenso de Bent & Van Hentenryck.
-
-    Notacion implementada:
-        S_t              = pool de planes de escenarios factibles.
-        a_v(pi)          = proximo cliente que el plan pi asigna al vehiculo v.
-        M_t[v, r]        = #{pi in S_t : a_v(pi) = r}.
-        f_t(pi)          = sum_{v in A_t} M_t[v, a_v(pi)].
-        pi*_t            = argmax_{pi in S_t} f_t(pi).
-
-    A_t es el conjunto de vehiculos sobre los que se esta decidiendo en este replan.
-    En este codigo corresponde a los camiones disponibles en depot que fueron enviados
-    al solver de escenarios.
-
-    Importante: no se usa threshold en la funcion de Van Hentenryck. El threshold queda
-    reservado para ICD o para modos legacy si se decide activarlos.
-    """
 
     WAIT_TOKEN = "WAIT"
 
@@ -44,11 +26,6 @@ class ConsensusSelector:
         plan: ScenarioPlan,
         vehicle_ids: list[int] | None = None,
     ) -> dict[int, str]:
-        """Retorna a_v(pi): proximo cliente de cada vehiculo.
-
-        Si un vehiculo no tiene viaje en el plan, se codifica como WAIT. Esto permite
-        que esperar/no despachar tambien sea una accion consensuable cuando corresponde.
-        """
         if vehicle_ids is None:
             vehicle_ids = self._vehicle_ids_from_plans([plan])
 
@@ -70,7 +47,6 @@ class ConsensusSelector:
         plans: list[ScenarioPlan],
         vehicle_ids: list[int],
     ) -> dict[int, Counter[str]]:
-        """Construye M_t[v, r] = numero de planes que mandan v a r."""
         matrix: dict[int, Counter[str]] = {int(v): Counter() for v in vehicle_ids}
 
         for plan in plans:
@@ -89,11 +65,6 @@ class ConsensusSelector:
         """Implementa f_t(pi) = sum_v M_t[v, a_v(pi)]."""
         nexts = self.next_customer_by_vehicle(plan, vehicle_ids)
         return int(sum(vote_matrix[int(v)][nexts[int(v)]] for v in vehicle_ids))
-
-    # ------------------------------------------------------------------
-    # Modos legacy: se dejan para comparar, pero NO son la definicion
-    # original de Van Hentenryck.
-    # ------------------------------------------------------------------
 
     def _signature_exact_next_stop(
         self,
@@ -147,20 +118,11 @@ class ConsensusSelector:
                 best = max(plans, key=lambda p: (p.total_profit, -p.total_distance_km))
         return best
 
-    # ------------------------------------------------------------------
-    # Selector publico
-    # ------------------------------------------------------------------
-
     def select(
         self,
         plans: list[ScenarioPlan],
         vehicle_ids: list[int] | None = None,
     ) -> ScenarioPlan | None:
-        """Selecciona el plan distinguido.
-
-        En modo van_hentenryck, no se aplica consensus_threshold. Se maximiza
-        directamente la suma de votos marginales por vehiculo.
-        """
         feasible = [p for p in plans if p.trips]
         if not feasible:
             return None
@@ -176,8 +138,6 @@ class ConsensusSelector:
         if self.config.consensus_mode == "served_set":
             return self._select_legacy_served_set(feasible)
 
-        # Funcion de consenso original de Van Hentenryck:
-        # pi* = argmax_pi sum_v M[v, a_v(pi)].
         vote_matrix = self.build_vote_matrix(feasible, vehicle_ids)
 
         def score(plan: ScenarioPlan) -> tuple[int, float, float]:
